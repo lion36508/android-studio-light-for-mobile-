@@ -1,0 +1,1416 @@
+:root {
+  --scrollbar-thumb-bg: rgba(128, 128, 128, 0.6);
+  --scrollbar-thumb-border: 1px solid #bbb;
+  --scrollbar-thumb-radius: 2px;
+  --scrollbar-thumb-z-index: 8;
+  --scrollbar-z-index: 6;
+  --scrollbar-grabbed-bg: #000;
+  --scrollbar-grabbed-z-index: 8;
+  --editor-radius: 3px;
+  --editor-font: 16px/1.5 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'Source Code Pro', 'source-code-pro', monospace;
+  --editor-direction: ltr;
+  --editor-text-align: left;
+  --editor-tap-highlight: rgba(0, 0, 0, 0);
+  --editor-dragging-bg: rgba(250, 250, 250, 0.01);
+  --editor-dragging-dark-bg: rgba(0, 0, 0, 0.01);
+  --editor-dragging-z-index: 1000;
+  --editor-gutter-z-index: 4;
+  --editor-gutter-active-line-z-index: 4;
+  --editor-scroll-left-shadow: 17px 0 16px -16px rgba(0, 0, 0, 0.4) inset;
+  --editor-gutter-cell-padding-left: 19px;
+  --editor-gutter-cell-padding-right: 6px;
+  --editor-gutter-cell-annotation-margin-left: -14px;
+  --editor-gutter-cell-annotation-float: left;
+  --editor-gutter-cell-error-bg: url("./main-1.png");
+  --editor-gutter-cell-warning-bg: url("./main-2.png");
+  --editor-gutter-cell-info-bg: url("./main-3.png");
+  --editor-gutter-cell-info-dark-bg: url("./main-4.png");
+  --editor-icon-error-bg: url("./main-5.svg");
+  --editor-icon-warning-bg: url("./main-6.svg");
+  --editor-icon-info-bg: url("./main-7.svg");
+  --editor-icon-error-fold-bg: url("./main-8.svg");
+  --editor-icon-warning-fold-bg: url("./main-9.svg");
+  --editor-icon-svg-color-error: crimson;
+  --editor-icon-svg-color-warning: darkorange;
+  --editor-icon-svg-color-info: royalblue;
+  --editor-scrollbar-z-index: 6;
+  --editor-scrollbar-inner-cursor: text;
+  --editor-scrollbar-v-overflow-x: hidden;
+  --editor-scrollbar-v-overflow-y: scroll;
+  --editor-scrollbar-h-overflow-x: scroll;
+  --editor-scrollbar-h-overflow-y: hidden;
+  --editor-print-margin-height: 100%;
+  --editor-text-input-opacity: 0;
+  --editor-text-input-bg: transparent;
+  --editor-text-input-appearance: none;
+  --editor-text-input-border: none;
+  --editor-text-input-resize: none;
+  --editor-text-input-outline: none;
+  --editor-text-input-overflow: hidden;
+  --editor-text-input-font: inherit;
+  --editor-text-input-padding: 0 1px;
+  --editor-text-input-margin: 0 -1px;
+  --editor-text-input-contain: strict;
+  --editor-text-input-user-select: text;
+  --editor-text-input-white-space: pre;
+  --editor-text-input-composition-bg: transparent;
+  --editor-text-input-composition-color: inherit;
+  --editor-text-input-composition-z-index: 1000;
+  --editor-text-input-composition-opacity: 1;
+  --editor-composition-placeholder-color: transparent;
+  --editor-composition-marker-border: 1px solid;
+  --editor-composition-marker-position: absolute;
+  --editor-composition-marker-border-radius: 0;
+  --editor-composition-marker-margin-top: 1px;
+  --editor-nocontext-transform: none;
+  --editor-nocontext-filter: none;
+  --editor-nocontext-clip-path: none;
+  --editor-nocontext-mask: none;
+  --editor-nocontext-contain: none;
+  --editor-nocontext-perspective: none;
+  --editor-nocontext-mix-blend-mode: initial;
+  --editor-nocontext-z-index: auto;
+  --editor-layer-z-index: 1;
+  --editor-layer-position: absolute;
+  --editor-layer-overflow: hidden;
+  --editor-layer-word-wrap: normal;
+  --editor-layer-white-space: pre;
+  --editor-layer-height: 100%;
+  --editor-layer-width: 100%;
+  --editor-layer-box-sizing: border-box;
+  --editor-layer-pointer-events: none;
+  --editor-gutter-layer-position: relative;
+  --editor-gutter-layer-width: auto;
+  --editor-gutter-layer-text-align: right;
+  --editor-gutter-layer-pointer-events: auto;
+  --editor-gutter-layer-height: 1000000px;
+  --editor-gutter-layer-contain: style size layout;
+  --editor-text-layer-font: inherit;
+  --editor-text-layer-position: absolute;
+  --editor-text-layer-height: 1000000px;
+  --editor-text-layer-width: 1000000px;
+  --editor-text-layer-contain: style size layout;
+  --editor-text-layer-line-position: absolute;
+  --editor-text-layer-line-top: 0;
+  --editor-text-layer-line-left: 0;
+  --editor-text-layer-line-right: 0;
+  --editor-text-layer-line-contain: style size layout;
+  --editor-hidpi-contain: strict;
+  --editor-cjk-display: inline-block;
+  --editor-cjk-text-align: center;
+  --editor-cursor-layer-z-index: 4;
+  --editor-cursor-z-index: 4;
+  --editor-cursor-position: absolute;
+  --editor-cursor-box-sizing: border-box;
+  --editor-cursor-border-left: 2px solid;
+  --editor-cursor-transform: translatez(0);
+  --editor-multiselect-cursor-border-left-width: 1px;
+  --editor-slim-cursors-cursor-border-left-width: 1px;
+  --editor-overwrite-cursors-cursor-border-left-width: 0;
+  --editor-overwrite-cursors-cursor-border-bottom: 1px solid;
+  --editor-hidden-cursors-cursor-opacity: 0.2;
+  --editor-hasPlaceholder-hidden-cursors-cursor-opacity: 0;
+  --editor-smooth-blinking-cursor-transition: opacity 0.18s;
+  --editor-animate-blinking-cursor-animation-duration: 1000ms;
+  --editor-animate-blinking-cursor-animation-timing-function: step-end;
+  --editor-animate-blinking-cursor-animation-name: blink-ace-animate;
+  --editor-animate-blinking-cursor-animation-iteration-count: infinite;
+  --editor-animate-blinking-smooth-blinking-cursor-animation-timing-function: ease-in-out;
+  --editor-animate-blinking-smooth-blinking-cursor-animation-name: blink-ace-animate-smooth;
+  --editor-marker-layer-step-z-index: 3;
+  --editor-marker-layer-selection-z-index: 5;
+  --editor-marker-layer-bracket-z-index: 6;
+  --editor-marker-layer-error-bracket-border-bottom: 1px solid #DE5555;
+  --editor-marker-layer-error-bracket-border-radius: 0;
+  --editor-marker-layer-active-line-z-index: 2;
+  --editor-marker-layer-selected-word-z-index: 4;
+  --editor-marker-layer-selected-word-box-sizing: border-box;
+  --editor-fold-box-sizing: border-box;
+  --editor-fold-display: inline-block;
+  --editor-fold-height: 11px;
+  --editor-fold-margin-top: -2px;
+  --editor-fold-vertical-align: middle;
+  --editor-fold-bg-image: url("./main-10.png"), url("./main-11.png");
+  --editor-fold-bg-repeat: no-repeat, repeat-x;
+  --editor-fold-bg-position: center center, top left;
+  --editor-fold-color: transparent;
+  --editor-fold-border: 1px solid black;
+  --editor-fold-border-radius: 2px;
+  --editor-fold-cursor: pointer;
+  --editor-fold-pointer-events: auto;
+  --editor-fold-hover-bg-image: url("./main-12.png"), url("./main-13.png");
+  --editor-tooltip-bg-color: #f5f5f5;
+  --editor-tooltip-border: 1px solid gray;
+  --editor-tooltip-border-radius: 1px;
+  --editor-tooltip-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --editor-tooltip-color: black;
+  --editor-tooltip-max-width: 100%;
+  --editor-tooltip-padding: 3px 4px;
+  --editor-tooltip-position: fixed;
+  --editor-tooltip-z-index: 999999;
+  --editor-tooltip-box-sizing: border-box;
+  --editor-tooltip-cursor: default;
+  --editor-tooltip-white-space: pre-wrap;
+  --editor-tooltip-word-wrap: break-word;
+  --editor-tooltip-line-height: normal;
+  --editor-tooltip-font-style: normal;
+  --editor-tooltip-font-weight: normal;
+  --editor-tooltip-letter-spacing: normal;
+  --editor-tooltip-pointer-events: none;
+  --editor-tooltip-overflow: auto;
+  --editor-tooltip-max-width-min: min(60em, 66vw);
+  --editor-tooltip-pre-white-space: pre-wrap;
+  --editor-tooltip-dark-bg-color: #636363;
+  --editor-tooltip-dark-color: #fff;
+  --editor-tooltip-focus-outline: 1px solid #5E9ED6;
+  --editor-icon-display: inline-block;
+  --editor-icon-width: 18px;
+  --editor-icon-vertical-align: top;
+  --editor-icon-svg-display: inline-block;
+  --editor-icon-svg-width: 12px;
+  --editor-icon-svg-mask-repeat: no-repeat;
+  --editor-icon-svg-mask-size: 12px;
+  --editor-icon-svg-mask-position: center;
+  --editor-folding-enabled-gutter-cell-padding-right: 13px;
+  --editor-fold-widget-box-sizing: border-box;
+  --editor-fold-widget-margin: 0 -12px 0 1px;
+  --editor-fold-widget-display: none;
+  --editor-fold-widget-width: 11px;
+  --editor-fold-widget-vertical-align: top;
+  --editor-fold-widget-bg-image: url("./main-14.png");
+  --editor-fold-widget-bg-repeat: no-repeat;
+  --editor-fold-widget-bg-position: center;
+  --editor-fold-widget-border-radius: 3px;
+  --editor-fold-widget-border: 1px solid transparent;
+  --editor-fold-widget-cursor: pointer;
+  --editor-folding-enabled-fold-widget-display: inline-block;
+  --editor-fold-widget-end-bg-image: url("./main-15.png");
+  --editor-fold-widget-closed-bg-image: url("./main-16.png");
+  --editor-fold-widget-hover-border: 1px solid rgba(0, 0, 0, 0.3);
+  --editor-fold-widget-hover-bg-color: rgba(255, 255, 255, 0.2);
+  --editor-fold-widget-hover-box-shadow: 0 1px 1px rgba(255, 255, 255, 0.7);
+  --editor-fold-widget-active-border: 1px solid rgba(0, 0, 0, 0.4);
+  --editor-fold-widget-active-bg-color: rgba(0, 0, 0, 0.05);
+  --editor-fold-widget-active-box-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);
+  --editor-dark-fold-widget-bg-image: url("./main-17.png");
+  --editor-dark-fold-widget-end-bg-image: url("./main-18.png");
+  --editor-dark-fold-widget-closed-bg-image: url("./main-19.png");
+  --editor-dark-fold-widget-hover-box-shadow: 0 1px 1px rgba(255, 255, 255, 0.2);
+  --editor-dark-fold-widget-hover-bg-color: rgba(255, 255, 255, 0.1);
+  --editor-dark-fold-widget-active-box-shadow: 0 1px 1px rgba(255, 255, 255, 0.2);
+  --editor-inline-button-border: 1px solid lightgray;
+  --editor-inline-button-display: inline-block;
+  --editor-inline-button-margin: -1px 8px;
+  --editor-inline-button-padding: 0 5px;
+  --editor-inline-button-pointer-events: auto;
+  --editor-inline-button-cursor: pointer;
+  --editor-inline-button-hover-border-color: gray;
+  --editor-inline-button-hover-bg-color: rgba(200,200,200,0.2);
+  --editor-inline-button-hover-display: inline-block;
+  --editor-inline-button-hover-pointer-events: auto;
+  --editor-fold-widget-invalid-bg-color: #FFB4B4;
+  --editor-fold-widget-invalid-border-color: #DE5555;
+  --editor-fade-fold-widgets-fold-widget-transition: opacity 0.4s ease 0.05s;
+  --editor-fade-fold-widgets-fold-widget-opacity: 0;
+  --editor-fade-fold-widgets-hover-fold-widget-transition: opacity 0.05s ease 0.05s;
+  --editor-fade-fold-widgets-hover-fold-widget-opacity: 1;
+  --editor-underline-text-decoration: underline;
+  --editor-bold-font-weight: bold;
+  --editor-nobold-bold-font-weight: normal;
+  --editor-italic-font-style: italic;
+  --editor-error-marker-bg-color: rgba(255, 0, 0,0.2);
+  --editor-error-marker-position: absolute;
+  --editor-error-marker-z-index: 9;
+  --editor-highlight-marker-bg-color: rgba(255, 255, 0,0.2);
+  --editor-highlight-marker-position: absolute;
+  --editor-highlight-marker-z-index: 8;
+  --editor-mobile-menu-position: absolute;
+  --editor-mobile-menu-line-height: 1.5;
+  --editor-mobile-menu-border-radius: 4px;
+  --editor-mobile-menu-user-select: none;
+  --editor-mobile-menu-bg-color: white;
+  --editor-mobile-menu-box-shadow: 1px 3px 2px grey;
+  --editor-mobile-menu-border: 1px solid #dcdcdc;
+  --editor-mobile-menu-color: black;
+  --editor-dark-mobile-menu-bg-color: #333;
+  --editor-dark-mobile-menu-color: #ccc;
+  --editor-dark-mobile-menu-box-shadow: 1px 3px 2px grey;
+  --editor-dark-mobile-menu-border: 1px solid #444;
+  --editor-mobile-button-padding: 2px;
+  --editor-mobile-button-cursor: pointer;
+  --editor-mobile-button-overflow: hidden;
+  --editor-mobile-button-hover-bg-color: #eee;
+  --editor-mobile-button-hover-opacity: 1;
+  --editor-mobile-button-active-bg-color: #ddd;
+  --editor-placeholder-font-family: arial;
+  --editor-placeholder-transform: scale(0.9);
+  --editor-placeholder-transform-origin: left;
+  --editor-placeholder-white-space: pre;
+  --editor-placeholder-opacity: 0.7;
+  --editor-placeholder-margin: 0 10px;
+  --editor-ghost-text-opacity: 0.5;
+  --editor-ghost-text-font-style: italic;
+  --editor-ghost-text-white-space: pre;
+  --editor-screenreader-only-position: absolute;
+  --editor-screenreader-only-left: -10000px;
+  --editor-screenreader-only-top: auto;
+  --editor-screenreader-only-width: 1px;
+  --editor-screenreader-only-height: 1px;
+  --editor-screenreader-only-overflow: hidden;
+  --editor-tm-gutter-bg-color: #f0f0f0;
+  --editor-tm-gutter-color: #333;
+  --editor-tm-print-margin-width: 1px;
+  --editor-tm-print-margin-bg-color: #e8e8e8;
+  --editor-tm-fold-bg-color: #6B72E6;
+  --editor-tm-bg-color: #FFFFFF;
+  --editor-tm-color: black;
+  --editor-tm-cursor-color: black;
+  --editor-tm-invisible-color: rgb(191, 191, 191);
+  --editor-tm-storage-color: blue;
+  --editor-tm-keyword-color: blue;
+  --editor-tm-constant-color: rgb(197, 6, 11);
+  --editor-tm-constant-buildin-color: rgb(88, 72, 246);
+  --editor-tm-constant-language-color: rgb(88, 92, 246);
+  --editor-tm-constant-library-color: rgb(6, 150, 14);
+  --editor-tm-invalid-bg-color: rgba(255, 0, 0, 0.1);
+  --editor-tm-invalid-color: red;
+  --editor-tm-support-function-color: rgb(60, 76, 114);
+  --editor-tm-support-constant-color: rgb(6, 150, 14);
+  --editor-tm-support-type-color: rgb(109, 121, 222);
+  --editor-tm-support-class-color: rgb(109, 121, 222);
+  --editor-tm-keyword-operator-color: rgb(104, 118, 135);
+  --editor-tm-string-color: rgb(3, 106, 7);
+  --editor-tm-comment-color: rgb(76, 136, 107);
+  --editor-tm-comment-doc-color: rgb(0, 102, 255);
+  --editor-tm-comment-doc-tag-color: rgb(128, 159, 191);
+  --editor-tm-constant-numeric-color: rgb(0, 0, 205);
+  --editor-tm-variable-color: rgb(49, 132, 149);
+  --editor-tm-xml-pe-color: rgb(104, 104, 91);
+  --editor-tm-entity-name-function-color: #0000A2;
+  --editor-tm-heading-color: rgb(12, 7, 255);
+  --editor-tm-list-color: rgb(185, 6, 144);
+  --editor-tm-meta-tag-color: rgb(0, 22, 142);
+  --editor-tm-string-regex-color: rgb(255, 0, 0);
+  --editor-tm-marker-layer-selection-bg-color: rgb(181, 213, 255);
+  --editor-tm-multiselect-selection-box-shadow: 0 0 3px 0px white;
+  --editor-tm-marker-layer-step-bg-color: rgb(252, 255, 0);
+  --editor-tm-marker-layer-stack-bg-color: rgb(164, 229, 101);
+  --editor-tm-marker-layer-bracket-margin: -1px 0 0 -1px;
+  --editor-tm-marker-layer-bracket-border: 1px solid rgb(192, 192, 192);
+  --editor-tm-marker-layer-active-line-bg-color: rgba(0, 0, 0, 0.07);
+  --editor-tm-gutter-active-line-bg-color: #dcdcdc;
+  --editor-tm-marker-layer-selected-word-bg-color: rgb(250, 250, 255);
+  --editor-tm-marker-layer-selected-word-border: 1px solid rgb(200, 200, 250);
+  --editor-tm-indent-guide-bg: url("./main-20.png") right repeat-y;
+  --editor-tm-indent-guide-active-bg: url("./main-21.png") right repeat-y;
+  --error-widget-wrapper-bg: inherit;
+  --error-widget-wrapper-color: inherit;
+  --error-widget-wrapper-border: none;
+  --error-widget-border-top: solid 2px;
+  --error-widget-border-bottom: solid 2px;
+  --error-widget-margin: 5px 0;
+  --error-widget-padding: 10px 40px;
+  --error-widget-white-space: pre-wrap;
+  --error-widget-error-border-color: #ff5a5a;
+  --error-widget-warning-border-color: #F1D817;
+  --error-widget-info-border-color: #5a5a5a;
+  --error-widget-ok-border-color: #5aaa5a;
+  --error-widget-arrow-position: absolute;
+  --error-widget-arrow-border: solid 5px;
+  --error-widget-arrow-border-top-color: transparent;
+  --error-widget-arrow-border-right-color: transparent;
+  --error-widget-arrow-border-left-color: transparent;
+  --error-widget-arrow-top: -5px;
+  --editor-codeLens-position: absolute;
+  --editor-codeLens-color: #aaa;
+  --editor-codeLens-font-size: 88%;
+  --editor-codeLens-bg: inherit;
+  --editor-codeLens-width: 100%;
+  --editor-codeLens-display: flex;
+  --editor-codeLens-align-items: flex-end;
+  --editor-codeLens-pointer-events: none;
+  --editor-codeLens-a-cursor: pointer;
+  --editor-codeLens-a-pointer-events: auto;
+  --editor-codeLens-a-hover-color: #0000ff;
+  --editor-codeLens-a-hover-text-decoration: underline;
+  --editor-dark-codeLens-a-hover-color: #4e94ce;
+  --editor-tooltip-command-bar-tooltip-wrapper-padding: 0;
+  --editor-tooltip-command-bar-tooltip-padding: 1px 5px;
+  --editor-tooltip-command-bar-tooltip-display: flex;
+  --editor-tooltip-command-bar-tooltip-pointer-events: auto;
+  --editor-tooltip-command-bar-tooltip-more-options-padding: 1px;
+  --editor-tooltip-command-bar-tooltip-more-options-flex-direction: column;
+  --editor-command-bar-tooltip-button-display: inline-flex;
+  --editor-command-bar-tooltip-button-cursor: pointer;
+  --editor-command-bar-tooltip-button-margin: 1px;
+  --editor-command-bar-tooltip-button-border-radius: 2px;
+  --editor-command-bar-tooltip-button-padding: 2px 5px;
+  --editor-command-bar-tooltip-button-align-items: center;
+  --editor-command-bar-tooltip-button-selected-bg-color: rgba(0, 0, 0, 0.1);
+  --editor-command-bar-tooltip-button-hover-bg-color: rgba(0, 0, 0, 0.1);
+  --editor-command-bar-tooltip-button-disabled-color: #777;
+  --editor-command-bar-tooltip-button-disabled-pointer-events: none;
+  --editor-command-bar-tooltip-button-icon-svg-height: 12px;
+  --editor-command-bar-tooltip-button-icon-svg-bg-color: #000;
+  --editor-command-bar-tooltip-button-disabled-icon-svg-bg-color: #777;
+  --editor-command-bar-tooltip-more-options-command-bar-tooltip-button-display: flex;
+  --editor-command-bar-button-value-display: none;
+  --editor-command-bar-tooltip-more-options-command-bar-button-value-display: inline-block;
+  --editor-command-bar-tooltip-more-options-command-bar-button-value-width: 12px;
+  --editor-command-bar-button-caption-display: inline-block;
+  --editor-command-bar-keybinding-margin: 0 2px;
+  --editor-command-bar-keybinding-display: inline-block;
+  --editor-command-bar-keybinding-font-size: 8px;
+  --editor-command-bar-tooltip-more-options-command-bar-keybinding-margin-left: auto;
+  --editor-command-bar-keybinding-div-display: inline-block;
+  --editor-command-bar-keybinding-div-min-width: 8px;
+  --editor-command-bar-keybinding-div-padding: 2px;
+  --editor-command-bar-keybinding-div-margin: 0 1px;
+  --editor-command-bar-keybinding-div-border-radius: 2px;
+  --editor-command-bar-keybinding-div-bg-color: #ccc;
+  --editor-command-bar-keybinding-div-text-align: center;
+  --editor-dark-tooltip-command-bar-tooltip-bg-color: #373737;
+  --editor-dark-tooltip-command-bar-tooltip-color: #eee;
+  --editor-dark-command-bar-tooltip-button-disabled-color: #979797;
+  --editor-dark-command-bar-tooltip-button-selected-bg-color: rgba(255, 255, 255, 0.1);
+  --editor-dark-command-bar-tooltip-button-hover-bg-color: rgba(255, 255, 255, 0.1);
+  --editor-dark-command-bar-tooltip-button-icon-svg-bg-color: #eee;
+  --editor-dark-command-bar-tooltip-button-disabled-icon-svg-bg-color: #979797;
+  --editor-dark-command-bar-tooltip-button-disabled-color: #979797;
+  --editor-dark-command-bar-keybinding-div-bg-color: #575757;
+  --editor-checkmark-before-content: '✓';
+  --editor-snippet-marker-box-sizing: border-box;
+  --editor-snippet-marker-bg-color: rgba(194, 193, 208, 0.09);
+  --editor-snippet-marker-border: 1px dotted rgba(211, 208, 235, 0.62);
+  --editor-snippet-marker-position: absolute;
+  --editor-autocomplete-marker-layer-active-line-bg-color: #CAD6FA;
+  --editor-autocomplete-marker-layer-active-line-z-index: 1;
+  --editor-dark-autocomplete-marker-layer-active-line-bg-color: #3a674e;
+  --editor-autocomplete-line-hover-border: 1px solid #abbffe;
+  --editor-autocomplete-line-hover-margin-top: -1px;
+  --editor-autocomplete-line-hover-bg-color: rgba(233,233,253,0.4);
+  --editor-autocomplete-line-hover-position: absolute;
+  --editor-autocomplete-line-hover-z-index: 2;
+  --editor-dark-autocomplete-line-hover-border: 1px solid rgba(109, 150, 13, 0.8);
+  --editor-dark-autocomplete-line-hover-bg-color: rgba(58, 103, 78, 0.62);
+  --editor-completion-meta-opacity: 0.5;
+  --editor-completion-meta-margin-left: 0.9em;
+  --editor-completion-message-margin-left: 0.9em;
+  --editor-completion-message-color: blue;
+  --editor-autocomplete-completion-highlight-color: #2d69c7;
+  --editor-dark-autocomplete-completion-highlight-color: #93ca12;
+  --editor-autocomplete-width: 300px;
+  --editor-autocomplete-z-index: 200000;
+  --editor-autocomplete-border: 1px lightgray solid;
+  --editor-autocomplete-position: fixed;
+  --editor-autocomplete-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+  --editor-autocomplete-line-height: 1.4;
+  --editor-autocomplete-bg-color: #fefefe;
+  --editor-autocomplete-color: #111;
+  --editor-dark-autocomplete-border: 1px #484747 solid;
+  --editor-dark-autocomplete-box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.51);
+  --editor-dark-autocomplete-line-height: 1.4;
+  --editor-dark-autocomplete-bg-color: #25282c;
+  --editor-dark-autocomplete-color: #c1c1c1;
+  --editor-autocomplete-text-layer-width: calc(100% - 8px);
+  --editor-autocomplete-line-display: flex;
+  --editor-autocomplete-line-align-items: center;
+  --editor-autocomplete-line-children-min-width: 0;
+  --editor-autocomplete-line-children-flex: 0 0 auto;
+  --editor-autocomplete-line-ace-flex: 0 1 auto;
+  --editor-autocomplete-line-ace-overflow: hidden;
+  --editor-autocomplete-line-ace-white-space: nowrap;
+  --editor-autocomplete-line-ace-text-overflow: ellipsis;
+  --editor-autocomplete-completion-spacer-flex: 1;
+  --editor-autocomplete-loading-after-content: "";
+  --editor-autocomplete-loading-after-position: absolute;
+  --editor-autocomplete-loading-after-top: 0px;
+  --editor-autocomplete-loading-after-height: 2px;
+  --editor-autocomplete-loading-after-width: 8%;
+  --editor-autocomplete-loading-after-bg-color: blue;
+  --editor-autocomplete-loading-after-z-index: 100;
+  --editor-autocomplete-loading-after-animation: ace_progress 3s infinite linear;
+  --editor-autocomplete-loading-after-animation-delay: 300ms;
+  --editor-autocomplete-loading-after-transform: translateX(-100%) scaleX(1);
+  --editor-icon-svg-arrow-mask-image: url("./main-22.svg");
+  --editor-icon-svg-arrow-rotated-transform: rotate(180deg);
+  --editor-command-bar-tooltip-button-completion-position-padding: 0;
+  --editor-settingsmenu-bg-color: #F7F7F7;
+  --editor-settingsmenu-color: black;
+  --editor-settingsmenu-box-shadow: -5px 4px 5px rgba(126, 126, 126, 0.55);
+  --editor-settingsmenu-padding: 1em 0.5em 2em 1em;
+  --editor-settingsmenu-overflow: auto;
+  --editor-settingsmenu-position: absolute;
+  --editor-settingsmenu-margin: 0;
+  --editor-settingsmenu-bottom: 0;
+  --editor-settingsmenu-right: 0;
+  --editor-settingsmenu-top: 0;
+  --editor-settingsmenu-z-index: 9991;
+  --editor-settingsmenu-cursor: default;
+  --editor-dark-settingsmenu-box-shadow: -20px 10px 25px rgba(126, 126, 126, 0.25);
+  --editor-dark-settingsmenu-bg-color: rgba(255, 255, 255, 0.6);
+  --editor-dark-settingsmenu-color: black;
+  --editor-optionsMenuEntry-hover-bg-color: rgba(100, 100, 100, 0.1);
+  --editor-optionsMenuEntry-hover-transition: all 0.3s;
+  --editor-closeButton-bg-color: rgba(245, 146, 146, 0.5);
+  --editor-closeButton-border: 1px solid #F48A8A;
+  --editor-closeButton-border-radius: 50%;
+  --editor-closeButton-padding: 7px;
+  --editor-closeButton-position: absolute;
+  --editor-closeButton-right: -8px;
+  --editor-closeButton-top: -8px;
+  --editor-closeButton-z-index: 100000;
+  --editor-closeButton-hover-bg-color: rgba(245, 146, 146, 0.9);
+  --editor-optionsMenuKey-color: darkslateblue;
+  --editor-optionsMenuKey-font-weight: bold;
+  --editor-optionsMenuCommand-color: darkcyan;
+  --editor-optionsMenuCommand-font-weight: normal;
+  --editor-optionsMenuEntry-input-vertical-align: middle;
+  --editor-optionsMenuEntry-button-vertical-align: middle;
+  --editor-optionsMenuEntry-button-selected-button-bg-color: #e7e7e7;
+  --editor-optionsMenuEntry-button-selected-button-box-shadow: 1px 0px 2px 0px #adadad inset;
+  --editor-optionsMenuEntry-button-selected-button-border-color: #adadad;
+  --editor-optionsMenuEntry-button-bg-color: white;
+  --editor-optionsMenuEntry-button-border: 1px solid lightgray;
+  --editor-optionsMenuEntry-button-margin: 0px;
+  --editor-optionsMenuEntry-button-hover-bg-color: #f0f0f0;
+  --editor-prompt-container-max-width: 603px;
+  --editor-prompt-container-width: 100%;
+  --editor-prompt-container-margin: 20px auto;
+  --editor-prompt-container-padding: 3px;
+  --editor-prompt-container-bg-color: white;
+  --editor-prompt-container-border-radius: 2px;
+  --editor-prompt-container-box-shadow: 0px 2px 3px 0px #555;
+  --editor-search-bg-color: #ddd;
+  --editor-search-color: #666;
+  --editor-search-border: 1px solid #cbcbcb;
+  --editor-search-border-top: 0 none;
+  --editor-search-overflow: hidden;
+  --editor-search-margin: 0;
+  --editor-search-padding: 4px 6px 0 4px;
+  --editor-search-position: absolute;
+  --editor-search-top: 0;
+  --editor-search-z-index: 99;
+  --editor-search-white-space: normal;
+  --editor-search-left-border-left: 0 none;
+  --editor-search-left-border-radius: 0px 0px 5px 0px;
+  --editor-search-left-left: 0;
+  --editor-search-right-border-radius: 0px 0px 0px 5px;
+  --editor-search-right-border-right: 0 none;
+  --editor-search-right-right: 0;
+  --editor-search-form-margin: 0 20px 4px 0;
+  --editor-search-form-overflow: hidden;
+  --editor-search-form-line-height: 1.9;
+  --editor-replace-form-margin: 0;
+  --editor-search-form-nomatch-outline: 1px solid red;
+  --editor-search-field-border-radius: 3px 0 0 3px;
+  --editor-search-field-bg-color: white;
+  --editor-search-field-color: black;
+  --editor-search-field-border: 1px solid #cbcbcb;
+  --editor-search-field-border-right: 0 none;
+  --editor-search-field-outline: 0;
+  --editor-search-field-padding: 0;
+  --editor-search-field-font-size: inherit;
+  --editor-search-field-margin: 0;
+  --editor-search-field-line-height: inherit;
+  --editor-search-field-padding-2: 0 6px;
+  --editor-search-field-min-width: 17em;
+  --editor-search-field-vertical-align: top;
+  --editor-search-field-min-height: 1.8em;
+  --editor-search-field-box-sizing: content-box;
+  --editor-searchbtn-border: 1px solid #cbcbcb;
+  --editor-searchbtn-line-height: inherit;
+  --editor-searchbtn-display: inline-block;
+  --editor-searchbtn-padding: 0 6px;
+  --editor-searchbtn-bg-color: #fff;
+  --editor-searchbtn-border-right: 0 none;
+  --editor-searchbtn-border-left: 1px solid #dcdcdc;
+  --editor-searchbtn-cursor: pointer;
+  --editor-searchbtn-margin: 0;
+  --editor-searchbtn-position: relative;
+  --editor-searchbtn-color: #666;
+  --editor-searchbtn-last-child-border-radius: 0 3px 3px 0;
+  --editor-searchbtn-last-child-border-right: 1px solid #cbcbcb;
+  --editor-searchbtn-disabled-bg-color: none;
+  --editor-searchbtn-disabled-cursor: default;
+  --editor-searchbtn-hover-bg-color: #eef1f6;
+  --editor-searchbtn-prev-padding: 0px 0.7em;
+  --editor-searchbtn-next-padding: 0px 0.7em;
+  --editor-searchbtn-prev-after-content: "";
+  --editor-searchbtn-prev-after-border: solid 2px #888;
+  --editor-searchbtn-prev-after-width: 0.5em;
+  --editor-searchbtn-prev-after-height: 0.5em;
+  --editor-searchbtn-prev-after-border-width: 2px 0 0 2px;
+  --editor-searchbtn-prev-after-display: inline-block;
+  --editor-searchbtn-prev-after-transform: rotate(-45deg);
+  --editor-searchbtn-next-after-border-width: 0 2px 2px 0;
+  --editor-searchbtn-close-bg-image: url("./main-23.png") no-repeat 50% 0;
+  --editor-searchbtn-close-border-radius: 50%;
+  --editor-searchbtn-close-border: 0 none;
+  --editor-searchbtn-close-color: #656565;
+  --editor-searchbtn-close-cursor: pointer;
+  --editor-searchbtn-close-font: 16px/16px Arial;
+  --editor-searchbtn-close-padding: 0;
+  --editor-searchbtn-close-height: 14px;
+  --editor-searchbtn-close-width: 14px;
+  --editor-searchbtn-close-top: 9px;
+  --editor-searchbtn-close-right: 7px;
+  --editor-searchbtn-close-position: absolute;
+  --editor-searchbtn-close-hover-bg-color: #656565;
+  --editor-searchbtn-close-hover-bg-position: 50% 100%;
+  --editor-searchbtn-close-hover-color: white;
+  --editor-button-margin-left: 2px;
+  --editor-button-cursor: pointer;
+  --editor-button-user-select: none;
+  --editor-button-overflow: hidden;
+  --editor-button-opacity: 0.7;
+  --editor-button-border: 1px solid rgba(100,100,100,0.23);
+  --editor-button-padding: 1px;
+  --editor-button-box-sizing: border-box;
+  --editor-button-color: black;
+  --editor-button-hover-bg-color: #eee;
+  --editor-button-hover-opacity: 1;
+  --editor-button-active-bg-color: #ddd;
+  --editor-button-checked-border-color: #3399ff;
+  --editor-button-checked-opacity: 1;
+  --editor-search-options-margin-bottom: 3px;
+  --editor-search-options-text-align: right;
+  --editor-search-options-user-select: none;
+  --editor-search-options-clear: both;
+  --editor-search-counter-float: left;
+  --editor-search-counter-font-family: arial;
+  --editor-search-counter-padding: 0 8px;
+  --editor-occur-highlight-border-radius: 4px;
+  --editor-occur-highlight-bg-color: rgba(87, 255, 8, 0.25);
+  --editor-occur-highlight-position: absolute;
+  --editor-occur-highlight-z-index: 4;
+  --editor-occur-highlight-box-sizing: border-box;
+  --editor-occur-highlight-box-shadow: 0 0 4px rgb(91, 255, 50);
+  --editor-dark-occur-highlight-bg-color: rgb(80, 140, 85);
+  --editor-dark-occur-highlight-box-shadow: 0 0 4px rgb(60, 120, 70);
+  --editor-marker-layer-isearch-result-position: absolute;
+  --editor-marker-layer-isearch-result-z-index: 6;
+  --editor-marker-layer-isearch-result-box-sizing: border-box;
+  --editor-isearch-result-border-radius: 4px;
+  --editor-isearch-result-bg-color: rgba(255, 200, 0, 0.5);
+  --editor-isearch-result-box-shadow: 0 0 4px rgb(255, 200, 0);
+  --editor-dark-isearch-result-bg-color: rgb(100, 110, 160);
+  --editor-dark-isearch-result-box-shadow: 0 0 4px rgb(80, 90, 140);
+  --editor-emacs-mode-cursor-border: 1px rgba(50,250,50,0.8) solid;
+  --editor-emacs-mode-cursor-box-sizing: border-box;
+  --editor-emacs-mode-cursor-bg-color: rgba(0,250,0,0.9);
+  --editor-emacs-mode-cursor-opacity: 0.5;
+  --editor-emacs-mode-hidden-cursors-cursor-opacity: 1;
+  --editor-emacs-mode-hidden-cursors-cursor-bg-color: transparent;
+  --editor-emacs-mode-overwrite-cursors-cursor-opacity: 1;
+  --editor-emacs-mode-overwrite-cursors-cursor-bg-color: transparent;
+  --editor-emacs-mode-overwrite-cursors-cursor-border-width: 0 0 2px 2px;
+  --editor-emacs-mode-text-layer-z-index: 4;
+  --editor-emacs-mode-cursor-layer-z-index: 2;
+  --editor-vim-mode-cursor-border: none;
+  --editor-vim-mode-cursor-bg-color: rgba(255,0,0,0.5);
+  --editor-vim-mode-hidden-cursors-cursor-bg-color: transparent;
+  --editor-vim-mode-hidden-cursors-cursor-border: 1px solid red;
+  --editor-vim-mode-hidden-cursors-cursor-opacity: 0.7;
+  --editor-dialog-position: absolute;
+  --editor-dialog-left: 0;
+  --editor-dialog-right: 0;
+  --editor-dialog-bg-color: inherit;
+  --editor-dialog-z-index: 15;
+  --editor-dialog-padding: .1em .8em;
+  --editor-dialog-overflow: hidden;
+  --editor-dialog-color: inherit;
+  --editor-dialog-top-border-bottom: 1px solid #444;
+  --editor-dialog-top-top: 0;
+  --editor-dialog-bottom-border-top: 1px solid #444;
+  --editor-dialog-bottom-bottom: 0;
+  --editor-dialog-input-border: none;
+  --editor-dialog-input-outline: none;
+  --editor-dialog-input-bg-color: transparent;
+  --editor-dialog-input-width: 20em;
+  --editor-dialog-input-color: inherit;
+  --editor-dialog-input-font-family: monospace;
+}
+
+.ace_editor>.ace_sb-v div, .ace_editor>.ace_sb-h div{
+  position: absolute;
+  background: var(--scrollbar-thumb-bg);
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  border: var(--scrollbar-thumb-border);
+  border-radius: var(--scrollbar-thumb-radius);
+  z-index: var(--scrollbar-thumb-z-index);
+}
+.ace_editor>.ace_sb-v, .ace_editor>.ace_sb-h {
+  position: absolute;
+  z-index: var(--scrollbar-z-index);
+  background: none;
+  overflow: hidden!important;
+}
+.ace_editor>.ace_sb-v {
+  z-index: var(--scrollbar-z-index);
+  right: 0;
+  top: 0;
+  width: 12px;
+}
+.ace_editor>.ace_sb-v div {
+  z-index: var(--scrollbar-thumb-z-index);
+  right: 0;
+  width: 100%;
+}
+.ace_editor>.ace_sb-h {
+  bottom: 0;
+  left: 0;
+  height: 12px;
+}
+.ace_editor>.ace_sb-h div {
+  bottom: 0;
+  height: 100%;
+}
+.ace_editor>.ace_sb_grabbed {
+  z-index: var(--scrollbar-grabbed-z-index);
+  background: var(--scrollbar-grabbed-bg);
+}
+
+.ace_br1 {border-top-left-radius    : var(--editor-radius);}
+.ace_br2 {border-top-right-radius   : var(--editor-radius);}
+.ace_br3 {border-top-left-radius    : var(--editor-radius); border-top-right-radius:    var(--editor-radius);}
+.ace_br4 {border-bottom-right-radius: var(--editor-radius);}
+.ace_br5 {border-top-left-radius    : var(--editor-radius); border-bottom-right-radius: var(--editor-radius);}
+.ace_br6 {border-top-right-radius   : var(--editor-radius); border-bottom-right-radius: var(--editor-radius);}
+.ace_br7 {border-top-left-radius    : var(--editor-radius); border-top-right-radius:    var(--editor-radius); border-bottom-right-radius: var(--editor-radius);}
+.ace_br8 {border-bottom-left-radius : var(--editor-radius);}
+.ace_br9 {border-top-left-radius    : var(--editor-radius); border-bottom-left-radius:  var(--editor-radius);}
+.ace_br10{border-top-right-radius   : var(--editor-radius); border-bottom-left-radius:  var(--editor-radius);}
+.ace_br11{border-top-left-radius    : var(--editor-radius); border-top-right-radius:    var(--editor-radius); border-bottom-left-radius:  var(--editor-radius);}
+.ace_br12{border-bottom-right-radius: var(--editor-radius); border-bottom-left-radius:  var(--editor-radius);}
+.ace_br13{border-top-left-radius    : var(--editor-radius); border-bottom-right-radius: var(--editor-radius); border-bottom-left-radius:  var(--editor-radius);}
+.ace_br14{border-top-right-radius   : var(--editor-radius); border-bottom-right-radius: var(--editor-radius); border-bottom-left-radius:  var(--editor-radius);}
+.ace_br15{border-top-left-radius    : var(--editor-radius); border-top-right-radius:    var(--editor-radius); border-bottom-right-radius: var(--editor-radius); border-bottom-left-radius: var(--editor-radius);}
+
+.ace_editor {
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  font: var(--editor-font);
+  direction: var(--editor-direction);
+  text-align: var(--editor-text-align);
+  -webkit-tap-highlight-color: var(--editor-tap-highlight);
+}
+
+.ace_scroller {
+  position: absolute;
+  overflow: hidden;
+  top: 0;
+  bottom: 0;
+  background-color: inherit;
+  -ms-user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: text;
+}
+
+.ace_content {
+  position: absolute;
+  box-sizing: border-box;
+  min-width: 100%;
+  contain: style size layout;
+  font-variant-ligatures: no-common-ligatures;
+}
+
+.ace_keyboard-focus:focus {
+  box-shadow: inset 0 0 0 2px #5E9ED6;
+  outline: none;
+}
+
+.ace_dragging .ace_scroller:before{
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  content: '';
+  background: var(--editor-dragging-bg);
+  z-index: var(--editor-dragging-z-index);
+}
+
+.ace_dragging.ace_dark .ace_scroller:before{
+  background: var(--editor-dragging-dark-bg);
+}
+
+.ace_gutter {
+  position: absolute;
+  overflow : hidden;
+  width: auto;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  cursor: default;
+  z-index: var(--editor-gutter-z-index);
+  -ms-user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  contain: style size layout;
+}
+
+.ace_gutter-active-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+
+.ace_scroller.ace_scroll-left:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  box-shadow: var(--editor-scroll-left-shadow);
+  pointer-events: none;
+}
+
+.ace_gutter-cell, .ace_gutter-cell_svg-icons {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding-left: var(--editor-gutter-cell-padding-left);
+  padding-right: var(--editor-gutter-cell-padding-right);
+  background-repeat: no-repeat;
+}
+
+.ace_gutter-cell_svg-icons .ace_gutter_annotation {
+  margin-left: var(--editor-gutter-cell-annotation-margin-left);
+  float: var(--editor-gutter-cell-annotation-float);
+}
+
+.ace_gutter-cell .ace_gutter_annotation {
+  margin-left: calc(var(--editor-gutter-cell-padding-left) * -1);
+  float: var(--editor-gutter-cell-annotation-float);
+}
+
+.ace_gutter-cell.ace_error, .ace_icon.ace_error, .ace_icon.ace_error_fold {
+  background-image: var(--editor-gutter-cell-error-bg);
+  background-repeat: no-repeat;
+  background-position: 2px center;
+}
+
+.ace_gutter-cell.ace_warning, .ace_icon.ace_warning, .ace_icon.ace_warning_fold {
+  background-image: var(--editor-gutter-cell-warning-bg);
+  background-repeat: no-repeat;
+  background-position: 2px center;
+}
+
+.ace_gutter-cell.ace_info, .ace_icon.ace_info {
+  background-image: var(--editor-gutter-cell-info-bg);
+  background-repeat: no-repeat;
+  background-position: 2px center;
+}
+
+.ace_dark .ace_gutter-cell.ace_info, .ace_dark .ace_icon.ace_info {
+  background-image: var(--editor-gutter-cell-info-dark-bg);
+}
+
+.ace_icon_svg.ace_error {
+  -webkit-mask-image: var(--editor-icon-error-bg);
+  background-color: var(--editor-icon-svg-color-error);
+}
+
+.ace_icon_svg.ace_warning {
+  -webkit-mask-image: var(--editor-icon-warning-bg);
+  background-color: var(--editor-icon-svg-color-warning);
+}
+
+.ace_icon_svg.ace_info {
+  -webkit-mask-image: var(--editor-icon-info-bg);
+  background-color: var(--editor-icon-svg-color-info);
+}
+
+.ace_icon_svg.ace_error_fold {
+  -webkit-mask-image: var(--editor-icon-error-fold-bg);
+  background-color: var(--editor-icon-svg-color-error);
+}
+
+.ace_icon_svg.ace_warning_fold {
+  -webkit-mask-image: var(--editor-icon-warning-fold-bg);
+  background-color: var(--editor-icon-svg-color-warning);
+}
+
+.ace_scrollbar {
+  contain: strict;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: var(--editor-scrollbar-z-index);
+}
+
+.ace_scrollbar-inner {
+  position: absolute;
+  cursor: var(--editor-scrollbar-inner-cursor);
+  left: 0;
+  top: 0;
+}
+
+.ace_scrollbar-v{
+  overflow-x: var(--editor-scrollbar-v-overflow-x);
+  overflow-y: var(--editor-scrollbar-v-overflow-y);
+  top: 0;
+}
+
+.ace_scrollbar-h {
+  overflow-x: var(--editor-scrollbar-h-overflow-x);
+  overflow-y: var(--editor-scrollbar-h-overflow-y);
+  left: 0;
+}
+
+.ace_print-margin {
+  position: absolute;
+  height: var(--editor-print-margin-height);
+}
+
+.ace_text-input {
+  position: absolute;
+  z-index: 0;
+  width: 0.5em;
+  height: 1em;
+  opacity: var(--editor-text-input-opacity);
+  background: var(--editor-text-input-bg);
+  -moz-appearance: var(--editor-text-input-appearance);
+  appearance: var(--editor-text-input-appearance);
+  border: var(--editor-text-input-border);
+  resize: var(--editor-text-input-resize);
+  outline: var(--editor-text-input-outline);
+  overflow: var(--editor-text-input-overflow);
+  font: var(--editor-text-input-font);
+  padding: var(--editor-text-input-padding);
+  margin: var(--editor-text-input-margin);
+  contain: var(--editor-text-input-contain);
+  -ms-user-select: var(--editor-text-input-user-select);
+  -moz-user-select: var(--editor-text-input-user-select);
+  -webkit-user-select: var(--editor-text-input-user-select);
+  user-select: var(--editor-text-input-user-select);
+  white-space: var(--editor-text-input-white-space);
+}
+
+.ace_text-input.ace_composition {
+  background: var(--editor-text-input-composition-bg);
+  color: var(--editor-text-input-composition-color);
+  z-index: var(--editor-text-input-composition-z-index);
+  opacity: var(--editor-text-input-composition-opacity);
+}
+
+.ace_composition_placeholder { color: var(--editor-composition-placeholder-color); }
+
+.ace_composition_marker {
+  border-bottom: var(--editor-composition-marker-border);
+  position: var(--editor-composition-marker-position);
+  border-radius: var(--editor-composition-marker-border-radius);
+  margin-top: var(--editor-composition-marker-margin-top);
+}
+
+[ace_nocontext=true] {
+  transform: var(--editor-nocontext-transform);
+  filter: var(--editor-nocontext-filter);
+  clip-path: var(--editor-nocontext-clip-path);
+  mask : var(--editor-nocontext-mask);
+  contain: var(--editor-nocontext-contain);
+  perspective: var(--editor-nocontext-perspective);
+  mix-blend-mode: var(--editor-nocontext-mix-blend-mode);
+  z-index: var(--editor-nocontext-z-index);
+}
+
+.ace_layer {
+  z-index: var(--editor-layer-z-index);
+  position: var(--editor-layer-position);
+  overflow: var(--editor-layer-overflow);
+  word-wrap: var(--editor-layer-word-wrap);
+  white-space: var(--editor-layer-white-space);
+  height: var(--editor-layer-height);
+  width: var(--editor-layer-width);
+  box-sizing: var(--editor-layer-box-sizing);
+  pointer-events: var(--editor-layer-pointer-events);
+}
+
+.ace_gutter-layer {
+  position: var(--editor-gutter-layer-position);
+  width: var(--editor-gutter-layer-width);
+  text-align: var(--editor-gutter-layer-text-align);
+  pointer-events: var(--editor-gutter-layer-pointer-events);
+  height: var(--editor-gutter-layer-height);
+  contain: var(--editor-gutter-layer-contain);
+}
+
+.ace_text-layer {
+  font: var(--editor-text-layer-font);
+  position: var(--editor-text-layer-position);
+  height: var(--editor-text-layer-height);
+  width: var(--editor-text-layer-width);
+  contain: var(--editor-text-layer-contain);
+}
+
+.ace_text-layer > .ace_line, .ace_text-layer > .ace_line_group {
+  contain: var(--editor-text-layer-line-contain);
+  position: var(--editor-text-layer-line-position);
+  top: var(--editor-text-layer-line-top);
+  left: var(--editor-text-layer-line-left);
+  right: var(--editor-text-layer-line-right);
+}
+
+.ace_hidpi .ace_text-layer,
+.ace_hidpi .ace_gutter-layer,
+.ace_hidpi .ace_content,
+.ace_hidpi .ace_gutter {
+  contain: var(--editor-hidpi-contain);
+}
+
+.ace_hidpi .ace_text-layer > .ace_line,
+.ace_hidpi .ace_text-layer > .ace_line_group {
+  contain: var(--editor-hidpi-contain);
+}
+
+.ace_cjk {
+  display: var(--editor-cjk-display);
+  text-align: var(--editor-cjk-text-align);
+}
+
+.ace_cursor-layer {
+  z-index: var(--editor-cursor-layer-z-index);
+}
+
+.ace_cursor {
+  z-index: var(--editor-cursor-z-index);
+  position: var(--editor-cursor-position);
+  box-sizing: var(--editor-cursor-box-sizing);
+  border-left: var(--editor-cursor-border-left);
+  transform: var(--editor-cursor-transform);
+}
+
+.ace_multiselect .ace_cursor {
+  border-left-width: var(--editor-multiselect-cursor-border-left-width);
+}
+
+.ace_slim-cursors .ace_cursor {
+  border-left-width: var(--editor-slim-cursors-cursor-border-left-width);
+}
+
+.ace_overwrite-cursors .ace_cursor {
+  border-left-width: var(--editor-overwrite-cursors-cursor-border-left-width);
+  border-bottom: var(--editor-overwrite-cursors-cursor-border-bottom);
+}
+
+.ace_hidden-cursors .ace_cursor {
+  opacity: var(--editor-hidden-cursors-cursor-opacity);
+}
+
+.ace_hasPlaceholder .ace_hidden-cursors .ace_cursor {
+  opacity: var(--editor-hasPlaceholder-hidden-cursors-cursor-opacity);
+}
+
+.ace_smooth-blinking .ace_cursor {
+  transition: var(--editor-smooth-blinking-cursor-transition);
+}
+
+.ace_animate-blinking .ace_cursor {
+  animation-duration: var(--editor-animate-blinking-cursor-animation-duration);
+  animation-timing-function: var(--editor-animate-blinking-cursor-animation-timing-function);
+  animation-name: var(--editor-animate-blinking-cursor-animation-name);
+  animation-iteration-count: var(--editor-animate-blinking-cursor-animation-iteration-count);
+}
+
+.ace_animate-blinking.ace_smooth-blinking .ace_cursor {
+  animation-duration: var(--editor-animate-blinking-cursor-animation-duration);
+  animation-timing-function: var(--editor-animate-blinking-smooth-blinking-cursor-animation-timing-function);
+  animation-name: var(--editor-animate-blinking-smooth-blinking-cursor-animation-name);
+}
+
+@keyframes blink-ace-animate {
+  from, to { opacity: 1; }
+  60% { opacity: 0; }
+}
+
+@keyframes blink-ace-animate-smooth {
+  from, to { opacity: 1; }
+  45% { opacity: 1; }
+  60% { opacity: 0; }
+  85% { opacity: 0; }
+}
+
+.ace_marker-layer .ace_step, .ace_marker-layer .ace_stack {
+  position: absolute;
+  z-index: var(--editor-marker-layer-step-z-index);
+}
+
+.ace_marker-layer .ace_selection {
+  position: absolute;
+  z-index: var(--editor-marker-layer-selection-z-index);
+}
+
+.ace_marker-layer .ace_bracket {
+  position: absolute;
+  z-index: var(--editor-marker-layer-bracket-z-index);
+}
+
+.ace_marker-layer .ace_error_bracket {
+  position: absolute;
+  border-bottom: var(--editor-marker-layer-error-bracket-border-bottom);
+  border-radius: var(--editor-marker-layer-error-bracket-border-radius);
+}
+
+.ace_marker-layer .ace_active-line {
+  position: absolute;
+  z-index: var(--editor-marker-layer-active-line-z-index);
+}
+
+.ace_marker-layer .ace_selected-word {
+  position: absolute;
+  z-index: var(--editor-marker-layer-selected-word-z-index);
+  box-sizing: var(--editor-marker-layer-selected-word-box-sizing);
+}
+
+.ace_line .ace_fold {
+  box-sizing: var(--editor-fold-box-sizing);
+  display: var(--editor-fold-display);
+  height: var(--editor-fold-height);
+  margin-top: var(--editor-fold-margin-top);
+  vertical-align: var(--editor-fold-vertical-align);
+  background-image: var(--editor-fold-bg-image);
+  background-repeat: var(--editor-fold-bg-repeat);
+  background-position: var(--editor-fold-bg-position);
+  color: var(--editor-fold-color);
+  border: var(--editor-fold-border);
+  border-radius: var(--editor-fold-border-radius);
+  cursor: var(--editor-fold-cursor);
+  pointer-events: var(--editor-fold-pointer-events);
+}
+
+.ace_dark .ace_fold {
+}
+
+.ace_fold:hover{
+  background-image: var(--editor-fold-hover-bg-image);
+}
+
+.ace_tooltip {
+  background-color: var(--editor-tooltip-bg-color);
+  border: var(--editor-tooltip-border);
+  border-radius: var(--editor-tooltip-border-radius);
+  box-shadow: var(--editor-tooltip-box-shadow);
+  color: var(--editor-tooltip-color);
+  max-width: var(--editor-tooltip-max-width);
+  padding: var(--editor-tooltip-padding);
+  position: var(--editor-tooltip-position);
+  z-index: var(--editor-tooltip-z-index);
+  box-sizing: var(--editor-tooltip-box-sizing);
+  cursor: var(--editor-tooltip-cursor);
+  white-space: var(--editor-tooltip-white-space);
+  word-wrap: var(--editor-tooltip-word-wrap);
+  line-height: var(--editor-tooltip-line-height);
+  font-style: var(--editor-tooltip-font-style);
+  font-weight: var(--editor-tooltip-font-weight);
+  letter-spacing: var(--editor-tooltip-letter-spacing);
+  pointer-events: var(--editor-tooltip-pointer-events);
+  overflow: var(--editor-tooltip-overflow);
+  max-width: var(--editor-tooltip-max-width-min);
+}
+
+.ace_tooltip pre {
+  white-space: var(--editor-tooltip-pre-white-space);
+}
+
+.ace_tooltip.ace_dark {
+  background-color: var(--editor-tooltip-dark-bg-color);
+  color: var(--editor-tooltip-dark-color);
+}
+
+.ace_tooltip:focus {
+  outline: var(--editor-tooltip-focus-outline);
+}
+
+.ace_icon {
+  display: var(--editor-icon-display);
+  width: var(--editor-icon-width);
+  vertical-align: var(--editor-icon-vertical-align);
+}
+
+.ace_icon_svg {
+  display: var(--editor-icon-svg-display);
+  width: var(--editor-icon-svg-width);
+  vertical-align: var(--editor-icon-vertical-align);
+  -webkit-mask-repeat: var(--editor-icon-svg-mask-repeat);
+  -webkit-mask-size: var(--editor-icon-svg-mask-size);
+  -webkit-mask-position: var(--editor-icon-svg-mask-position);
+}
+
+.ace_folding-enabled > .ace_gutter-cell, .ace_folding-enabled > .ace_gutter-cell_svg-icons {
+  padding-right: var(--editor-folding-enabled-gutter-cell-padding-right);
+}
+
+.ace_fold-widget {
+  box-sizing: var(--editor-fold-widget-box-sizing);
+  margin: var(--editor-fold-widget-margin);
+  display: var(--editor-fold-widget-display);
+  width: var(--editor-fold-widget-width);
+  vertical-align: var(--editor-fold-widget-vertical-align);
+  background-image: var(--editor-fold-widget-bg-image);
+  background-repeat: var(--editor-fold-widget-bg-repeat);
+  background-position: var(--editor-fold-widget-bg-position);
+  border-radius: var(--editor-fold-widget-border-radius);
+  border: var(--editor-fold-widget-border);
+  cursor: var(--editor-fold-widget-cursor);
+}
+
+.ace_folding-enabled .ace_fold-widget {
+  display: var(--editor-folding-enabled-fold-widget-display);
+}
+
+.ace_fold-widget.ace_end {
+  background-image: var(--editor-fold-widget-end-bg-image);
+}
+
+.ace_fold-widget.ace_closed {
+  background-image: var(--editor-fold-widget-closed-bg-image);
+}
+
+.ace_fold-widget:hover {
+  border: var(--editor-fold-widget-hover-border);
+  background-color: var(--editor-fold-widget-hover-bg-color);
+  box-shadow: var(--editor-fold-widget-hover-box-shadow);
+}
+
+.ace_fold-widget:active {
+  border: var(--editor-fold-widget-active-border);
+  background-color: var(--editor-fold-widget-active-bg-color);
+  box-shadow: var(--editor-fold-widget-active-box-shadow);
+}
+
+.ace_dark .ace_fold-widget {
+  background-image: var(--editor-dark-fold-widget-bg-image);
+}
+
+.ace_dark .ace_fold-widget.ace_end {
+  background-image: var(--editor-dark-fold-widget-end-bg-image);
+}
+
+.ace_dark .ace_fold-widget.ace_closed {
+  background-image: var(--editor-dark-fold-widget-closed-bg-image);
+}
+
+.ace_dark .ace_fold-widget:hover {
+  box-shadow: var(--editor-dark-fold-widget-hover-box-shadow);
+  background-color: var(--editor-dark-fold-widget-hover-bg-color);
+}
+
+.ace_dark .ace_fold-widget:active {
+  box-shadow: var(--editor-dark-fold-widget-active-box-shadow);
+}
+
+.ace_inline_button {
+  border: var(--editor-inline-button-border);
+  display: var(--editor-inline-button-display);
+  margin: var(--editor-inline-button-margin);
+  padding: var(--editor-inline-button-padding);
+  pointer-events: var(--editor-inline-button-pointer-events);
+  cursor: var(--editor-inline-button-cursor);
+}
+
+.ace_inline_button:hover {
+  border-color: var(--editor-inline-button-hover-border-color);
+  background: var(--editor-inline-button-hover-bg-color);
+  display: var(--editor-inline-button-hover-display);
+  pointer-events: var(--editor-inline-button-hover-pointer-events);
+}
+
+.ace_fold-widget.ace_invalid {
+  background-color: var(--editor-fold-widget-invalid-bg-color);
+  border-color: var(--editor-fold-widget-invalid-border-color);
+}
+
+.ace_fade-fold-widgets .ace_fold-widget {
+  transition: var(--editor-fade-fold-widgets-fold-widget-transition);
+  opacity: var(--editor-fade-fold-widgets-fold-widget-opacity);
+}
+
+.ace_fade-fold-widgets:hover .ace_fold-widget {
+  transition: var(--editor-fade-fold-widgets-hover-fold-widget-transition);
+  opacity: var(--editor-fade-fold-widgets-hover-fold-widget-opacity);
+}
+
+.ace_underline {
+  text-decoration: var(--editor-underline-text-decoration);
+}
+
+.ace_bold {
+  font-weight: var(--editor-bold-font-weight);
+}
+
+.ace_nobold .ace_bold {
+  font-weight: var(--editor-nobold-bold-font-weight);
+}
+
+.ace_italic {
+  font-style: var(--editor-italic-font-style);
+}
+
+.ace_error-marker {
+  background-color: var(--editor-error-marker-bg-color);
+  position: var(--editor-error-marker-position);
+  z-index: var(--editor-error-marker-z-index);
+}
+
+.ace_highlight-marker {
+  background-color: var(--editor-highlight-marker-bg-color);
+  position: var(--editor-highlight-marker-position);
+  z-index: var(--editor-highlight-marker-z-index);
+}
+
+.ace_mobile-menu {
+  position: var(--editor-mobile-menu-position);
+  line-height: var(--editor-mobile-menu-line-height);
+  border-radius: var(--editor-mobile-menu-border-radius);
+  -ms-user-select: var(--editor-mobile-menu-user-select);
+  -moz-user-select: var(--editor-mobile-menu-user-select);
+  -webkit-user-select: var(--editor-mobile-menu-user-select);
+  user-select: var(--editor-mobile-menu-user-select);
+  background: var(--editor-mobile-menu-bg-color);
+  box-shadow: var(--editor-mobile-menu-box-shadow);
+  border: var(--editor-mobile-menu-border);
+  color: var(--editor-mobile-menu-color);
+}
+
+.ace_dark > .ace_mobile-menu {
+  background: var(--editor-dark-mobile-menu-bg-color);
+  color: var(--editor-dark-mobile-menu-color);
+  box-shadow: var(--editor-dark-mobile-menu-box-shadow);
+  border: var(--editor-dark-mobile-menu-border);
+}
+
+.ace_mobile-button {
+  padding: var(--editor-mobile-button-padding);
+  cursor: var(--editor-mobile-button-cursor);
+  overflow: var(--editor-mobile-button-overflow);
+}
+
+.ace_mobile-button:hover {
+  background-color: var(--editor-mobile-button-hover-bg-color);
+  opacity: var(--editor-mobile-button-hover-opacity);
+}
+
+.ace_mobile-button:active {
+  background-color: var(--editor-mobile-button-active-bg-color);
+}
+
+.ace_placeholder {
+  font-family: var(--editor-placeholder-font-family);
+  transform: var(--editor-placeholder-transform);
+  transform-origin: var(--editor-placeholder-transform-origin);
+  white-space: var(--editor-placeholder-white-space);
+  opacity: var(--editor-placeholder-opacity);
+  margin: var(--editor-placeholder-margin);
+}
+
+.ace_ghost_text {
+  opacity: var(--editor-ghost-text-opacity);
+  font-style: var(--editor-ghost-text-font-style);
+  white-space: var(--editor-ghost-text-white-space);
+}
+
+.ace_screenreader-only {
+  position: var(--editor-screenreader-only-position);
+  left: var(--editor-screenreader-only-left);
+  top: var(--editor-screenreader-only-top);
+  width: var(--editor-screenreader-only-width);
+  height: var(--editor-screenreader-only-height);
+  overflow: var(--editor-screenreader-only-overflow);
+}
+
+.ace-tm .ace_gutter {
+  background: var(--editor-tm-gutter-bg-color);
+  color: var(--editor-tm-gutter-color);
+}
+
+.ace-tm .ace_print-margin {
+  width: var(--editor-tm-print-margin-width);
+  background: var(--editor-tm-print-margin-bg-color);
+}
+
+.ace-tm .ace_fold {
+  background-color: var(--editor-tm-fold-bg-color);
+}
+
+.ace-tm {
+  background-color: var(--editor-tm-bg-color);
+  color: var(--editor-tm-color);
+}
+
+.ace-tm .ace_cursor {
+  color: var(--editor-tm-cursor-color);
+}
+
+.ace-tm .ace_invisible {
+  color: var(--editor-tm-invisible-color);
+}
+
+.ace-tm .ace_storage,
+.ace-tm .ace_keyword {
+  color: var(--editor-tm-storage-color);
+}
+
+.ace-tm .ace_constant {
+  color: var(--editor-tm-constant-color);
+}
+
+.ace-tm .ace_constant.ace_buildin {
+  color: var(--editor-tm-constant-buildin-color);
+}
+
+.ace-tm .ace_constant.ace_language {
+  color: var(--editor-tm-constant-language-color);
+}
+
+.ace-tm .ace_constant.ace_library {
+  color: var(--editor-tm-constant-library-color);
+}
+
+.ace-tm .ace_invalid {
+  background-color: var(--editor-tm-invalid-bg-color);
+  color: var(--editor-tm-invalid-color);
+}
+
+.ace-tm .ace_support.ace_function {
+  color: var(--editor-tm-support-function-color);
+}
+
+.ace-tm .ace_support.ace_constant {
+  color: var(--editor-tm-support-constant-color);
+}
+
+.ace-tm .ace_support.ace_type,
+.ace-tm .ace_support.ace_class {
+  color: var(--editor-tm-support-type-color);
+}
+
+.ace-tm .ace_keyword.ace_operator {
+  color: var(--editor-tm-keyword-operator-color);
+}
+
+.ace-tm .ace_string {
+  color: var(--editor-tm-string-color);
+}
+
+.ace-tm .ace_comment {
+  color: var(--editor-tm-comment-color);
+}
+
+.ace-tm .ace_comment.ace_doc {
+  color: var(--editor-tm-comment-doc-color);
+}
+
+.ace-tm .ace_comment.ace_doc.ace_tag {
+  color: var(--editor-tm-comment-doc-tag-color);
+}
+
+.ace-tm .ace_constant.ace_numeric {
+  color: var(--editor-tm-constant-numeric-color);

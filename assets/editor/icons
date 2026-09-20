@@ -1,0 +1,158 @@
+import pygame
+import os
+
+# Initialize pygame
+pygame.init()
+
+# Define colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+GRAY = (128, 128, 128)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+
+# Define icon dimensions
+ICON_SIZE = 32
+ICON_PADDING = 4
+
+# Create directory if it doesn't exist
+os.makedirs('assets/editor/icons', exist_ok=True)
+
+# Function to create a new surface with padding
+def create_icon_surface():
+    return pygame.Surface((ICON_SIZE + 2 * ICON_PADDING, ICON_SIZE + 2 * ICON_PADDING), pygame.SRCALPHA)
+
+# Function to save icon
+def save_icon(surface, filename):
+    pygame.image.save(surface, f'assets/editor/icons/{filename}.png')
+
+# Create new icon
+def create_new_icon():
+    icon = create_icon_surface()
+    pygame.draw.rect(icon, BLACK, (ICON_PADDING, ICON_PADDING, ICON_SIZE, ICON_SIZE), 2)
+    pygame.draw.line(icon, BLACK, (ICON_PADDING + ICON_SIZE // 2, ICON_PADDING), (ICON_PADDING + ICON_SIZE // 2, ICON_PADDING + ICON_SIZE), 2)
+    pygame.draw.line(icon, BLACK, (ICON_PADDING, ICON_PADDING + ICON_SIZE // 2), (ICON_PADDING + ICON_SIZE, ICON_PADDING + ICON_SIZE // 2), 2)
+    save_icon(icon, 'new')
+
+# Create open icon
+def create_open_icon():
+    icon = create_icon_surface()
+    pygame.draw.rect(icon, BLACK, (ICON_PADDING, ICON_PADDING, ICON_SIZE, ICON_SIZE), 2)
+    pygame.draw.rect(icon, BLACK, (ICON_PADDING + 4, ICON_PADDING + 4, ICON_SIZE - 8, ICON_SIZE - 8), 2)
+    pygame.draw.rect(icon, BLACK, (ICON_PADDING + 8, ICON_PADDING + 8, ICON_SIZE - 16, ICON_SIZE - 16), 2)
+    save_icon(icon, 'open')
+
+# Create save icon
+def create_save_icon():
+    icon = create_icon_surface()
+    pygame.draw.rect(icon, BLACK, (ICON_PADDING, ICON_PADDING, ICON_SIZE, ICON_SIZE), 2)
+    pygame.draw.rect(icon, BLACK, (ICON_PADDING + 4, ICON_PADDING + 4, ICON_SIZE - 8, ICON_SIZE - 8), 2)
+    pygame.draw.rect(icon, BLACK, (ICON_PADDING + 8, ICON_PADDING + 8, ICON_SIZE - 16, ICON_SIZE - 16), 2)
+    pygame.draw.line(icon, BLACK, (ICON_PADDING + ICON_SIZE - 4, ICON_PADDING + 4), (ICON_PADDING + ICON_SIZE - 4, ICON_PADDING + ICON_SIZE - 4), 2)
+    pygame.draw.line(icon, BLACK, (ICON_PADDING + 4, ICON_PADDING + ICON_SIZE - 4), (ICON_PADDING + ICON_SIZE - 4, ICON_PADDING + ICON_SIZE - 4), 2)
+    save_icon(icon, 'save')
+
+# Create cut icon
+def create_cut_icon():
+    icon = create_icon_surface()
+    pygame.draw.rect(icon, BLACK, (ICON_PADDING, ICON_PADDING, ICON_SIZE, ICON_SIZE), 2)
+    pygame.draw.line(icon, BLACK, (ICON_PADDING + 4, ICON_PADDING + ICON_SIZE - 4), (ICON_PADDING + ICON_SIZE - 4, ICON_PADDING + 4), 2)
+    save_icon(icon, 'cut')
+
+# Create copy icon
+def create_copy_icon():
+    icon = create_icon_surface()
+    pygame.draw.rect(icon, BLACK, (ICON_PADDING, ICON_PADDING, ICON_SIZE, ICON_SIZE), 2)
+    pygame.draw.rect(icon, BLACK, (ICON_PADDING + 4, ICON_PADDING + 4, ICON_SIZE - 8, ICON_SIZE - 8), 2)
+    pygame.draw.rect(icon, BLACK, (ICON_PADDING + 8, ICON_PADDING + 8, ICON_SIZE - 16, ICON_SIZE - 16), 2)
+    save_icon(icon, 'copy')
+
+# Create paste icon
+def create_paste_icon():
+    icon = create_icon_surface()
+    pygame.draw.rect(icon, BLACK, (ICON_PADDING, ICON_PADDING, ICON_SIZE, ICON_SIZE), 2)
+    pygame.draw.rect(icon, BLACK, (ICON_PADDING + 4, ICON_PADDING + 4, ICON_SIZE - 8, ICON_SIZE - 8), 2)
+    pygame.draw.rect(icon, BLACK, (ICON_PADDING + 8, ICON_PADDING + 8, ICON_SIZE - 16, ICON_SIZE - 16), 2)
+    pygame.draw.line(icon, BLACK, (ICON_PADDING + ICON_SIZE - 4, ICON_PADDING + 4), (ICON_PADDING + ICON_SIZE - 4, ICON_PADDING + ICON_SIZE - 4), 2)
+    pygame.draw.line(icon, BLACK, (ICON_PADDING + 4, ICON_PADDING + ICON_SIZE - 4), (ICON_PADDING + ICON_SIZE - 4, ICON_PADDING + ICON_SIZE - 4), 2)
+    save_icon(icon, 'paste')
+
+# Create undo icon
+def create_undo_icon():
+    icon = create_icon_surface()
+    pygame.draw.rect(icon, BLACK, (ICON_PADDING, ICON_PADDING, ICON_SIZE, ICON_SIZE), 2)
+    pygame.draw.polygon(icon, BLACK, [(ICON_PADDING + 4, ICON_PADDING + ICON_SIZE // 2), (ICON_PADDING + ICON_SIZE // 2, ICON_PADDING + 4), (ICON_PADDING + ICON_SIZE // 2, ICON_PADDING + ICON_SIZE - 4)], 2)
+    pygame.draw.line(icon, BLACK, (ICON_PADDING + ICON_SIZE // 2, ICON_PADDING + 4), (ICON_PADDING + ICON_SIZE - 4, ICON_PADDING + 4), 2)
+    save_icon(icon, 'undo')
+
+# Create redo icon
+def create_redo_icon():
+    icon = create_icon_surface()
+    pygame.draw.rect(icon, BLACK, (ICON_PADDING, ICON_PADDING, ICON_SIZE, ICON_SIZE), 2)
+    pygame.draw.polygon(icon, BLACK, [(ICON_PADDING + ICON_SIZE - 4, ICON_PADDING + ICON_SIZE // 2), (ICON_PADDING + ICON_SIZE // 2, ICON_PADDING + 4), (ICON_PADDING + ICON_SIZE // 2, ICON_PADDING + ICON_SIZE - 4)], 2)
+    pygame.draw.line(icon, BLACK, (ICON_PADDING + ICON_SIZE // 2, ICON_PADDING + ICON_SIZE - 4), (ICON_PADDING + 4, ICON_PADDING + ICON_SIZE - 4), 2)
+    save_icon(icon, 'redo')
+
+# Create zoom in icon
+def create_zoom_in_icon():
+    icon = create_icon_surface()
+    pygame.draw.rect(icon, BLACK, (ICON_PADDING, ICON_PADDING, ICON_SIZE, ICON_SIZE), 2)
+    pygame.draw.line(icon, BLACK, (ICON_PADDING + ICON_SIZE // 2, ICON_PADDING + 4), (ICON_PADDING + ICON_SIZE // 2, ICON_PADDING + ICON_SIZE - 4), 2)
+    pygame.draw.line(icon, BLACK, (ICON_PADDING + 4, ICON_PADDING + ICON_SIZE // 2), (ICON_PADDING + ICON_SIZE - 4, ICON_PADDING + ICON_SIZE // 2), 2)
+    pygame.draw.rect(icon, BLACK, (ICON_PADDING + 8, ICON_PADDING + 8, ICON_SIZE - 16, ICON_SIZE - 16), 2)
+    save_icon(icon, 'zoom_in')
+
+# Create zoom out icon
+def create_zoom_out_icon():
+    icon = create_icon_surface()
+    pygame.draw.rect(icon, BLACK, (ICON_PADDING, ICON_PADDING, ICON_SIZE, ICON_SIZE), 2)
+    pygame.draw.line(icon, BLACK, (ICON_PADDING + 4, ICON_PADDING + ICON_SIZE // 2), (ICON_PADDING + ICON_SIZE - 4, ICON_PADDING + ICON_SIZE // 2), 2)
+    pygame.draw.rect(icon, BLACK, (ICON_PADDING + 8, ICON_PADDING + 8, ICON_SIZE - 16, ICON_SIZE - 16), 2)
+    save_icon(icon, 'zoom_out')
+
+# Create grid icon
+def create_grid_icon():
+    icon = create_icon_surface()
+    pygame.draw.rect(icon, BLACK, (ICON_PADDING, ICON_PADDING, ICON_SIZE, ICON_SIZE), 2)
+    for i in range(1, 4):
+        pygame.draw.line(icon, BLACK, (ICON_PADDING, ICON_PADDING + i * ICON_SIZE // 4), (ICON_PADDING + ICON_SIZE, ICON_PADDING + i * ICON_SIZE // 4), 1)
+        pygame.draw.line(icon, BLACK, (ICON_PADDING + i * ICON_SIZE // 4, ICON_PADDING), (ICON_PADDING + i * ICON_SIZE // 4, ICON_PADDING + ICON_SIZE), 1)
+    save_icon(icon, 'grid')
+
+# Create settings icon
+def create_settings_icon():
+    icon = create_icon_surface()
+    pygame.draw.rect(icon, BLACK, (ICON_PADDING, ICON_PADDING, ICON_SIZE, ICON_SIZE), 2)
+    pygame.draw.rect(icon, BLACK, (ICON_PADDING + 4, ICON_PADDING + 4, ICON_SIZE - 8, ICON_SIZE - 8), 2)
+    pygame.draw.rect(icon, BLACK, (ICON_PADDING + 8, ICON_PADDING + 8, ICON_SIZE - 16, ICON_SIZE - 16), 2)
+    pygame.draw.line(icon, BLACK, (ICON_PADDING + ICON_SIZE // 2, ICON_PADDING + 4), (ICON_PADDING + ICON_SIZE // 2, ICON_PADDING + ICON_SIZE - 4), 2)
+    pygame.draw.line(icon, BLACK, (ICON_PADDING + 4, ICON_PADDING + ICON_SIZE // 2), (ICON_PADDING + ICON_SIZE - 4, ICON_PADDING + ICON_SIZE // 2), 2)
+    save_icon(icon, 'settings')
+
+# Create help icon
+def create_help_icon():
+    icon = create_icon_surface()
+    pygame.draw.rect(icon, BLACK, (ICON_PADDING, ICON_PADDING, ICON_SIZE, ICON_SIZE), 2)
+    pygame.draw.circle(icon, BLACK, (ICON_PADDING + ICON_SIZE // 2, ICON_PADDING + ICON_SIZE // 2), ICON_SIZE // 4, 2)
+    pygame.draw.line(icon, BLACK, (ICON_PADDING + ICON_SIZE // 2, ICON_PADDING + ICON_SIZE // 2), (ICON_PADDING + ICON_SIZE // 2, ICON_PADDING + ICON_SIZE - 4), 2)
+    pygame.draw.circle(icon, BLACK, (ICON_PADDING + ICON_SIZE // 2, ICON_PADDING + ICON_SIZE - 4), 2, 0)
+    save_icon(icon, 'help')
+
+# Create all icons
+create_new_icon()
+create_open_icon()
+create_save_icon()
+create_cut_icon()
+create_copy_icon()
+create_paste_icon()
+create_undo_icon()
+create_redo_icon()
+create_zoom_in_icon()
+create_zoom_out_icon()
+create_grid_icon()
+create_settings_icon()
+create_help_icon()
+
+# Quit pygame
+pygame.quit()
