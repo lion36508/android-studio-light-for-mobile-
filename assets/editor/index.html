@@ -2,1459 +2,538 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="editor-version" content="1.0.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>oxdroid studio</title>
 <style>
-:root{
-  --bg0:#0d1117; --bg1:#11161d; --bg2:#161c26; --bg3:#1c2431;
-  --border:#232c3b; --border2:#2b3648;
-  --txt:#d6dee9; --txt2:#8b98ab; --txt3:#5b6778;
-  --acc:#3b82f6; --acc2:#2563eb; --green:#4ade80; --purple:#c084fc;
-  --term:#0a0e14; --orange:#fb923c; --pink:#f472b6;
-  --sb-h:34px; --titlebar-h:52px; --actbar-w:52px; --qa-h:86px; --statusbar-h:30px;
-}
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
-}
-
-html, body {
-  height: 100%;
-  overflow: hidden;
-  background: var(--bg0);
-  color: var(--txt);
-  font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
-  font-size: 13px;
-}
-
-button {
-  font-family: inherit;
-  cursor: pointer;
-  border: none;
-  background: none;
-  color: inherit;
-}
-
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #2b3648;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-#titlebar {
-  height: var(--titlebar-h);
-  background: var(--bg1);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 0 10px;
-  position: relative;
-  z-index: 50;
-}
-
-#titlebar .hamburger {
-  width: 34px;
-  height: 34px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 4px;
-  border-radius: 8px;
-}
-
-#titlebar .hamburger span {
-  display: block;
-  width: 18px;
-  height: 2px;
-  background: var(--txt2);
-  border-radius: 2px;
-}
-
-#logo {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #0e3a5d, #123);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  flex: none;
-}
-
-#apptitle {
-  line-height: 1.15;
-  min-width: 0;
-}
-
-#apptitle b {
-  font-size: 15px;
-  color: #fff;
-  letter-spacing: .2px;
-  white-space: nowrap;
-}
-
-#apptitle small {
-  display: block;
-  color: var(--txt2);
-  font-size: 10.5px;
-  white-space: nowrap;
-}
-
-.tb-spacer {
-  flex: 1;
-}
-
-#themeBtn {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  font-size: 16px;
-  color: var(--orange);
-}
-
-#runConfig {
-  height: 34px;
-  padding: 0 12px;
-  border-radius: 8px;
-  background: var(--bg2);
-  border: 1px solid var(--border2);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--txt2);
-  font-size: 12.5px;
-}
-
-#runBtn {
-  height: 38px;
-  padding: 0 18px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-  color: #fff;
-  font-weight: 600;
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  box-shadow: 0 2px 10px rgba(37, 99, 235, .35);
-}
-
-#moreBtn {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  color: var(--txt2);
-  font-size: 18px;
-}
-
-#body {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: var(--titlebar-h);
-  bottom: 0;
-  display: flex;
-}
-
-#actbar {
-  width: var(--actbar-w);
-  background: var(--bg1);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 8px 0;
-  gap: 4px;
-  flex: none;
-}
-
-.actbtn {
-  width: 44px;
-  padding: 7px 0;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  color: var(--txt2);
-}
-
-.actbtn .ic {
-  font-size: 18px;
-  line-height: 1;
-}
-
-.actbtn small {
-  font-size: 8.5px;
-  transform: scale(.92);
-}
-
-.actbtn.active {
-  color: var(--acc);
-  background: rgba(59, 130, 246, .12);
-}
-
-.actbtn.active .ic {
-  filter: drop-shadow(0 0 6px rgba(59, 130, 246, .6));
-}
-
-#actbar .spacer {
-  flex: 1;
-}
-
-#sidepanel {
-  width: 225px;
-  flex: none;
-  background: var(--bg1);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  transition: margin-left .18s ease;
-}
-
-#sidepanel.hidden {
-  margin-left: -226px;
-}
-
-.sp-head {
-  height: 38px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 12px;
-  border-bottom: 1px solid var(--border);
-  font-weight: 600;
-  font-size: 12.5px;
-  letter-spacing: .4px;
-  color: var(--txt2);
-}
-
-.sp-head .caret {
-  transition: transform .15s;
-}
-
-.sp-head .caret.closed {
-  transform: rotate(-90deg);
-}
-
-#tree {
-  flex: 1;
-  overflow: auto;
-  padding: 6px 4px;
-  user-select: none;
-}
-
-.tnode {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  border-radius: 6px;
-  white-space: nowrap;
-  cursor: pointer;
-  color: var(--txt);
-}
-
-.tnode:hover {
-  background: var(--bg2);
-}
-
-.tnode.active {
-  background: rgba(59, 130, 246, .18);
-  color: #fff;
-}
-
-.tnode .arrow {
-  font-size: 9px;
-  color: var(--txt2);
-  width: 10px;
-  flex: none;
-  transition: transform .12s;
-}
-
-.tnode .arrow.open {
-  transform: rotate(90deg);
-}
-
-.tnode .fi {
-  font-size: 13px;
-  flex: none;
-}
-
-.tnode .fname {
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.kids {
-  display: none;
-}
-
-.kids.open {
-  display: block;
-}
-
-#maincol {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  background: var(--bg0);
-}
-
-#tabbar {
-  height: 38px;
-  background: var(--bg1);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: flex-end;
-  overflow-x: auto;
-  flex: none;
-}
-
-.tab {
-  height: 36px;
-  padding: 0 8px 0 12px;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  background: var(--bg1);
-  border-right: 1px solid var(--border);
-  color: var(--txt2);
-  font-size: 12.5px;
-  white-space: nowrap;
-  flex: none;
-  position: relative;
-}
-
-.tab.active {
-  background: var(--bg0);
-  color: #fff;
-  box-shadow: inset 0 2px 0 var(--acc);
-}
-
-.tab .fi {
-  font-size: 13px;
-}
-
-.tab .x {
-  width: 18px;
-  height: 18px;
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  color: var(--txt2);
-}
-
-.tab .x:hover {
-  background: #33415580;
-  color: #fff;
-}
-
-#modebar {
-  display: flex;
-  gap: 8px;
-  padding: 8px 10px;
-  flex: none;
-  flex-wrap: wrap;
-}
-
-.modebtn {
-  height: 32px;
-  padding: 0 14px;
-  border-radius: 8px;
-  background: var(--bg2);
-  border: 1px solid var(--border2);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--txt2);
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.modebtn.active {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-  color: #fff;
-  border-color: transparent;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, .3);
-}
-
-#editorWrap {
-  flex: 1;
-  position: relative;
-  min-height: 0;
-  border-bottom: 1px solid var(--border);
-}
-
-#editor {
-  position: absolute;
-  inset: 0;
-}
-
-#loadingOverlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 18px;
-  z-index: 100;
-}
-
-#fallbackUI {
-  position: absolute;
-  inset: 0;
-  background: var(--bg1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: var(--txt2);
-  font-size: 16px;
-  z-index: 100;
-  padding: 20px;
-  text-align: center;
-}
-
-#fallbackUI h2 {
-  color: var(--txt);
-  margin-bottom: 10px;
-}
-
-#fallbackUI p {
-  margin-bottom: 20px;
-}
-
-#fallbackUI button {
-  padding: 10px 20px;
-  background: var(--acc);
-  color: white;
-  border-radius: 5px;
-  font-weight: 600;
-}
-
-#previewPane {
-  display: none;
-  position: absolute;
-  inset: 0;
-  background: #fff;
-  color: #111;
-  padding: 14px;
-  overflow: auto;
-  font-family: sans-serif;
-}
-
-#previewPane.show {
-  display: block;
-}
-
-#designPane {
-  display: none;
-  position: absolute;
-  inset: 0;
-  background: #151b25;
-  align-items: center;
-  justify-content: center;
-  color: var(--txt2);
-}
-
-#designPane.show {
-  display: flex;
-}
-
-#designPane .phone {
-  width: 240px;
-  height: 460px;
-  border: 3px solid var(--border2);
-  border-radius: 26px;
-  background: #0d1117;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  position: relative;
-}
-
-#designPane .notch {
-  position: absolute;
-  top: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
-  height: 16px;
-  background: #000;
-  border-radius: 10px;
-}
-
-#designPane .dv {
-  color: #fff;
-  font-size: 15px;
-  font-weight: 600;
-  text-align: center;
-  padding: 0 14px;
-}
-
-#bottompanel {
-  flex: none;
-  background: var(--bg1);
-  display: flex;
-  flex-direction: column;
-}
-
-#bp-tabs {
-  height: 36px;
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  padding: 0 8px;
-  border-bottom: 1px solid var(--border);
-  overflow-x: auto;
-}
-
-.bptab {
-  height: 36px;
-  padding: 0 12px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--txt2);
-  font-size: 12px;
-  border-bottom: 2px solid transparent;
-  white-space: nowrap;
-}
-
-.bptab.active {
-  color: #fff;
-  border-bottom-color: var(--acc);
-}
-
-.bptab .plus {
-  font-size: 13px;
-  opacity: .7;
-}
-
-#bp-body {
-  height: 210px;
-  overflow: auto;
-  padding: 10px 12px;
-  font-family: 'JetBrains Mono', Consolas, monospace;
-  font-size: 11.5px;
-  line-height: 1.6;
-}
-
-#bp-body .g {
-  color: var(--green);
-}
-
-#bp-body .y {
-  color: #fbbf24;
-}
-
-#bp-body .c {
-  color: var(--txt2);
-}
-
-#bp-body .b {
-  color: var(--acc);
-}
-
-#bp-body .r {
-  color: #f87171;
-}
-
-#termLine {
-  display: flex;
-  gap: 8px;
-  margin-top: 6px;
-}
-
-#termPrompt {
-  color: var(--green);
-  flex: none;
-}
-
-#termInput {
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: var(--txt);
-  font: inherit;
-}
-
-.bp-actions {
-  margin-left: auto;
-  display: flex;
-  gap: 2px;
-}
-
-.bp-actions button {
-  width: 30px;
-  height: 28px;
-  border-radius: 6px;
-  color: var(--txt2);
-  font-size: 14px;
-}
-
-#quick {
-  flex: none;
-  border-top: 1px solid var(--border);
-  background: var(--bg1);
-  padding: 8px 10px;
-  overflow-x: auto;
-}
-
-#quick h4 {
-  font-size: 11px;
-  color: var(--txt2);
-  margin-bottom: 7px;
-  font-weight: 600;
-  letter-spacing: .4px;
-}
-
-#qaRow {
-  display: flex;
-  gap: 8px;
-}
-
-.qa {
-  flex: 1;
-  min-width: 120px;
-  background: var(--bg2);
-  border: 1px solid var(--border2);
-  border-radius: 12px;
-  padding: 9px 10px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-align: left;
-}
-
-.qa .qic {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  flex: none;
-}
-
-.qa b {
-  display: block;
-  font-size: 12.5px;
-  color: #fff;
-}
-
-.qa small {
-  color: var(--txt2);
-  font-size: 10px;
-}
-
-#statusbar {
-  height: var(--statusbar-h);
-  background: var(--bg2);
-  border-top: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 0 10px;
-  font-size: 11px;
-  color: var(--txt2);
-  overflow-x: auto;
-  white-space: nowrap;
-}
-
-#statusbar .dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--green);
-  flex: none;
-}
-
-#statusbar .sbitem {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-#statusbar .sbitem.brand {
-  color: var(--acc);
-  font-weight: 600;
-}
-
-#banner {
-  flex: none;
-  background: linear-gradient(90deg, #0f1a2b, #13202f);
-  border-top: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 7px 12px;
-}
-
-#banner .blogo {
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
-  background: #123;
-  overflow: hidden;
-  font-size: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#banner b {
-  color: #fff;
-  font-size: 12px;
-  display: block;
-}
-
-#banner small {
-  color: var(--txt2);
-  font-size: 10px;
-}
-
-#banner .bsp {
-  flex: 1;
-}
-
-#letsCode {
-  height: 32px;
-  padding: 0 14px;
-  border-radius: 9px;
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-  color: #fff;
-  font-weight: 600;
-  font-size: 12px;
-}
-
-#toast {
-  position: fixed;
-  left: 50%;
-  bottom: 110px;
-  transform: translateX(-50%) translateY(20px);
-  opacity: 0;
-  background: #1e293b;
-  border: 1px solid var(--border2);
-  color: #fff;
-  padding: 9px 18px;
-  border-radius: 10px;
-  font-size: 12.5px;
-  transition: all .25s;
-  z-index: 999;
-  pointer-events: none;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, .5);
-}
-
-#toast.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-
-body.light {
-  --bg0: #ffffff;
-  --bg1: #f3f5f8;
-  --bg2: #e9edf3;
-  --bg3: #dfe5ee;
-  --border: #d5dce6;
-  --border2: #c6d0dd;
-  --txt: #1e293b;
-  --txt2: #64748b;
-  --term: #0a0e14;
-}
-
-body.light #apptitle b {
-  color: #0f172a;
-}
-
-body.light .tab.active {
-  --bg0: #ffffff;
-}
-
-body.light #editorWrap {
-  background: #fff;
-}
-
-body.light #banner {
-  background: linear-gradient(90deg, #e8eef7, #dfe9f5);
-}
-
-body.light #banner b {
-  color: #0f172a;
-}
-
-@media (max-width: 640px) {
-  #sidepanel {
-    width: 185px;
-  }
-
-  #sidepanel.hidden {
-    margin-left: -186px;
-  }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+:root {
+  --bg:#0d1117; --panel:#161b22; --panel2:#21262d; --border:#30363d;
+  --txt:#c9d1d9; --txt2:#8b949e; --acc:#3b82f6; --green:#3fb950;
+  --orange:#f0883e; --purple:#a371f7; --red:#f85149;
+}
+html, body { height:100%; overflow:hidden; background:#0d1117; color:var(--txt);
+  font-family:-apple-system, sans-serif; font-size:13px; user-select:none; }
+
+/* Wallpaper layers */
+#bgLayer { position:fixed; inset:0; background:url('img/wallpaper_main.png') no-repeat center center;
+  background-size:cover; z-index:0; }
+#bgTint { position:fixed; inset:0; background:rgba(13,17,23,0.78); z-index:1; }
+
+#app { position:fixed; inset:0; z-index:2; display:flex; flex-direction:column;
+  padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom); }
+
+/* ═══ HEADER ═══ */
+#header { height:48px; min-height:48px; background:rgba(22,27,34,0.95);
+  border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 8px; gap:6px; }
+.icon-btn { width:38px; height:38px; display:flex; align-items:center; justify-content:center;
+  border-radius:8px; color:var(--txt); font-size:20px; flex:0 0 38px; cursor:pointer; }
+.icon-btn:active { background:var(--panel2); }
+#appTitle { flex:1; min-width:0; padding:0 6px; }
+#appTitle .t1 { font-size:14px; font-weight:600; color:#fff; white-space:nowrap;
+  overflow:hidden; text-overflow:ellipsis; }
+#appTitle .t2 { font-size:10px; color:var(--txt2); white-space:nowrap;
+  overflow:hidden; text-overflow:ellipsis; }
+#runBtn { height:34px; padding:0 14px; border-radius:8px; background:var(--acc); color:#fff;
+  font-weight:600; font-size:12.5px; cursor:pointer; }
+#runBtn:active { opacity:0.85; }
+
+/* ═══ FILE TABS ═══ */
+#tabs { height:34px; min-height:34px; background:rgba(22,27,34,0.9);
+  border-bottom:1px solid var(--border); display:flex; overflow-x:auto; overflow-y:hidden; }
+#tabs::-webkit-scrollbar { height:0; }
+.tab { flex:0 0 auto; height:34px; padding:0 12px; display:flex; align-items:center; gap:6px;
+  background:var(--panel2); color:var(--txt2); font-size:12px; border-right:1px solid var(--bg);
+  cursor:pointer; max-width:150px; white-space:nowrap; }
+.tab.active { background:var(--bg); color:#fff; box-shadow:inset 0 -2px 0 var(--acc); }
+.tab .x { padding:2px 4px; border-radius:3px; font-size:13px; }
+.tab .x:active { background:var(--red); color:#fff; }
+
+/* ═══ EDITOR ═══ */
+#editorHost { flex:1 1 0; position:relative; min-height:0; overflow:hidden; }
+#editor { position:absolute; inset:0; }
+
+/* ═══ MODE BAR ═══ */
+#modebar { height:44px; min-height:44px; background:rgba(22,27,34,0.9);
+  border-top:1px solid var(--border); display:flex; }
+.mode { flex:1; display:flex; align-items:center; justify-content:center; gap:5px;
+  color:var(--txt2); font-size:11px; font-weight:500; cursor:pointer; position:relative;
+  flex-direction:column; }
+.mode:active { background:var(--panel2); }
+.mode .ic { font-size:15px; }
+
+/* ═══ STATUS ═══ */
+#status { height:22px; min-height:22px; background:#010409; border-top:1px solid var(--border);
+  display:flex; align-items:center; gap:12px; padding:0 8px; font-size:9.5px;
+  color:var(--txt2); white-space:nowrap; overflow-x:auto; }
+#status::-webkit-scrollbar { height:0; }
+#status .dot { width:6px; height:6px; border-radius:50%; background:var(--green); flex:0 0 6px; }
+
+/* ═══ OVERLAY SCREENS ═══ */
+.overlay { position:fixed; inset:0; z-index:100; background:#0d1117; display:none;
+  flex-direction:column; padding-top:env(safe-area-inset-top);
+  padding-bottom:env(safe-area-inset-bottom); }
+.overlay.open { display:flex; }
+.overlay-head { height:52px; min-height:52px; background:var(--panel);
+  border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 8px; gap:6px; }
+.overlay-head .title { flex:1; font-size:15px; font-weight:600; color:#fff; padding:0 6px; }
+.overlay-body { flex:1; overflow-y:auto; }
+
+/* ═══ DRAWER ═══ */
+#scrim { position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:50;
+  opacity:0; visibility:hidden; transition:opacity 0.2s, visibility 0.2s; }
+#scrim.open { opacity:1; visibility:visible; }
+#drawer { position:fixed; top:0; bottom:0; left:0; width:290px; max-width:82vw; z-index:60;
+  background:rgba(22,27,34,0.98); backdrop-filter:blur(12px); transform:translateX(-100%);
+  transition:transform 0.25s cubic-bezier(0.2,0.8,0.2,1); display:flex; flex-direction:column;
+  padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom); }
+#drawer.open { transform:translateX(0); }
+.drawer-head { padding:16px; border-bottom:1px solid var(--border); display:flex;
+  align-items:center; gap:10px; }
+.drawer-head img { width:38px; height:38px; border-radius:9px; }
+.drawer-head .ttl { font-size:15px; font-weight:600; color:#fff; }
+.drawer-head .sub { font-size:10.5px; color:var(--txt2); }
+.drawer-nav { padding:6px 0; }
+.nav-item { padding:13px 18px; display:flex; align-items:center; gap:14px;
+  font-size:13.5px; color:var(--txt); cursor:pointer; }
+.nav-item:active { background:var(--panel2); }
+.nav-item .ic { width:22px; text-align:center; font-size:17px; color:var(--txt2); }
+
+/* ═══ SETTINGS ROWS ═══ */
+.setting-row { padding:15px 16px; border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between; font-size:13.5px; }
+.setting-row .lbl { color:var(--txt); }
+.setting-row .val { color:var(--txt2); font-size:12.5px; }
+.setting-btn { padding:6px 14px; border-radius:6px; background:var(--acc); color:#fff;
+  font-size:12px; cursor:pointer; }
+.setting-btn:active { opacity:0.85; }
+.setting-select { background:var(--panel2); color:var(--txt); border:1px solid var(--border);
+  padding:5px 10px; border-radius:6px; font-size:12px; }
+
+/* ═══ TERMINAL ═══ */
+#termOut { flex:1; background:#010409; padding:12px; font-family:'Consolas','Courier New',monospace;
+  font-size:12.5px; color:#8b949e; white-space:pre-wrap; overflow-y:auto;
+  line-height:1.5; }
+#termInput { height:46px; min-height:46px; background:var(--panel);
+  border-top:1px solid var(--border); display:flex; align-items:center; padding:0 12px; }
+#termInput .prompt { color:var(--green); font-family:monospace; font-size:14px;
+  margin-right:8px; font-weight:600; }
+#termInput input { flex:1; background:transparent; border:0; outline:0; color:var(--txt);
+  font-family:monospace; font-size:14px; padding:8px 0; }
+
+/* ═══ TOAST ═══ */
+#toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:#21262d; border:1px solid var(--border); padding:9px 18px; border-radius:8px;
+  font-size:12.5px; color:#fff; opacity:0; pointer-events:none;
+  transition:opacity 0.2s, transform 0.2s; z-index:200; }
+#toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ═══ ACE ═══ */
+.ace_editor { background:rgba(13,17,23,0.6) !important;
+  font-size:13px !important; font-family:'Consolas','Courier New',monospace !important; }
+.ace_gutter { background:rgba(22,27,34,0.75) !important; color:#484f58 !important; }
+.ace_marker-layer .ace_active-line { background:rgba(255,255,255,0.04) !important; }
+
+/* ═══ MOBILE COMPACT ═══ */
+@media (max-width: 480px) {
+  #header { height:44px; min-height:44px; padding:0 6px; gap:4px; }
+  .icon-btn { width:34px; height:34px; flex:0 0 34px; font-size:18px; }
+  #runBtn { height:30px; padding:0 10px; font-size:11.5px; }
+  .tab { height:32px; font-size:11px; padding:0 10px; }
+  #tabs { height:32px; min-height:32px; }
+  .mode { font-size:10px; }
+  .mode .ic { font-size:14px; }
 }
 </style>
 </head>
 <body>
-<div id="titlebar">
-  <button class="hamburger" onclick="toggleSide()"><span></span><span></span><span></span></button>
-  <div id="logo">🤖</div>
-  <div id="apptitle"><b>oxdroid studio</b><small>Code • Build • Run • Create</small></div>
-  <div class="tb-spacer"></div>
-  <button id="themeBtn" onclick="toggleTheme()">☀️</button>
-  <button id="runConfig">🐞 Debug <span style="font-size:9px">▾</span></button>
-  <button id="runBtn" onclick="OxIDE.run()">▶ Run</button>
-  <button id="moreBtn" onclick="OxIDE.menu()">⋮</button>
+
+<div id="bgLayer"></div>
+<div id="bgTint"></div>
+
+<!-- ═══ MAIN EDITOR SCREEN ═══ -->
+<div id="app">
+  <div id="header">
+    <button class="icon-btn" onclick="openDrawer()">☰</button>
+    <img src="img/robot.png" style="width:32px;height:32px;border-radius:8px;margin-right:8px;object-fit:contain;background:rgba(59,130,246,0.15);padding:2px;" onerror="this.style.display='none'">
+    <div id="appTitle">
+      <div class="t1">oxdroid studio</div>
+      <div class="t2" id="curFile">Main.java</div>
+    </div>
+    <button id="runBtn" onclick="Android.runCodeClick()">▶ Run</button>
+    <button class="icon-btn" onclick="openSettings()">⚙</button>
+  </div>
+
+  <div id="tabs"></div>
+
+  <div id="editorHost">
+    <div id="loadingPanda" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#0d1117; z-index:10; transition:opacity 0.4s;">
+      <img src="img/panda_loader.gif" style="width:180px; height:auto; max-width:60%;" onerror="this.style.display='none'">
+      <div style="color:#8b949e; font-size:12px; margin-top:14px; letter-spacing:2px;">LOADING...</div>
+    </div>
+    <div id="editor"></div>
+  </div>
+
+  <div id="modebar">
+    <div class="mode" onclick="openTerminal()">
+      <span class="ic">▸_</span><span>Terminal</span>
+    </div>
+    <div class="mode" onclick="Android.buildAPKClick()">
+      <span class="ic">🛠</span><span>Build</span>
+    </div>
+    <div class="mode" onclick="Android.togglePreviewClick()">
+      <span class="ic">👁</span><span>Preview</span>
+    </div>
+    <div class="mode" onclick="openSettings()">
+      <span class="ic">⚙</span><span>Settings</span>
+    </div>
+  </div>
+
+  <div id="status">
+    <span style="display:flex; align-items:center; gap:4px">
+      <span class="dot"></span>Ready
+    </span>
+    <span>Java 17</span>
+    <span>API 34</span>
+    <span>UTF-8</span>
+    <span id="cursorPos">Ln 1, Col 1</span>
+  </div>
 </div>
-<div id="body">
-  <div id="actbar">
-    <button class="actbtn active" data-view="explorer" onclick="OxIDE.switchView(this)"><span class="ic">📁</span><small>Explorer</small></button>
-    <button class="actbtn" data-view="search" onclick="OxIDE.switchView(this)"><span class="ic">🔍</span><small>Search</small></button>
-    <button class="actbtn" data-view="git" onclick="OxIDE.switchView(this)"><span class="ic">⑂</span><small>Git</small></button>
-    <button class="actbtn" data-view="run" onclick="OxIDE.switchView(this)"><span class="ic">▶</span><small>Run</small></button>
-    <button class="actbtn" data-view="ext" onclick="OxIDE.switchView(this)"><span class="ic">▦</span><small>Extensions</small></button>
-    <button class="actbtn" data-view="ai" onclick="OxIDE.switchView(this)"><span class="ic">✨</span><small>AI</small></button>
-    <button class="actbtn" data-view="term" onclick="OxIDE.switchView(this)"><span class="ic">⌨</span><small>Terminal</small></button>
-    <div class="spacer"></div>
-    <button class="actbtn" data-view="settings" onclick="OxIDE.switchView(this)"><span class="ic">⚙</span><small>Settings</small></button>
+
+<!-- ═══ DRAWER ═══ -->
+<div id="scrim" onclick="closeDrawer()"></div>
+<div id="drawer">
+  <div class="drawer-head">
+    <img src="img/robot.png" style="width:44px;height:44px;border-radius:10px;background:rgba(59,130,246,0.15);padding:3px;object-fit:contain;">
+    <div>
+      <div class="ttl">oxdroid studio</div>
+      <div class="sub">Code · Build · Run</div>
+    </div>
   </div>
-  <div id="sidepanel">
-    <div class="sp-head"><span id="spTitle">PROJECT</span><span class="caret" id="spCaret" onclick="toggleSide()">▾</span></div>
-    <div id="tree"></div>
-  </div>
-  <div id="maincol">
-    <div id="tabbar"></div>
-    <div id="modebar">
-      <button class="modebtn active" data-mode="code" onclick="OxIDE.setMode(this)">🖥 Code</button>
-      <button class="modebtn" data-mode="design" onclick="OxIDE.setMode(this)">▣ Design</button>
-      <button class="modebtn" data-mode="split" onclick="OxIDE.setMode(this)">◫ Split</button>
-      <button class="modebtn" data-mode="term" onclick="OxIDE.setMode(this)">▸_ Terminal</button>
-      <button class="modebtn" data-mode="logs" onclick="OxIDE.setMode(this)">◉ Logs</button>
+  <div class="drawer-nav">
+    <div class="nav-item" onclick="openFiles()">
+      <span class="ic">📁</span>Explorer
     </div>
-    <div id="editorWrap">
-      <div id="editor"></div>
-      <div id="loadingOverlay">Loading editor...</div>
-      <div id="fallbackUI" style="display: none;">
-        <h2>Editor Failed to Load</h2>
-        <p>We're sorry, but the editor failed to load. This might be due to a network issue or a problem with your device.</p>
-        <button onclick="location.reload()">Retry</button>
-      </div>
-      <div id="designPane"><div class="phone"><div class="notch"></div><div class="dv" id="designText">Hello from OxDroid Studio! 👋</div></div></div>
-      <div id="previewPane"></div>
+    <div class="nav-item" onclick="closeDrawer(); Android.runCodeClick()">
+      <span class="ic">▶</span>Run Code
     </div>
-    <div id="bottompanel">
-      <div id="bp-tabs">
-        <button class="bptab active" data-bp="terminal" onclick="OxIDE.setBP(this)">Terminal 1</button>
-        <button class="bptab" data-bp="build" onclick="OxIDE.setBP(this)">Build Output</button>
-        <button class="bptab" data-bp="logcat" onclick="OxIDE.setBP(this)">Logcat</button>
-        <button class="bptab" onclick="OxIDE.newTerm()">＋</button>
-        <div class="bp-actions">
-          <button onclick="OxIDE.clearBP()" title="Clear">🗑</button>
-          <button onclick="OxIDE.menu()" title="More">⋮</button>
-        </div>
-      </div>
-      <div id="bp-body">
-        <div id="bp-terminal"></div>
-        <div id="termLine"><span id="termPrompt">oxdroid@studio:~/MyApp$</span><input id="termInput" autocomplete="off" spellcheck="false"></div>
-      </div>
+    <div class="nav-item" onclick="closeDrawer(); Android.buildAPKClick()">
+      <span class="ic">🛠</span>Build APK
     </div>
-    <div id="quick">
-      <h4>Quick Actions</h4>
-      <div id="qaRow">
-        <button class="qa" onclick="OxIDE.run()"><span class="qic" style="background:rgba(74,222,128,.15)">▶️</span><span><b>Run App</b><small>Build &amp; Install</small></span></button>
-        <button class="qa" onclick="OxIDE.debug()"><span class="qic" style="background:rgba(192,132,252,.15)">🐞</span><span><b>Debug</b><small>Start Debugging</small></span></button>
-        <button class="qa" onclick="OxIDE.build()"><span class="qic" style="background:rgba(251,146,60,.15)">🛠</span><span><b>Build APK</b><small>Release Build</small></span></button>
-        <button class="qa" onclick="OxIDE.preview()"><span class="qic" style="background:rgba(59,130,246,.15)">📱</span><span><b>Preview UI</b><small>Live Preview</small></span></button>
-      </div>
+    <div class="nav-item" onclick="openTerminal()">
+      <span class="ic">▸_</span>Terminal
     </div>
-    <div id="statusbar">
-      <span class="sbitem brand">⑂ main</span>
-      <span class="sbitem">☕ Java 17</span>
-      <span class="sbitem">🤖 Android API 34</span>
-      <span class="sbitem">UTF-8</span>
-      <span class="sbitem">LF</span>
-      <span class="sbitem">Spaces: 4</span>
-      <span style="flex:1"></span>
-      <span class="sbitem"><span class="dot"></span>&nbsp;Ready</span>
+    <div class="nav-item" onclick="openSettings()">
+      <span class="ic">⚙</span>Settings
     </div>
-    <div id="banner">
-      <div class="blogo">🤖</div>
-      <div><b>Build Amazing Apps on Your Android Device</b><small>Powerful • Lightweight • Open Source</small></div>
-      <div class="bsp"></div>
-      <button id="letsCode" onclick="OxIDE.run()">Let's Code 🚀</button>
+    <div class="nav-item" onclick="openAbout()">
+      <span class="ic">ℹ</span>About
     </div>
   </div>
 </div>
+
+<!-- ═══ TERMINAL SCREEN ═══ -->
+<div id="termView" class="overlay">
+  <div class="overlay-head">
+    <button class="icon-btn" onclick="closeTerminal()">←</button>
+    <div class="title">Terminal</div>
+    <button class="icon-btn" onclick="clearTerminal()">🗑</button>
+  </div>
+  <div id="termOut"></div>
+  <div id="termInput">
+    <span class="prompt">$</span>
+    <input id="termCmd" placeholder="type command..." autocomplete="off" spellcheck="false">
+  </div>
+</div>
+
+<!-- ═══ SETTINGS SCREEN ═══ -->
+<div id="settingsView" class="overlay">
+  <div class="overlay-head">
+    <button class="icon-btn" onclick="closeSettings()">←</button>
+    <div class="title">Settings</div>
+  </div>
+  <div class="overlay-body">
+    <div style="width:100%; border-bottom:1px solid var(--border);">
+      <img src="img/banner_iguana.png" style="width:100%; display:block;">
+    </div>
+    <div class="setting-row">
+      <span class="lbl">Font Size</span>
+      <div>
+        <span class="setting-btn" onclick="changeFont(-1)" style="padding:4px 12px">−</span>
+        <span id="fontSize" style="margin:0 12px; color:var(--txt2); font-size:14px;">13</span>
+        <span class="setting-btn" onclick="changeFont(1)" style="padding:4px 12px">+</span>
+      </div>
+    </div>
+    <div class="setting-row">
+      <span class="lbl">Line Numbers</span>
+      <span class="setting-btn" onclick="toggleLineNumbers()">Toggle</span>
+    </div>
+    <div class="setting-row">
+      <span class="lbl">Word Wrap</span>
+      <span class="setting-btn" onclick="toggleWrap()">Toggle</span>
+    </div>
+    <div class="setting-row">
+      <span class="lbl">Editor Theme</span>
+      <select class="setting-select" id="themeSelect" onchange="changeTheme(this.value)">
+        <option value="one_dark">One Dark</option>
+        <option value="dracula">Dracula</option>
+        <option value="monokai">Monokai</option>
+        <option value="github">GitHub</option>
+      </select>
+    </div>
+    <div class="setting-row">
+      <span class="lbl">App Version</span>
+      <span class="val">1.0.0</span>
+    </div>
+    <div class="setting-row">
+      <span class="lbl">Project Path</span>
+      <span class="val">/MasterAppProject</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ABOUT SCREEN ═══ -->
+<div id="aboutView" class="overlay">
+  <div class="overlay-head">
+    <button class="icon-btn" onclick="closeAbout()">←</button>
+    <div class="title">About</div>
+  </div>
+  <div class="overlay-body" style="text-align:center; padding:40px 24px;">
+    <img src="img/robot.png" style="width:100px; height:100px; border-radius:22px; margin-bottom:20px; background:rgba(59,130,246,0.15); padding:5px; object-fit:contain;">
+    <div style="width:100%; max-width:280px; margin:20px auto; border-radius:14px; overflow:hidden;">
+      <img src="img/banner_panda.jpg" style="width:100%; display:block;">
+    </div>
+    <h2 style="color:#fff; margin-bottom:10px; font-size:22px;">oxdroid studio</h2>
+    <p style="color:var(--txt2); font-size:13px; line-height:1.7;">
+      Version 1.0.0<br><br>
+      A mobile IDE that lets you code, build, and run Android apps directly on your device.
+    </p>
+    <div style="margin-top:30px; text-align:left; padding:0 12px;">
+      <p style="color:var(--txt); font-weight:600; margin-bottom:12px;">Features</p>
+      <p style="color:var(--txt2); font-size:12.5px; line-height:2;">
+        • Multi-language code editor<br>
+        • Terminal access<br>
+        • Build APK locally<br>
+        • File management<br>
+        • Cloud sync with GitHub
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FILES SCREEN ═══ -->
+<div id="filesView" class="overlay">
+  <div class="overlay-head">
+    <button class="icon-btn" onclick="closeFiles()">←</button>
+    <div class="title">Explorer</div>
+    <button class="icon-btn" onclick="Android.promptNewFile()">+</button>
+  </div>
+  <div class="overlay-body" style="padding:0;">
+    <div id="filesListFull"></div>
+  </div>
+</div>
+
 <div id="toast"></div>
+
+<script src="ace.js"></script>
 <script>
-const NATIVE = {
-  runApp:      () => window.Android && Android.runApp      && Android.runApp(),
-  debugApp:    () => window.Android && Android.debugApp    && Android.debugApp(),
-  buildApk:    () => window.Android && Android.buildApk    && Android.buildApk(),
-  previewUi:   () => window.Android && Android.previewUi   && Android.previewUi(),
-  openFile:    p  => window.Android && Android.openFile    && Android.openFile(p),
-  saveFile:    (p,c)=> window.Android && Android.saveFile   && Android.saveFile(p,c),
-  runCommand:  c  => window.Android && Android.runCommand  && Android.runCommand(c),
-  gitAction:   a  => window.Android && Android.gitAction   && Android.gitAction(a),
-  openSettings:() => window.Android && Android.openSettings&& Android.openSettings(),
-  aiAsk:       q  => window.Android && Android.aiAsk       && Android.aiAsk(q),
-};
-
-const FILES = {
-  "MyApp/app/src/main/java/com/example/Main.java": {
-    name:"Main.java", icon:"🅹", mode:"java", ro:false,
-    content:'package com.example;\n\nimport android.os.Bundle;\nimport android.widget.TextView;\nimport androidx.appcompat.app.AppCompatActivity;\n\npublic class Main extends AppCompatActivity {\n\n    @Override\n    protected void onCreate(Bundle savedInstanceState) {\n        super.onCreate(savedInstanceState);\n        setContentView(R.layout.activity_main);\n\n        TextView textView = findViewById(R.id.textView);\n        textView.setText("Hello from OxDroid Studio! 👋");\n    }\n}\n'},
-  "MyApp/app/src/main/res/layout/activity_main.xml": {
-    name:"activity_main.xml", icon:"🅇", mode:"xml", ro:false,
-    content:'<?xml version="1.0" encoding="utf-8"?>\n<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"\n    android:layout_width="match_parent"\n    android:layout_height="match_parent"\n    android:gravity="center"\n    android:orientation="vertical">\n\n    <TextView\n        android:id="@+id/textView"\n        android:layout_width="wrap_content"\n        android:layout_height="wrap_content"\n        android:text="Hello World!" />\n\n</LinearLayout>\n'},
-  "MyApp/app/src/main/AndroidManifest.xml": {
-    name:"AndroidManifest.xml", icon:"🅼", mode:"xml", ro:false,
-    content:'<?xml version="1.0" encoding="utf-8"?>\n<manifest xmlns:android="http://schemas.android.com/apk/res/android">\n\n    <application\n        android:allowBackup="true"\n        android:label="@string/app_name"\n        android:theme="@style/Theme.MyApp">\n        <activity android:name=".Main" android:exported="true">\n            <intent-filter>\n                <action android:name="android.intent.action.MAIN" />\n                <category android:name="android.intent.category.LAUNCHER" />\n            </intent-filter>\n        </activity>\n    </application>\n\n</manifest>\n'},
-  "MyApp/app/src/main/res/values/strings.xml": {
-    name:"strings.xml", icon:"🅇", mode:"xml", ro:false,
-    content:'<resources>\n    <string name="app_name">MyApp</string>\n</resources>\n'},
-  "MyApp/app/build.gradle": {
-    name:"build.gradle", icon:"🐘", mode:"groovy", ro:false,
-    content:'plugins {\n    id "com.android.application"\n}\n\nandroid {\n    namespace "com.example"\n    compileSdk 34\n\n    defaultConfig {\n        applicationId "com.example"\n        minSdk 24\n        targetSdk 34\n        versionCode 1\n        versionName "1.0"\n    }\n}\n\ndependencies {\n    implementation "androidx.appcompat:appcompat:1.6.1"\n}\n'},
-  "MyApp/README.md": {
-    name:"README.md", icon:"📄", mode:"markdown", ro:false,
-    content:'# MyApp\n\nBuilt with **oxdroid studio** on Android 🤖\n'},
-};
-
-const TREE = [
-  {type:"dir", name:"MyApp", open:true, children:[
-    {type:"dir", name:"app", open:true, children:[
-      {type:"dir", name:"src", open:true, children:[
-        {type:"dir", name:"main", open:true, children:[
-          {type:"dir", name:"java", open:true, children:[
-            {type:"dir", name:"com.example", open:true, children:[
-              {type:"file", path:"MyApp/app/src/main/java/com/example/Main.java"}]},
-          ]},
-          {type:"dir", name:"res", open:true, children:[
-            {type:"dir", name:"layout", open:true, children:[
-              {type:"file", path:"MyApp/app/src/main/res/layout/activity_main.xml"}]},
-            {type:"dir", name:"values", children:[
-              {type:"file", path:"MyApp/app/src/main/res/values/strings.xml"}]},
-          ]},
-          {type:"file", path:"MyApp/app/src/main/AndroidManifest.xml"},
-        ]},
-      ]},
-      {type:"file", path:"MyApp/app/build.gradle"},
-    ]},
-    {type:"dir", name:"gradle", children:[]},
-    {type:"dir", name:".idea", children:[]},
-    {type:"dir", name:"build", children:[]},
-    {type:"file", path:"MyApp/README.md"},
-  ]},
-];
-
-let currentFile = null;
-const openTabs = [];
-const $ = s => document.querySelector(s);
-const toastEl = $("#toast");
-let toastT = null;
-
-// Performance metrics
-const performanceMetrics = {
-  editorLoadTime: 0,
-  fileOpenTimes: {},
-  fileSaveTimes: {},
-  operationTimes: {}
-};
-
-function toast(msg) {
-  toastEl.textContent = msg;
-  toastEl.classList.add("show");
-  clearTimeout(toastT);
-  toastT = setTimeout(() => toastEl.classList.remove("show"), 2200);
-}
-
-function openFile(path) {
-  const startTime = performance.now();
-
-  if (!FILES[path]) return;
-
-  const file = FILES[path];
-  currentFile = path;
-
-  // Update editor content
-  editor.setValue(file.content, -1);
-  editor.session.setMode(`ace/mode/${file.mode}`);
-
-  // Update tabs
-  updateTabs(path);
-
-  // Update tree view
-  updateTreeView(path);
-
-  // Update design pane if needed
-  if (path === "MyApp/app/src/main/res/layout/activity_main.xml") {
-    updateDesignPane();
-  }
-
-  // Record performance metric
-  const endTime = performance.now();
-  performanceMetrics.fileOpenTimes[path] = endTime - startTime;
-  console.log(`File open time for ${path}: ${performanceMetrics.fileOpenTimes[path]}ms`);
-}
-
-function updateTabs(path) {
-  const tabbar = $("#tabbar");
-  const file = FILES[path];
-
-  // Check if tab already exists
-  const existingTab = $(`.tab[data-path="${path}"]`);
-  if (existingTab) {
-    // Activate the existing tab
-    const tabs = document.querySelectorAll(".tab");
-    tabs.forEach(tab => tab.classList.remove("active"));
-    existingTab.classList.add("active");
-    return;
-  }
-
-  // Create new tab
-  const tab = document.createElement("div");
-  tab.className = "tab active";
-  tab.dataset.path = path;
-  tab.innerHTML = `
-    <span class="fi">${file.icon}</span>
-    <span class="fname">${file.name}</span>
-    <span class="x" onclick="closeTab(event, '${path}')">×</span>
-  `;
-
-  // Remove active class from other tabs
-  const tabs = document.querySelectorAll(".tab");
-  tabs.forEach(tab => tab.classList.remove("active"));
-
-  // Add click event to open the file
-  tab.addEventListener("click", () => openFile(path));
-
-  // Add to tabbar
-  tabbar.appendChild(tab);
-
-  // Add to openTabs array if not already there
-  if (!openTabs.includes(path)) {
-    openTabs.push(path);
-  }
-}
-
-function closeTab(event, path) {
-  event.stopPropagation();
-
-  // Remove from openTabs array
-  const index = openTabs.indexOf(path);
-  if (index > -1) {
-    openTabs.splice(index, 1);
-  }
-
-  // Remove tab element
-  const tab = $(`.tab[data-path="${path}"]`);
-  if (tab) {
-    tab.remove();
-  }
-
-  // If this was the current file, open another file
-  if (currentFile === path) {
-    if (openTabs.length > 0) {
-      openFile(openTabs[openTabs.length - 1]);
-    } else {
-      currentFile = null;
-      editor.setValue("");
-    }
-  }
-}
-
-function updateTreeView(path) {
-  const tree = $("#tree");
-
-  // Remove active class from all nodes
-  const nodes = tree.querySelectorAll(".tnode");
-  nodes.forEach(node => node.classList.remove("active"));
-
-  // Find the node for the current file
-  const fileNode = findFileNode(path);
-  if (fileNode) {
-    fileNode.classList.add("active");
-
-    // Open all parent directories
-    let parent = fileNode.parentElement;
-    while (parent && parent.classList.contains("kids")) {
-      parent.classList.add("open");
-      parent.previousElementSibling.querySelector(".arrow").classList.add("open");
-      parent = parent.parentElement.parentElement;
-    }
-  }
-}
-
-function findFileNode(path, nodeList = TREE) {
-  for (const node of nodeList) {
-    if (node.type === "file" && node.path === path) {
-      return document.querySelector(`.tnode[data-path="${path}"]`);
-    } else if (node.type === "dir" && node.children) {
-      const found = findFileNode(path, node.children);
-      if (found) return found;
-    }
-  }
-  return null;
-}
-
-function updateDesignPane() {
-  const xmlContent = editor.getValue();
-  const parser = new DOMParser();
-  const xmlDoc = parser.parseFromString(xmlContent, "text/xml");
-
-  const textView = xmlDoc.querySelector("TextView");
-  if (textView) {
-    const text = textView.getAttribute("android:text") || "Hello from OxDroid Studio! 👋";
-    $("#designText").textContent = text;
-  }
-}
-
-function toggleSide() {
-  const sidepanel = $("#sidepanel");
-  const caret = $("#spCaret");
-  sidepanel.classList.toggle("hidden");
-  caret.classList.toggle("closed");
-}
-
-function toggleTheme() {
-  document.body.classList.toggle("light");
-  const themeBtn = $("#themeBtn");
-  themeBtn.textContent = document.body.classList.contains("light") ? "🌙" : "☀️";
-}
-
-function renderTree(nodeList, parentEl) {
-  nodeList.forEach(node => {
-    const el = document.createElement("div");
-    el.className = "tnode";
-    el.dataset.path = node.path || "";
-
-    if (node.type === "dir") {
-      el.innerHTML = `
-        <span class="arrow ${node.open ? 'open' : ''}">▶</span>
-        <span class="fi">📁</span>
-        <span class="fname">${node.name}</span>
-      `;
-
-      el.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const arrow = el.querySelector(".arrow");
-        const kids = el.nextElementSibling;
-
-        if (kids) {
-          kids.classList.toggle("open");
-          arrow.classList.toggle("open");
-        }
-      });
-
-      const kids = document.createElement("div");
-      kids.className = `kids ${node.open ? 'open' : ''}`;
-      renderTree(node.children, kids);
-
-      parentEl.appendChild(el);
-      parentEl.appendChild(kids);
-    } else {
-      el.innerHTML = `
-        <span class="arrow"></span>
-        <span class="fi">${FILES[node.path].icon}</span>
-        <span class="fname">${FILES[node.path].name}</span>
-      `;
-
-      el.addEventListener("click", () => openFile(node.path));
-
-      parentEl.appendChild(el);
-    }
-  });
-}
-
-const OxIDE = {
-  switchView: function(btn) {
-    const actbtns = document.querySelectorAll(".actbtn");
-    actbtns.forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-  },
-
-  setMode: function(btn) {
-    const modebtns = document.querySelectorAll(".modebtn");
-    modebtns.forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-
-    const mode = btn.dataset.mode;
-    const designPane = $("#designPane");
-    const previewPane = $("#previewPane");
-
-    if (mode === "design") {
-      designPane.classList.add("show");
-      previewPane.classList.remove("show");
-      updateDesignPane();
-    } else if (mode === "code") {
-      designPane.classList.remove("show");
-      previewPane.classList.remove("show");
-    } else if (mode === "split") {
-      designPane.classList.add("show");
-      previewPane.classList.add("show");
-      updateDesignPane();
-    } else if (mode === "term") {
-      // Handle terminal mode
-    } else if (mode === "logs") {
-      // Handle logs mode
-    }
-  },
-
-  setBP: function(btn) {
-    const bptabs = document.querySelectorAll(".bptab");
-    bptabs.forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-  },
-
-  newTerm: function() {
-    toast("New terminal created");
-  },
-
-  clearBP: function() {
-    toast("Panel cleared");
-  },
-
-  menu: function() {
-    toast("Menu opened");
-  },
-
-  run: function() {
-    const startTime = performance.now();
-    NATIVE.runApp();
-    const endTime = performance.now();
-    performanceMetrics.operationTimes.run = endTime - startTime;
-    console.log(`Run operation time: ${performanceMetrics.operationTimes.run}ms`);
-    toast("Running app...");
-  },
-
-  debug: function() {
-    const startTime = performance.now();
-    NATIVE.debugApp();
-    const endTime = performance.now();
-    performanceMetrics.operationTimes.debug = endTime - startTime;
-    console.log(`Debug operation time: ${performanceMetrics.operationTimes.debug}ms`);
-    toast("Starting debug session...");
-  },
-
-  build: function() {
-    const startTime = performance.now();
-    NATIVE.buildApk();
-    const endTime = performance.now();
-    performanceMetrics.operationTimes.build = endTime - startTime;
-    console.log(`Build operation time: ${performanceMetrics.operationTimes.build}ms`);
-    toast("Building APK...");
-  },
-
-  preview: function() {
-    const startTime = performance.now();
-    NATIVE.previewUi();
-    const endTime = performance.now();
-    performanceMetrics.operationTimes.preview = endTime - startTime;
-    console.log(`Preview operation time: ${performanceMetrics.operationTimes.preview}ms`);
-    toast("Previewing UI...");
-  },
-
-  saveFile: function() {
-    if (!currentFile) return;
-
-    const startTime = performance.now();
-    const content = editor.getValue();
-    NATIVE.saveFile(currentFile, content);
-    FILES[currentFile].content = content;
-
-    const endTime = performance.now();
-    performanceMetrics.fileSaveTimes[currentFile] = endTime - startTime;
-    console.log(`File save time for ${currentFile}: ${performanceMetrics.fileSaveTimes[currentFile]}ms`);
-    toast("File saved");
-  }
-};
-
-// Initialize the editor when the page loads
-document.addEventListener("DOMContentLoaded", function() {
-  // Check editor version
-  const editorVersion = document.querySelector('meta[name="editor-version"]').content;
-  const requiredVersion = "1.0.0";
-
-  if (editorVersion !== requiredVersion) {
-    toast("Editor version mismatch. Please reload the editor.");
-    return;
-  }
-
-  // Render the file tree
-  const tree = $("#tree");
-  renderTree(TREE, tree);
-
-  // Initialize the editor
-  initEditor();
-
-  // Add save shortcut (Ctrl+S)
-  document.addEventListener("keydown", function(e) {
-    if ((e.ctrlKey || e.metaKey) && e.key === "s") {
-      e.preventDefault();
-      OxIDE.saveFile();
-    }
-  });
-});
-
-// Handle terminal input
-$("#termInput").addEventListener("keydown", function(e) {
-  if (e.key === "Enter") {
-    const command = this.value.trim();
-    if (command) {
-      NATIVE.runCommand(command);
-      this.value = "";
-    }
-  }
-});
-
-// Function to initialize the editor
-function initEditor() {
-  const loadingOverlay = $("#loadingOverlay");
-  const fallbackUI = $("#fallbackUI");
-  const startTime = performance.now();
-
-  // Load Ace editor
-  const script = document.createElement("script");
-  script.src = "https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js";
-  script.onload = function() {
-    // Initialize Ace editor
-    window.editor = ace.edit("editor");
-    editor.setTheme("ace/theme/tomorrow_night_eighties");
-    editor.session.setMode("ace/mode/javascript");
+/* ═══ ACE EDITOR ═══ */
+var editor = null;
+function initAce() {
+  if (!window.ace) { setTimeout(initAce, 100); return; }
+  try {
+    editor = ace.edit("editor");
+    window.editor = editor;
+    editor.setTheme("ace/theme/one_dark");
+    editor.session.setMode("ace/mode/java");
     editor.setOptions({
-      fontSize: "13px",
-      showPrintMargin: false,
-      enableBasicAutocompletion: true,
-      enableSnippets: true,
-      enableLiveAutocompletion: true
+      fontSize: "13px", showPrintMargin: false, useWorker: false,
+      enableBasicAutocompletion: true, enableLiveAutocompletion: true,
+      highlightActiveLine: true, tabSize: 4, useSoftTabs: true
     });
+    editor.resize(true);
+    editor.on("change", updateCursor);
 
-    // Hide loading overlay
-    loadingOverlay.style.display = "none";
+    // Hide loading panda
+    setTimeout(function() {
+      var lp = document.getElementById("loadingPanda");
+      if (lp) { lp.style.opacity = "0"; setTimeout(function(){ lp.style.display = "none"; }, 400); }
+    }, 800);
+    editor.on("changeSelection", updateCursor);
+  } catch(e) { setTimeout(initAce, 200); }
+}
+setTimeout(initAce, 100);
 
-    // Record performance metric
-    const endTime = performance.now();
-    performanceMetrics.editorLoadTime = endTime - startTime;
-    console.log(`Editor load time: ${performanceMetrics.editorLoadTime}ms`);
-
-    // Open the first file
-    if (TREE.length > 0 && TREE[0].children && TREE[0].children.length > 0) {
-      const firstFile = findFirstFile(TREE[0].children);
-      if (firstFile) {
-        openFile(firstFile.path);
-      }
-    }
-  };
-
-  script.onerror = function() {
-    // Hide loading overlay and show fallback UI
-    loadingOverlay.style.display = "none";
-    fallbackUI.style.display = "flex";
-  };
-
-  document.head.appendChild(script);
+function updateCursor() {
+  if (!editor) return;
+  var p = editor.getCursorPosition();
+  var el = document.getElementById("cursorPos");
+  if (el) el.textContent = "Ln " + (p.row+1) + ", Col " + (p.column+1);
 }
 
-// Function to find the first file in the tree
-function findFirstFile(nodes) {
-  for (const node of nodes) {
-    if (node.type === "file") {
-      return node;
-    } else if (node.type === "dir" && node.children) {
-      const found = findFirstFile(node.children);
-      if (found) return found;
-    }
-  }
-  return null;
+/* ═══ BRIDGE — Java calls these ═══ */
+function getCode() { return editor ? editor.getValue() : ""; }
+function setCode(c) { if (editor) { editor.setValue(c || "", -1); editor.clearSelection(); } }
+function setLanguage(l) {
+  if (editor) editor.session.setMode("ace/mode/" + ((l||"text").toLowerCase()));
+}
+function appendTerminal(msg) {
+  var t = document.getElementById("termOut");
+  if (t) { t.textContent += msg + "\n"; t.scrollTop = t.scrollHeight; }
+}
+function clearTerminal() {
+  var t = document.getElementById("termOut");
+  if (t) t.textContent = "";
+}
+function setCurrentFile(name) {
+  var e = document.getElementById("curFile");
+  if (e) e.textContent = name;
+}
+function togglePreview() {
+  if (window.Android && Android.togglePreviewClick) Android.togglePreviewClick();
 }
 
-// Offline mode support
-function initOfflineMode() {
-  // Check if we're offline
-  if (!navigator.onLine) {
-    // Show offline message
-    toast("You are currently offline. Some features may be limited.");
-
-    // Disable features that require network
-    document.querySelectorAll('[data-requires-network]').forEach(el => {
-      el.disabled = true;
-      el.title = "This feature requires an internet connection";
-    });
-
-    // Use local storage for file operations
-    const originalOpenFile = NATIVE.openFile;
-    NATIVE.openFile = function(path) {
-      if (navigator.onLine) {
-        originalOpenFile(path);
-      } else {
-        const fileContent = localStorage.getItem(`file_${path}`);
-        if (fileContent) {
-          FILES[path].content = fileContent;
-          openFile(path);
-        } else {
-          toast("File not available offline");
-        }
-      }
-    };
-
-    const originalSaveFile = NATIVE.saveFile;
-    NATIVE.saveFile = function(path, content) {
-      if (navigator.onLine) {
-        originalSaveFile(path, content);
-      } else {
-        localStorage.setItem(`file_${path}`, content);
-        FILES[path].content = content;
-        toast("File saved offline. Will sync when online.");
-      }
-    };
-
-    // Sync files when online
-    window.addEventListener('online', function() {
-      toast("Back online. Syncing files...");
-      syncOfflineFiles();
-    });
-  }
-}
-
-function syncOfflineFiles() {
-  Object.keys(FILES).forEach(path => {
-    const offlineContent = localStorage.getItem(`file_${path}`);
-    if (offlineContent && offlineContent !== FILES[path].content) {
-      NATIVE.saveFile(path, offlineContent);
-    }
+/* ═══ TABS ═══ */
+var openTabs = [];
+function setActiveTab(fileName) {
+  var tabs = document.querySelectorAll(".tab");
+  var found = false;
+  tabs.forEach(function(t) {
+    t.classList.remove("active");
+    if (t.dataset.file === fileName) { t.classList.add("active"); found = true; }
   });
+  if (found) { setCurrentFile(fileName); return; }
+
+  var tab = document.createElement("div");
+  tab.className = "tab active";
+  tab.dataset.file = fileName;
+  tab.innerHTML = "<span>" + fileName + "</span><span class='x'>✕</span>";
+  tab.querySelector(".x").onclick = function(ev) {
+    ev.stopPropagation();
+    var was = tab.classList.contains("active");
+    tab.remove();
+    var i = openTabs.indexOf(fileName);
+    if (i > -1) openTabs.splice(i, 1);
+    if (was) {
+      var remain = document.querySelectorAll(".tab");
+      if (remain.length) {
+        remain[remain.length-1].classList.add("active");
+        Android.openFile(remain[remain.length-1].dataset.file);
+      } else if (editor) {
+        editor.setValue("");
+      }
+    }
+  };
+  tab.onclick = function() {
+    document.querySelectorAll(".tab").forEach(function(t){ t.classList.remove("active"); });
+    tab.classList.add("active");
+    Android.openFile(fileName);
+  };
+  document.getElementById("tabs").appendChild(tab);
+  if (openTabs.indexOf(fileName) === -1) openTabs.push(fileName);
+  setCurrentFile(fileName);
 }
 
-// Initialize offline mode
-initOfflineMode();
+/* ═══ FILE LIST ═══ */
+function updateFileList(json) {
+  var files = [];
+  try { files = JSON.parse(json); } catch(e) {}
 
-// Add performance metrics logging
-window.addEventListener('beforeunload', function() {
-  console.log('Performance Metrics:', performanceMetrics);
+  // Full-screen files view
+  var fl = document.getElementById("filesListFull");
+  if (fl) {
+    fl.innerHTML = "";
+    if (!files.length) {
+      fl.innerHTML = "<div style='padding:24px; color:#555; text-align:center; font-size:13px;'>No files yet</div>";
+    } else {
+      files.forEach(function(f) {
+        var d = document.createElement("div");
+        d.className = "setting-row";
+        d.innerHTML = "<span class='lbl'>📄 " + f + "</span><span>" +
+          "<span onclick='event.stopPropagation();Android.renameFile(\"" + f + "\")' style='padding:4px 8px; color:var(--acc);'>✎</span>" +
+          "<span onclick='event.stopPropagation();Android.deleteFile(\"" + f + "\")' style='padding:4px 8px; color:var(--red);'>🗑</span>" +
+          "</span>";
+        d.onclick = function() { closeFiles(); Android.openFile(f); };
+        fl.appendChild(d);
+      });
+    }
+  }
+}
+
+/* ═══ VIEWS ═══ */
+function openDrawer() {
+  document.getElementById("drawer").classList.add("open");
+  document.getElementById("scrim").classList.add("open");
+}
+function closeDrawer() {
+  document.getElementById("drawer").classList.remove("open");
+  document.getElementById("scrim").classList.remove("open");
+}
+function openTerminal() { closeDrawer(); document.getElementById("termView").classList.add("open"); }
+function closeTerminal() { document.getElementById("termView").classList.remove("open"); }
+function openSettings() { closeDrawer(); document.getElementById("settingsView").classList.add("open"); }
+function closeSettings() { document.getElementById("settingsView").classList.remove("open"); }
+function openAbout() { closeDrawer(); document.getElementById("aboutView").classList.add("open"); }
+function closeAbout() { document.getElementById("aboutView").classList.remove("open"); }
+function openFiles() {
+  closeDrawer();
+  document.getElementById("filesView").classList.add("open");
+  if (window.Android && Android.listFiles) Android.listFiles();
+}
+function closeFiles() { document.getElementById("filesView").classList.remove("open"); }
+
+/* ═══ TERMINAL INPUT ═══ */
+document.getElementById("termCmd").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") {
+    var cmd = this.value.trim();
+    if (!cmd) return;
+    appendTerminal("$ " + cmd);
+    this.value = "";
+    if (window.Android && Android.runLinuxCommand) {
+      Android.runLinuxCommand(cmd);
+    } else {
+      appendTerminal("(terminal not connected)");
+    }
+  }
 });
+
+/* ═══ SETTINGS ═══ */
+var fontSize = 13;
+function changeFont(delta) {
+  fontSize = Math.max(8, Math.min(30, fontSize + delta));
+  document.getElementById("fontSize").textContent = fontSize;
+  if (editor) editor.setFontSize(fontSize + "px");
+}
+function toggleLineNumbers() {
+  if (!editor) return;
+  editor.renderer.setShowGutter(!editor.renderer.getShowGutter());
+}
+function toggleWrap() {
+  if (!editor) return;
+  editor.session.setUseWrapMode(!editor.session.getUseWrapMode());
+}
+function changeTheme(name) {
+  if (editor) editor.setTheme("ace/theme/" + name);
+}
+
+/* ═══ TOAST ═══ */
+var _t;
+function toast(m) {
+  var el = document.getElementById("toast");
+  el.textContent = m;
+  el.classList.add("show");
+  clearTimeout(_t);
+  _t = setTimeout(function(){ el.classList.remove("show"); }, 1800);
+}
+
+/* ═══ RESIZE ═══ */
+window.addEventListener("resize", function(){ if (editor) editor.resize(true); });
+window.addEventListener("orientationchange", function(){
+  setTimeout(function(){ if (editor) editor.resize(true); }, 300);
+});
+setTimeout(function(){ if (editor) editor.resize(true); }, 500);
+
+/* ═══ NO CONTEXT MENU ═══ */
+document.addEventListener("contextmenu", function(e){ e.preventDefault(); });
 </script>
 </body>
 </html>

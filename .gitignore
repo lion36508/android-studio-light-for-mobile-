@@ -1,53 +1,30 @@
-# ────── Build outputs ──────
+# Build outputs (skip)
 bin/
 obj/
-build/
-out/
-*.class
-classes.dex
 *.apk
 *.unaligned.apk
 *.idsig
 
-# ────── Backups ──────
+# AI/cache junk (skip)
 .backup*
 *.backup
 *.bak
 *~
-
-# ────── Termux ──────
 __pycache__/
 *.pyc
-*.pyo
 .termux/
-$PREFIX/
-.cache/
-.local/
-
-# ────── Secrets ──────
 .oxdroid/
-.env
-.env.*
-*.pem
-*.key
-*.keystore.bak
-secrets/
 
-# ────── IDE ──────
+# Secrets (skip)
+.env
+*.pem
+*.key.bak
+*.keystore.bak
+
+# IDE (skip)
 .vscode/
 .idea/
 *.swp
-*.swo
 
-# ────── OS ──────
-.DS_Store
-Thumbs.db
-
-# ────── Large assets (optional — comment out अगर चाहो तो) ──────
-# assets/linux/*.tar.gz
-# assets/linux/rootfs/
-
-# ────── Temp ──────
-/tmp/
-*.tmp
-*.log
+# NOTE: assets/, res/, src/ — सब include होंगे
+# NOTE: img/ folder — पूरा include होगा
