@@ -1,30 +1,35 @@
 # 📱 OxDroid Workspace (Android Studio Lite for Mobile)
 
+![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)
+![Android](https://img.shields.io/badge/Platform-Android-3DDC84?logo=android)
+![Java](https://img.shields.io/badge/Language-Java-007396?logo=java)
+![License](https://img.shields.io/badge/License-MIT-blue.svg)
+
+## 🎥 Project Demo (See it in action)
+*(Developers: We will upload a YouTube demo link or a GIF here showcasing the UI, file explorer, and terminal compilation process.)*
+
+<div align="center">
+  <img src="https://via.placeholder.com/800x400.png?text=OxDroid+Workspace+Screenshot+Here" alt="OxDroid IDE Screenshot">
+</div>
+
 ## 💡 The Vision: Democratizing App Development
-Every great developer's journey doesn't start with a high-end MacBook or a 16GB RAM desktop. Millions of passionate students, dreamers, and self-taught coders around the world only have access to a simple smartphone. 
+Every great developer's journey doesn't start with a high-end MacBook. Millions of passionate coders only have a smartphone. This project is built on a simple belief: **If you have an Android phone and an idea, you should be able to build an app.** No PC required.
 
-While official desktop IDEs are incredible tools, they leave mobile-only users behind. **We want to change that.** 
+## 🚀 Current Features
+- **Premium UI/UX:** Dark-themed workspace inspired by professional desktop IDEs.
+- **Project Workspace:** Toggleable sidebar project explorer and dynamic file switcher.
+- **Native Build Pipeline:** Shell scripts utilizing `AAPT2`, `ECJ`, and `D8` to compile real APKs on-device.
+- **In-Built Terminal:** Native shell interface for Linux commands.
 
-This project is built on a simple but powerful belief: **If you have an Android phone and an idea, you should be able to build an app.** No PC required. This is a 100% Open-Source Native Mobile IDE built *on* Android, *for* Android.
+## 🎯 Future Roadmap 
+- **🎨 Syntax Highlighting & Auto-Completion**
+- **🐛 Live Error Checking**
+- **🖥 Visual UI Builder (Drag & Drop)**
+- **📜 Live Logcat Viewer**
+- **⚙️ Deep Compiler Integration (ProcessBuilder)**
 
-## 🚀 Current Features (What we have built)
-- **Premium UI/UX:** A beautiful, dark-themed workspace inspired by professional desktop IDEs, featuring custom touch animations.
-- **Project Workspace:** A toggleable sidebar project explorer and a dynamic file switcher for seamless navigation.
-- **Native Build Pipeline:** Integrated shell scripts that utilize `AAPT2`, `ECJ`, and `D8` to compile and package real APKs directly on the device.
-- **In-Built Terminal:** A native shell interface to execute Linux commands directly within the IDE.
+## 🤝 Contributing
+We need Android developers, Java experts, and UI designers. Please read our [CONTRIBUTING.md](CONTRIBUTING.md) to get started. Fork the repo, connect the engine, and let's democratize app development together. ❤️
 
-## 🎯 Future Roadmap (What we need to build next)
-To make this the ultimate mobile IDE, we have set the following targets:
-- **🎨 Syntax Highlighting & Auto-Completion:** Smart suggestions for Java/XML classes, variables, and methods as the user types.
-- **🐛 Live Error Checking:** Real-time red underlining for syntax errors before the compilation process begins.
-- **🖥 Visual UI Builder:** A drag-and-drop XML layout editor for users who prefer visual design over coding.
-- **📜 Live Logcat Viewer:** An integrated debugging console to view real-time app crash logs directly in the IDE.
-- **🐙 Built-in Git Integration:** One-click commit and push functionality to sync projects with GitHub directly from the app.
-- **⚙️ Deep Compiler Integration:** Connecting the UI's 'RUN' button to the backend compiler via Java `ProcessBuilder` and implementing real-time file saving.
-
-## 🤝 Call to Contributors
-This project is not just a personal repository; it belongs to the global community. We have built the beautiful body of the car and prepared the engine, but we need your help to connect them and add the turbocharger.
-
-If you are an Android developer, a Java expert, or simply someone who believes in this vision, **we need you**. 
-
-Fork this repository, send pull requests, and let's build a tool that empowers millions of students. **Let's democratize app development. Together.** ❤️
+## 📄 License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
