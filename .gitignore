@@ -1,0 +1,5 @@
+obj/
+bin/app-unsigned.apk
+.DS_Store
+final_upload.sh
+push_to_github.sh
