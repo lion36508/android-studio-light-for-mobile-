@@ -791,7 +791,7 @@ public class MainActivity extends Activity {
                     } else if (which == 1) {
                         ProjectItem term = new ProjectItem("LinuxTerminal", "Bash • Native Shell", "Live", "🖥️",
                             Color.parseColor("#196C3E"), "shell", "terminal.sh",
-                            "echo 'Welcome to OxDroid Native Linux Shell!'\nuname -a\nls -la");
+                            "echo '=== [ OxDroid 10MB Linux Engine Active ] ==='\nuname -a\necho ' Core: ARM64 RootFS + Toybox Ready'\nls -la");
                         openEditorWithProject(term);
                     } else if (which == 2) {
                         new AlertDialog.Builder(MainActivity.this)
@@ -964,7 +964,7 @@ public class MainActivity extends Activity {
                     tv.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
                     tv.setGravity(android.view.Gravity.CENTER_VERTICAL);
                     tv.setLayoutParams(new android.widget.LinearLayout.LayoutParams(
-                        android.widget.ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+                        android.view.ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
 
                     tv.setOnClickListener(new android.view.View.OnClickListener() {
                         @Override
