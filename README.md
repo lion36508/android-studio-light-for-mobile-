@@ -2,34 +2,29 @@
 
 ![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)
 ![Android](https://img.shields.io/badge/Platform-Android-3DDC84?logo=android)
-![Java](https://img.shields.io/badge/Language-Java-007396?logo=java)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 
-## 🎥 Project Demo (See it in action)
-*(Developers: We will upload a YouTube demo link or a GIF here showcasing the UI, file explorer, and terminal compilation process.)*
+⚠️ **PROJECT STATUS: EARLY DEMO / PROTOTYPE** ⚠️
+*Please Note: This project was officially started today. It is currently in a very early Demo/Prototype phase and is NOT yet ready for full app production.*
 
-<div align="center">
-  <img src="https://via.placeholder.com/800x400.png?text=OxDroid+Workspace+Screenshot+Here" alt="OxDroid IDE Screenshot">
-</div>
+## 💡 The Goal (हमारा मकसद)
+Millions of passionate students and developers only have access to an Android phone. We are building **OxDroid** to be a 100% native mobile IDE—allowing anyone to write, compile, and build Android apps directly on their phone, without needing a PC.
 
-## 💡 The Vision: Democratizing App Development
-Every great developer's journey doesn't start with a high-end MacBook. Millions of passionate coders only have a smartphone. This project is built on a simple belief: **If you have an Android phone and an idea, you should be able to build an app.** No PC required.
+## 🛠 Why are all features not available yet?
+Building a complete Android Studio alternative on a smartphone is a massive engineering challenge. 
+We are building this from scratch. Right now, adding all features at once is impossible because:
+1. **Native Compilation:** Running Java/Kotlin compilers directly on Android requires complex background engines.
+2. **Resource Limits:** Phones have less RAM than PCs, so we are carefully designing the architecture so it doesn't crash your phone.
+3. **Current Focus:** We have just set up the basic IDE structure, file explorer, and security guard. 
 
-## 🚀 Current Features
-- **Premium UI/UX:** Dark-themed workspace inspired by professional desktop IDEs.
-- **Project Workspace:** Toggleable sidebar project explorer and dynamic file switcher.
-- **Native Build Pipeline:** Shell scripts utilizing `AAPT2`, `ECJ`, and `D8` to compile real APKs on-device.
-- **In-Built Terminal:** Native shell interface for Linux commands.
+## 🚀 Development Roadmap (क्या-क्या काम बाकी है)
+This project is being built in phases:
 
-## 🎯 Future Roadmap 
-- **🎨 Syntax Highlighting & Auto-Completion**
-- **🐛 Live Error Checking**
-- **🖥 Visual UI Builder (Drag & Drop)**
-- **📜 Live Logcat Viewer**
-- **⚙️ Deep Compiler Integration (ProcessBuilder)**
+- [x] **Phase 1: Foundation (Current)** - Project initialization, File Structure, GitHub Open Source setup, and basic App UI.
+- [ ] **Phase 2: Code Editor** - Adding Syntax Highlighting, Auto-complete, and multi-tab support.
+- [ ] **Phase 3: The Build Engine** - Integrating a background compiler (D8/R8 and AAPT2) to generate un-signed APKs.
+- [ ] **Phase 4: Keystore & Signing** - Allowing users to sign their APKs directly on their phones.
 
-## 🤝 Contributing
-We need Android developers, Java experts, and UI designers. Please read our [CONTRIBUTING.md](CONTRIBUTING.md) to get started. Fork the repo, connect the engine, and let's democratize app development together. ❤️
+## 🤝 We Need Your Help!
+Since this project is in its demo stage, we invite open-source developers from around the world to contribute. Whether you know Java, Android SDK, or Bash scripting, check our `CONTRIBUTING.md` and help us build this dream!
 
-## 📄 License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
