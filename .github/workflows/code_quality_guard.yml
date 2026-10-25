@@ -1,0 +1,40 @@
+name: OxDroid Code Quality Guard
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Java Environment
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Run Security & Structure Filter
+        run: |
+          echo "[*] फाइल्स की सुरक्षा और शुद्धता की जाँच की जा रही है..."
+          
+          if find . -name "*.apk" -o -name "*.keystore" | grep -q .; then
+              echo "❌ [FAIL] सुरक्षा चेतावनी: पुल रिक्वेस्ट में कोई APK या Keystore फाइल नहीं होनी चाहिए!"
+              exit 1
+          fi
+
+          if [ ! -f "build.sh" ]; then
+              echo "❌ [FAIL] बिल्ड स्क्रिप्ट (build.sh) गायब है!"
+              exit 1
+          fi
+
+          echo "✅ [PASS] सभी सुरक्षा और संरचना परीक्षण (Tests) सफल रहे!"
+
+      - name: Test Build Pipeline
+        run: |
+          echo "[*] बैकएंड बिल्ड पाइपलाइन का परीक्षण किया जा रहा है..."
+          chmod +x build.sh
+          bash -n build.sh && echo "✅ [PASS] बिल्ड स्क्रिप्ट सिंटेक्स बिल्कुल सही है।"
