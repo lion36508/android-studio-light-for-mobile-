@@ -1,0 +1,6 @@
+Not everyone has a 16GB RAM PC to learn Android dev. So I built an open-source alternative to Android Studio that runs directly on your phone! 📱🔥
+
+Meet OxDroid Workspace - code, compile, and build apps anywhere. 
+
+Drop a ⭐ if you support open-source: https://github.com/lion36508/android-studio-light-for-mobile- 
+#AndroidDev #OpenSource #100DaysOfCode #GitHub

@@ -2,7 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bikash.mobileide">
     <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="30" />
-    <application android:label="OxDroid Studio" android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <application android:usesCleartextTraffic="true" android:label="OxDroid Studio" android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

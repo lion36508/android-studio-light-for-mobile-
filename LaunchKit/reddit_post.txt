@@ -1,0 +1,14 @@
+Title: I built a complete Android Studio alternative that runs natively on Android (Open Source) 📱💻
+
+Hey everyone,
+Not everyone has a high-end PC to start coding. Millions of students only have an Android phone. 
+
+To solve this, I built **OxDroid Workspace** - a 100% open-source, native mobile IDE built on Android, for Android. It lets you write, compile, and run apps directly on your phone without needing a PC.
+
+🌟 Features:
+- Native Compilation
+- No PC required
+- Completely Open Source
+
+I would love for the community to try it, review the architecture, and contribute! 
+Link: https://github.com/lion36508/android-studio-light-for-mobile-

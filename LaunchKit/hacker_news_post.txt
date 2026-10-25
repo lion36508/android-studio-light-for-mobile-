@@ -1,0 +1,4 @@
+Title: Show HN: OxDroid - A 100% native Android Studio alternative for mobile
+Body:
+Hi HN, I built OxDroid to democratize app development. It's a lightweight, open-source IDE that runs directly on Android devices, allowing users without PCs to build apps natively. Would love your feedback on the build engine and architecture.
+Repo: https://github.com/lion36508/android-studio-light-for-mobile-
