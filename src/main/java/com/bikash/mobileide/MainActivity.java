@@ -778,9 +778,7 @@ public class MainActivity extends Activity {
             "🛡️ Ironclad Open-Source Guarantee",
             "⚙️ IDE Settings & Preferences"
         };
-        new AlertDialog.Builder(this)
-            .setTitle("🛡️ OxDroid Studio Navigation")
-            .setItems(items, new DialogInterface.OnClickListener() {
+        showMasterNeonDialog(items, "ui/green_neon.png", true, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     if (which == 0) {
@@ -805,8 +803,7 @@ public class MainActivity extends Activity {
                         showSettingsDialog();
                     }
                 }
-            })
-            .show();
+            });
     }
 
     // TOP RIGHT 3-DOTS MENU
@@ -817,8 +814,7 @@ public class MainActivity extends Activity {
             "🧹 Clear Build Cache",
             "⚙️ Open Settings"
         };
-        new AlertDialog.Builder(this)
-            .setItems(opts, new DialogInterface.OnClickListener() {
+        showMasterNeonDialog(opts, "ui/blue_neon.png", false, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     if (which == 0) {
@@ -833,8 +829,7 @@ public class MainActivity extends Activity {
                         showSettingsDialog();
                     }
                 }
-            })
-            .show();
+            });
     }
 
     // SETTINGS DIALOG
@@ -849,9 +844,7 @@ public class MainActivity extends Activity {
             "🔄 Reset Default Sample Projects"
         };
 
-        new AlertDialog.Builder(this)
-            .setTitle("⚙️ OxDroid Studio Settings")
-            .setItems(settingsItems, new DialogInterface.OnClickListener() {
+        showMasterNeonDialog(settingsItems, "ui/blue_neon.png", false, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     if (which == 0) {
@@ -869,9 +862,7 @@ public class MainActivity extends Activity {
                         Toast.makeText(MainActivity.this, "✅ Default projects restored!", Toast.LENGTH_SHORT).show();
                     }
                 }
-            })
-            .setPositiveButton("Done", null)
-            .show();
+            });
     }
 
     private GradientDrawable makeRoundedBg(int fillColor, int radiusPx, int strokeColor) {
@@ -900,4 +891,100 @@ public class MainActivity extends Activity {
         return (int) TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP, val, getResources().getDisplayMetrics());
     }
+
+    private void showMasterNeonDialog(String[] items, String assetName, final boolean hasBuiltInText, final android.content.DialogInterface.OnClickListener listener) {
+        try {
+            final android.app.Dialog dialog = new android.app.Dialog(this);
+            dialog.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
+            if (dialog.getWindow() != null) {
+                dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(0));
+            }
+
+            android.widget.LinearLayout base = new android.widget.LinearLayout(this);
+            base.setOrientation(android.widget.LinearLayout.VERTICAL);
+
+            int imgW = 1536, imgH = 1024;
+            try {
+                java.io.InputStream is = getAssets().open(assetName);
+                android.graphics.Bitmap bmp = android.graphics.BitmapFactory.decodeStream(is);
+                is.close();
+                if (bmp != null) {
+                    imgW = bmp.getWidth();
+                    imgH = bmp.getHeight();
+                    base.setBackground(new android.graphics.drawable.BitmapDrawable(getResources(), bmp));
+                }
+            } catch (Exception e) {
+                base.setBackgroundColor(android.graphics.Color.parseColor("#121829"));
+            }
+
+            int w = (int) (getResources().getDisplayMetrics().widthPixels * 0.96f);
+            int h = (int) (w * ((float) imgH / (float) imgW));
+
+            if (hasBuiltInText) {
+                base.setWeightSum(5f);
+                int padH = (int)(w * 0.08f);
+                int padV = (int)(h * 0.09f);
+                base.setPadding(padH, padV, padH, padV);
+
+                android.view.View headerSlot = new android.view.View(this);
+                headerSlot.setLayoutParams(new android.widget.LinearLayout.LayoutParams(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+                base.addView(headerSlot);
+
+                for (int i = 0; i < items.length && i < 4; i++) {
+                    final int idx = i;
+                    android.view.View touchZone = new android.view.View(this);
+                    touchZone.setLayoutParams(new android.widget.LinearLayout.LayoutParams(
+                        android.view.ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+                    touchZone.setOnClickListener(new android.view.View.OnClickListener() {
+                        @Override
+                        public void onClick(android.view.View v) {
+                            try { dialog.dismiss(); } catch (Exception ignored) {}
+                            if (listener != null) {
+                                listener.onClick(dialog, idx);
+                            }
+                        }
+                    });
+                    base.addView(touchZone);
+                }
+            } else {
+                base.setWeightSum(items.length);
+                int padLeft = (int)(w * 0.22f);
+                int padRight = (int)(w * 0.06f);
+                int padTop = (int)(h * 0.065f);
+                base.setPadding(padLeft, padTop, padRight, padTop);
+
+                for (int i = 0; i < items.length; i++) {
+                    final int idx = i;
+                    android.widget.TextView tv = new android.widget.TextView(this);
+                    String cleanText = items[i].replaceAll("^[^a-zA-Z0-9]+", "").trim();
+                    tv.setText(cleanText);
+                    tv.setTextColor(android.graphics.Color.WHITE);
+                    tv.setTextSize(14.5f);
+                    tv.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+                    tv.setGravity(android.view.Gravity.CENTER_VERTICAL);
+                    tv.setLayoutParams(new android.widget.LinearLayout.LayoutParams(
+                        android.widget.ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+
+                    tv.setOnClickListener(new android.view.View.OnClickListener() {
+                        @Override
+                        public void onClick(android.view.View v) {
+                            try { dialog.dismiss(); } catch (Exception ignored) {}
+                            if (listener != null) {
+                                listener.onClick(dialog, idx);
+                            }
+                        }
+                    });
+                    base.addView(tv);
+                }
+            }
+
+            dialog.setContentView(base, new android.view.ViewGroup.LayoutParams(w, h));
+            dialog.show();
+            if (dialog.getWindow() != null) {
+                dialog.getWindow().setLayout(w, h);
+            }
+        } catch (Exception ignored) {}
+    }
+
 }
