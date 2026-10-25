@@ -4,27 +4,80 @@
 ![Android](https://img.shields.io/badge/Platform-Android-3DDC84?logo=android)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 
-⚠️ **PROJECT STATUS: EARLY DEMO / PROTOTYPE** ⚠️
-*Please Note: This project was officially started today. It is currently in a very early Demo/Prototype phase and is NOT yet ready for full app production.*
+---
 
-## 💡 The Goal (हमारा मकसद)
-Millions of passionate students and developers only have access to an Android phone. We are building **OxDroid** to be a 100% native mobile IDE—allowing anyone to write, compile, and build Android apps directly on their phone, without needing a PC.
+## 🛡️ THE IRONCLAD GUARANTEE (हमारा पक्का वादा)
+**This project belongs to the developers, the students, and the community.** 
+We make a public, unbreakable promise: **OxDroid will NEVER be sold to any corporation, company, or private entity.** It will remain 100% Free and Open-Source Software (FOSS) FOREVER. No hidden paywalls, no forced ads, no premium-only build engines.
 
-## 🛠 Why are all features not available yet?
-Building a complete Android Studio alternative on a smartphone is a massive engineering challenge. 
-We are building this from scratch. Right now, adding all features at once is impossible because:
-1. **Native Compilation:** Running Java/Kotlin compilers directly on Android requires complex background engines.
-2. **Resource Limits:** Phones have less RAM than PCs, so we are carefully designing the architecture so it doesn't crash your phone.
-3. **Current Focus:** We have just set up the basic IDE structure, file explorer, and security guard. 
+---
 
-## 🚀 Development Roadmap (क्या-क्या काम बाकी है)
-This project is being built in phases:
+## ⚠️ PROJECT STATUS: DAY 1 (Early Prototype / Demo)
+*Date of Inception: October 2026*
 
-- [x] **Phase 1: Foundation (Current)** - Project initialization, File Structure, GitHub Open Source setup, and basic App UI.
-- [ ] **Phase 2: Code Editor** - Adding Syntax Highlighting, Auto-complete, and multi-tab support.
-- [ ] **Phase 3: The Build Engine** - Integrating a background compiler (D8/R8 and AAPT2) to generate un-signed APKs.
-- [ ] **Phase 4: Keystore & Signing** - Allowing users to sign their APKs directly on their phones.
+This repository is currently in its **Phase 1 (Infancy)**. We have just laid down the foundational architecture. 
+**It is not yet a fully functional IDE.** Building a native Android compiler that runs on a smartphone is a massive, highly complex engineering task. We are open-sourcing it on Day 1 so the global community can build it together from the ground up.
 
-## 🤝 We Need Your Help!
-Since this project is in its demo stage, we invite open-source developers from around the world to contribute. Whether you know Java, Android SDK, or Bash scripting, check our `CONTRIBUTING.md` and help us build this dream!
+---
 
+## 💡 The Vision & The Problem
+Millions of brilliant minds worldwide want to build Android apps, but they are limited by hardware. Official Android Studio requires heavy RAM and high-end processors. 
+**Our Mission:** To democratize app development. If you have a basic Android smartphone, you should be able to write, compile, build, and sign a complete `.apk` file directly from your hands.
+
+---
+
+## ⚙️ How We Will Build It (The Architecture)
+We are not running an emulator or a cloud server. Everything will run **Natively on the Android Device (ARM64)**. Here is how the engine will work under the hood:
+
+1. **The Code Editor:** A highly optimized, custom native text editor (using modules similar to Sora/Rose Editor) to handle large Java/Kotlin and XML files without lagging the phone.
+2. **The Compiler (ECJ/Javac):** We will integrate Eclipse Compiler for Java (ECJ) to compile `.java` files into `.class` files natively on Android.
+3. **Dexing (D8/R8):** Using Google's D8 dexer compiled for ARM to convert `.class` bytecode into `classes.dex` that Android OS understands.
+4. **Resource Packaging (AAPT2):** A native binary of AAPT2 to compile and link `res/` folders, `AndroidManifest.xml`, and assets into a flat `.apk` package.
+5. **Signing (ApkSigner):** A custom Java-based Keystore manager to align (zipalign) and sign the final APK directly in the device's storage.
+
+---
+
+## 🚀 The Master Roadmap (What We Will Add & When)
+
+### 📌 Phase 1: Foundation (Current Status)
+- [x] Initial repository setup and Open Source community guidelines.
+- [x] Basic UI structure and File Explorer implementation.
+- [x] Background Security Guard for file integrity.
+- [x] Defining the architecture and roadmap.
+
+### 📌 Phase 2: The Core Editor 
+- [ ] Syntax highlighting for Java, Kotlin, XML, and JSON.
+- [ ] Code Auto-completion (IntelliSense) for Android SDK classes.
+- [ ] Multi-tab support for seamless file switching.
+- [ ] Real-time error detection (Linting) for missing brackets and typos.
+
+### 📌 Phase 3: The Build Engine Integration (The Hardest Part)
+- [ ] Compiling AAPT2 and D8 binaries for AArch64 (Android CPU architecture).
+- [ ] Setting up the Java Compiler (ECJ) inside the app.
+- [ ] Creating the "Build" button that triggers the pipeline: `AAPT2 -> ECJ -> D8 -> ZIP`.
+
+### 📌 Phase 4: Output & Testing
+- [ ] Integrated ZipAlign and V2/V3 APK Signing.
+- [ ] 1-Click "Install and Run" directly from the IDE.
+- [ ] A built-in logcat viewer to debug crashing apps on the phone itself.
+
+### 📌 Phase 5: Advanced Features
+- [ ] Git Integration (Clone, Commit, Push directly from OxDroid).
+- [ ] Gradle-like dependency management (downloading `.jar` and `.aar` libraries).
+- [ ] Dark Mode, Custom Themes, and Font customizations.
+
+---
+
+## 🛠️ Why are all features not here yet?
+Creating a mobile IDE means we have to rewrite desktop-level build tools for mobile processors. Phones have aggressive battery-saving modes and limited RAM, which can kill heavy background compiling tasks. We are taking it step-by-step to ensure the IDE is lightweight, battery-friendly, and crash-resistant.
+
+---
+
+## 🤝 Join the Revolution (How to Contribute)
+We cannot do this alone. If you are an open-source enthusiast, an Android Engineer, a UI/UX designer, or a C++ developer who knows how to compile binaries for ARM:
+1. **Fork** this repository.
+2. Check the `CONTRIBUTING.md` file.
+3. Pick a task from Phase 2 or Phase 3.
+4. Submit a **Pull Request**.
+
+Let's build the ultimate mobile IDE. For the developers, by the developers.
