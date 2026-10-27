@@ -355,19 +355,10 @@ public class EditorActivity extends Activity {
         String code = codeEditor.getText().toString();
         EngineCore.saveFile(this, currentFileName, code);
         consoleContainer.setVisibility(View.VISIBLE);
-
-        StringBuilder buildLog = new StringBuilder();
-        buildLog.append("🛠️ OxDroid Studio Build Engine v2.0\n");
-        buildLog.append("────────────────────────────────\n");
-        buildLog.append("[1/4] 📦 Packing AAPT2 Resources & Assets... OK\n");
-        buildLog.append("[2/4] ☕ Compiling ").append(currentFileName).append(" (").append(currentLanguage.toUpperCase()).append(")... OK\n");
-        buildLog.append("[3/4] ⚡ Converting Bytecode to DEX (D8 Engine)... OK\n");
-        buildLog.append("[4/4] 🔐 Signing Package with Keystore... OK\n");
-        buildLog.append("────────────────────────────────\n");
-        buildLog.append(EngineCore.executeCode(this, currentLanguage, currentFileName, code));
-
-        consoleOutputTv.setText(buildLog.toString());
-        Toast.makeText(this, "✅ Build & Verification Complete!", Toast.LENGTH_SHORT).show();
+        consoleOutputTv.setText("Checking the on-device Android build toolchain...");
+        final String status = EngineCore.buildToolStatus(this);
+        consoleOutputTv.setText(status);
+        Toast.makeText(this, "Build unavailable: no APK was produced", Toast.LENGTH_LONG).show();
     }
 
     private void updateLineNumbers() {

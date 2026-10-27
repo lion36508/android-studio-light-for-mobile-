@@ -15,8 +15,12 @@ We make a public, unbreakable promise: **OxDroid will NEVER be sold to any corpo
 ## ⚠️ PROJECT STATUS: DAY 1 (Early Prototype / Demo)
 *Date of Inception: October 2026*
 
-This repository is currently in its **Phase 1 (Infancy)**. We have just laid down the foundational architecture. 
-**It is not yet a fully functional IDE.** Building a native Android compiler that runs on a smartphone is a massive, highly complex engineering task. We are open-sourcing it on Day 1 so the global community can build it together from the ground up.
+This repository is currently in its **Phase 1 (Infancy)**. We have just laid down the foundational architecture.
+**It is not yet a fully functional IDE.** The current APK is a UI/editor prototype; it does not yet contain a complete ARM64 AAPT2/D8/ApkSigner toolchain. The editor now reports this limitation instead of showing a false build-success message.
+
+### Local verification status
+
+The repository build script is fail-fast and requires `aapt`, `ecj`, `d8`, and `apksigner` in `PATH`. Running it without those tools exits with an error and does not claim to have produced an APK. The checked-in APK is an existing prototype artifact; it is not evidence that the current source can build a new APK in this environment.
 
 ---
 
