@@ -27,9 +27,25 @@ public class EngineCore {
         return dir;
     }
 
+    private static File workspaceFile(Context context, String fileName) throws Exception {
+        if (fileName == null || fileName.trim().isEmpty()) throw new Exception("File name is empty");
+        String normalized = fileName.replace('\\', '/');
+        if (normalized.startsWith("/") || normalized.contains("../") || normalized.equals("..")) {
+            throw new Exception("Unsafe workspace path");
+        }
+        File root = getWorkspaceDir(context).getCanonicalFile();
+        File file = new File(root, normalized).getCanonicalFile();
+        if (!file.getPath().equals(root.getPath()) && !file.getPath().startsWith(root.getPath() + File.separator)) {
+            throw new Exception("Unsafe workspace path");
+        }
+        File parent = file.getParentFile();
+        if (parent != null && !parent.exists()) parent.mkdirs();
+        return file;
+    }
+
     public static void saveFile(Context context, String fileName, String content) {
         try {
-            File file = new File(getWorkspaceDir(context), fileName);
+            File file = workspaceFile(context, fileName);
             FileOutputStream fos = new FileOutputStream(file);
             fos.write(content.getBytes("UTF-8"));
             fos.close();
@@ -38,7 +54,7 @@ public class EngineCore {
 
     public static String loadFile(Context context, String fileName, String defaultContent) {
         try {
-            File file = new File(getWorkspaceDir(context), fileName);
+            File file = workspaceFile(context, fileName);
             if (!file.exists()) {
                 saveFile(context, fileName, defaultContent);
                 return defaultContent;
@@ -69,6 +85,18 @@ public class EngineCore {
             out.append("Shell Error: ").append(e.getMessage());
         }
         return out.toString().trim();
+    }
+
+    public static String buildToolStatus(Context context) {
+        StringBuilder status = new StringBuilder();
+        status.append("On-device Android build toolchain\n");
+        status.append("AAPT2/AAPT: unavailable in the bundled runtime\n");
+        status.append("D8: unavailable in the bundled runtime\n");
+        status.append("ApkSigner: unavailable in the bundled runtime\n");
+        status.append("ECJ: bundled only for future integration\n");
+        status.append("Result: BUILD NOT AVAILABLE — no APK was produced.\n");
+        status.append("Install a complete ARM64 Android toolchain before enabling APK builds.");
+        return status.toString();
     }
 
     // Try connecting to the Real CPython 3.12 / Clang++ Industrial Daemon on 127.0.0.1:49152

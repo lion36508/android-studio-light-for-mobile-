@@ -29,8 +29,12 @@ public class OxLinuxEngine {
             ZipInputStream zis = new ZipInputStream(is);
             ZipEntry entry;
             byte[] buffer = new byte[8192];
+            File canonicalRoot = rootDir.getCanonicalFile();
             while ((entry = zis.getNextEntry()) != null) {
-                File outFile = new File(rootDir, entry.getName());
+                File outFile = new File(canonicalRoot, entry.getName()).getCanonicalFile();
+                if (!outFile.getPath().startsWith(canonicalRoot.getPath() + File.separator)) {
+                    throw new SecurityException("Unsafe rootfs entry: " + entry.getName());
+                }
                 if (entry.isDirectory()) {
                     outFile.mkdirs();
                 } else {
@@ -66,7 +70,10 @@ public class OxLinuxEngine {
             while ((line = r.readLine()) != null) {
                 sb.append(line).append("\n");
             }
-            p.waitFor();
+            if (!p.waitFor(60, java.util.concurrent.TimeUnit.SECONDS)) {
+                p.destroyForcibly();
+                sb.append("Error: command timed out after 60 seconds\n");
+            }
         } catch (Exception e) {
             sb.append("Error: ").append(e.getMessage()).append("\n");
         }
