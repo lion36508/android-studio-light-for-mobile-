@@ -19,7 +19,7 @@ require_tool() {
 }
 
 [[ -f "$ANDROID_JAR" ]] || { echo "ERROR: android.jar not found: $ANDROID_JAR" >&2; exit 2; }
-for tool in aapt ecj d8 apksigner; do require_tool "$tool"; done
+for tool in aapt ecj d8 apksigner zip; do require_tool "$tool"; done
 
 rm -rf "$BUILD_DIR" "$GEN_DIR" "$OUT_DIR/dex" "$OUT_DIR/app-unsigned.apk" "$OUT_DIR/classes.dex" "$OUT_DIR/$APK_NAME"
 mkdir -p "$BUILD_DIR" "$GEN_DIR" "$OUT_DIR"

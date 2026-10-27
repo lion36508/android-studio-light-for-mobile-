@@ -568,8 +568,8 @@ public class MainActivity extends Activity {
         box.addView(nameEt);
 
         final String[] langs = {
-            "☕ Java (Android SDK App)",
-            "🟣 Kotlin (Jetpack Compose)",
+            "☕ Android App (Java)",
+            "▶ Video App Starter (Java)",
             "🐍 Python 3 (Native Script)",
             "⚡ C++ (ARM64 Native Binary)"
         };
@@ -589,9 +589,9 @@ public class MainActivity extends Activity {
                             Color.parseColor("#00ACC1"), "java", rawName + ".java",
                             "public class " + rawName.replace(" ", "") + " {\n    public static void main(String[] args) {\n        System.out.println(\"🚀 Welcome to " + rawName + " (Java)!\");\n    }\n}");
                     } else if (which == 1) {
-                        newItem = new ProjectItem(rawName, "Kotlin • Jetpack Compose", "Just now", "🟣",
-                            Color.parseColor("#2EA043"), "kotlin", rawName + ".kt",
-                            "fun main() {\n    val project = \"" + rawName + "\"\n    println(\"🔥 Kotlin Compose App: \" + project)\n}");
+                        newItem = new ProjectItem(rawName, "Video App • Android Java", "Just now", "▶",
+                            Color.parseColor("#E53935"), "java", rawName + ".java",
+                            "// Video App Starter\n// Use the generated Android project tree and connect your authorized backend API.\n");
                     } else if (which == 2) {
                         newItem = new ProjectItem(rawName, "Python 3 • Native Script", "Just now", "🐍",
                             Color.parseColor("#D29922"), "python", rawName.toLowerCase() + ".py",
@@ -602,6 +602,11 @@ public class MainActivity extends Activity {
                             "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"⚡ C++ Project " + rawName + " Running!\" << endl;\n    return 0;\n}");
                     }
 
+                    if (which == 0 || which == 1) {
+                        String generatedFile = ProjectScaffold.create(MainActivity.this, rawName, which == 1);
+                        newItem.fileName = generatedFile;
+                        newItem.starterCode = EngineCore.loadFile(MainActivity.this, generatedFile, newItem.starterCode);
+                    }
                     projectList.add(0, newItem);
                     refreshProjectList("");
                     openEditorWithProject(newItem);
