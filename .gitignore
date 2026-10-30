@@ -1,5 +1,24 @@
+# Local build output
 obj/
+gen/
+bin/dex/
 bin/app-unsigned.apk
+bin/app-aligned.apk
+
+# Local IDE and OS files
 .DS_Store
-final_upload.sh
-push_to_github.sh
+.idea/
+.vscode/
+*.iml
+
+# Local signing material and secrets (never commit)
+*.jks
+*.keystore
+*.idsig
+.env
+.env.*
+!*.env.example
+
+# Logs and temporary files
+*.log
+*.tmp

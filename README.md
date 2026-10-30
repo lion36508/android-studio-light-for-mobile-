@@ -1,89 +1,179 @@
-# 📱 OxDroid Workspace (Android Studio Lite for Mobile)
+# OxDroid Studio
+### A lightweight, phone-first Android IDE prototype
 
-![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)
-![Android](https://img.shields.io/badge/Platform-Android-3DDC84?logo=android)
-![License](https://img.shields.io/badge/License-MIT-blue.svg)
+[![Android APK CI](https://github.com/lion36508/android-studio-light-for-mobile-/actions/workflows/android-apk.yml/badge.svg)](https://github.com/lion36508/android-studio-light-for-mobile-/actions/workflows/android-apk.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Platform: Android](https://img.shields.io/badge/Platform-Android-3DDC84?logo=android&logoColor=white)](https://developer.android.com/)
 
----
+**OxDroid Studio** is an early-stage, open-source Android development environment designed around one idea: make app-development workflows more accessible on a smartphone, without pretending a phone is a desktop workstation.
 
-## 🛡️ THE IRONCLAD GUARANTEE (हमारा पक्का वादा)
-**This project belongs to the developers, the students, and the community.** 
-We make a public, unbreakable promise: **OxDroid will NEVER be sold to any corporation, company, or private entity.** It will remain 100% Free and Open-Source Software (FOSS) FOREVER. No hidden paywalls, no forced ads, no premium-only build engines.
+The project currently provides a Java-based Android application shell, an editor/workspace foundation, project scaffolding, and a repeatable CI pipeline that builds and verifies a debug-signed APK. The longer-term goal is to bring more of the Android development toolchain directly onto Android devices.
 
----
-
-## ⚠️ PROJECT STATUS: DAY 1 (Early Prototype / Demo)
-*Date of Inception: October 2026*
-
-This repository is currently in its **Phase 1 (Infancy)**. We have just laid down the foundational architecture.
-**It is not yet a fully functional IDE.** The current APK is a UI/editor prototype; it does not yet contain a complete ARM64 AAPT2/D8/ApkSigner toolchain. The editor now reports this limitation instead of showing a false build-success message.
-
-### Local verification status
-
-The repository build script is fail-fast and requires `aapt`, `ecj`, `d8`, and `apksigner` in `PATH`. Running it without those tools exits with an error and does not claim to have produced an APK. The checked-in APK is an existing prototype artifact; it is not evidence that the current source can build a new APK in this environment.
+> **Project maturity:** early prototype. OxDroid is not yet a full Android Studio replacement. Features marked as planned or in progress below are not represented as finished functionality.
 
 ---
 
-## 💡 The Vision & The Problem
-Millions of brilliant minds worldwide want to build Android apps, but they are limited by hardware. Official Android Studio requires heavy RAM and high-end processors. 
-**Our Mission:** To democratize app development. If you have a basic Android smartphone, you should be able to write, compile, build, and sign a complete `.apk` file directly from your hands.
+## Project at a glance
+
+| Item | Current information |
+|---|---|
+| Project | OxDroid Studio |
+| Repository | `lion36508/android-studio-light-for-mobile-` |
+| Application ID | `com.bikash.mobileide` |
+| Primary implementation | Java |
+| Platform | Android |
+| Manifest minimum SDK | API 24 |
+| Manifest target SDK | API 30 |
+| License | MIT |
+| Default branch | `main` |
+| Build automation | GitHub Actions |
+| Current build output | CI-generated, debug-signed APK |
+
+## What is in the repository today
+
+- **Application shell:** Java-based Android entry point and editor activity.
+- **Workspace foundation:** project and file-workspace scaffolding.
+- **Project generator:** starter Android project structure generation.
+- **Engine modules:** runtime and shell-related helper code that is still being integrated and validated.
+- **Video-app starter:** an example starter workflow, not a complete production video platform.
+- **Build pipeline:** a CI workflow using JDK 17 and Android Build Tools 35.0.0.
+- **Build verification:** APK archive integrity, 4-byte alignment, and signature verification in CI.
+
+### Source layout
+
+```text
+.
+├── .github/
+│   ├── ISSUE_TEMPLATE/
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   └── workflows/
+│       ├── android-apk.yml
+│       └── code_quality_guard.yml
+├── assets/
+│   ├── bin/
+│   ├── lib/
+│   ├── linux_env/
+│   └── ui/
+├── docs/
+├── res/
+├── src/main/java/com/bikash/mobileide/
+│   ├── MainActivity.java
+│   ├── EditorActivity.java
+│   ├── EngineCore.java
+│   ├── OxLinuxEngine.java
+│   ├── ProjectScaffold.java
+│   └── R.java
+├── AndroidManifest.xml
+├── ARCHITECTURE.md
+├── CONTRIBUTING.md
+├── LICENSE
+├── README.md
+└── build.sh
+```
+
+Some binary files under `assets/` are bundled resources or toolchain inputs. Their presence does not by itself mean that the corresponding compiler/runtime is fully integrated into the application.
 
 ---
 
-## ⚙️ How We Will Build It (The Architecture)
-We are not running an emulator or a cloud server. Everything will run **Natively on the Android Device (ARM64)**. Here is how the engine will work under the hood:
+## Build the current source
 
-1. **The Code Editor:** A highly optimized, custom native text editor (using modules similar to Sora/Rose Editor) to handle large Java/Kotlin and XML files without lagging the phone.
-2. **The Compiler (ECJ/Javac):** We will integrate Eclipse Compiler for Java (ECJ) to compile `.java` files into `.class` files natively on Android.
-3. **Dexing (D8/R8):** Using Google's D8 dexer compiled for ARM to convert `.class` bytecode into `classes.dex` that Android OS understands.
-4. **Resource Packaging (AAPT2):** A native binary of AAPT2 to compile and link `res/` folders, `AndroidManifest.xml`, and assets into a flat `.apk` package.
-5. **Signing (ApkSigner):** A custom Java-based Keystore manager to align (zipalign) and sign the final APK directly in the device's storage.
+The repository includes a Bash build script and a GitHub Actions workflow.
 
----
+### Automated build (recommended)
 
-## 🚀 The Master Roadmap (What We Will Add & When)
+1. Open the [Android APK workflow](https://github.com/lion36508/android-studio-light-for-mobile-/actions/workflows/android-apk.yml).
+2. Select a successful run on the branch or commit you want to test.
+3. Download the `oxdroid-mobile-ide-debug-apk` artifact from that run.
 
-### 📌 Phase 1: Foundation (Current Status)
-- [x] Initial repository setup and Open Source community guidelines.
-- [x] Basic UI structure and File Explorer implementation.
-- [x] Background Security Guard for file integrity.
-- [x] Defining the architecture and roadmap.
-- [x] Generate a real Android project tree with Gradle files, manifest, resources, and Java activity.
-- [x] Generate a video-app starter screen with search and authorized upload entry points.
+The workflow currently uses JDK 17, Android Build Tools 35.0.0, the repository's ECJ JAR, and a temporary CI-only signing key. The resulting APK is for development/testing. It is **not** a production release signed with a permanent release key. Workflow artifacts expire according to the retention period configured in the workflow.
 
-### 📌 Phase 2: The Core Editor 
-- [ ] Syntax highlighting for Java, Kotlin, XML, and JSON.
-- [ ] Code Auto-completion (IntelliSense) for Android SDK classes.
-- [ ] Multi-tab support for seamless file switching.
-- [ ] Real-time error detection (Linting) for missing brackets and typos.
+### Local build prerequisites
 
-### 📌 Phase 3: The Build Engine Integration (The Hardest Part)
-- [ ] Compiling AAPT2 and D8 binaries for AArch64 (Android CPU architecture).
-- [ ] Setting up the Java Compiler (ECJ) inside the app.
-- [ ] Creating the "Build" button that triggers the pipeline: `AAPT2 -> ECJ -> D8 -> ZIP`.
+- Bash
+- JDK 17
+- Android SDK platform JAR (the script defaults to the repository-root `android.jar`)
+- `aapt`, `d8`, `zipalign`, and `apksigner` from Android Build Tools
+- `zip`
+- The ECJ JAR at `assets/lib/ecj.jar`
 
-### 📌 Phase 4: Output & Testing
-- [ ] Integrated ZipAlign and V2/V3 APK Signing.
-- [ ] 1-Click "Install and Run" directly from the IDE.
-- [ ] A built-in logcat viewer to debug crashing apps on the phone itself.
+See [docs/BUILDING.md](docs/BUILDING.md) for setup and signing instructions.
 
-### 📌 Phase 5: Advanced Features
-- [ ] Git Integration (Clone, Commit, Push directly from OxDroid).
-- [ ] Gradle-like dependency management (downloading `.jar` and `.aar` libraries).
-- [ ] Dark Mode, Custom Themes, and Font customizations.
+Never put a personal signing keystore, keystore password, access token, or other secret in this repository.
 
 ---
 
-## 🛠️ Why are all features not here yet?
-Creating a mobile IDE means we have to rewrite desktop-level build tools for mobile processors. Phones have aggressive battery-saving modes and limited RAM, which can kill heavy background compiling tasks. We are taking it step-by-step to ensure the IDE is lightweight, battery-friendly, and crash-resistant.
+## Current capabilities and limitations
+
+| Area | Status |
+|---|---|
+| Android application shell | Present |
+| Java-based editor/workspace foundation | Present; continued UX and editor work needed |
+| Android project scaffolding | Present |
+| Video-app starter screen | Present as a starter, not a complete video product |
+| CI APK build | Verified on GitHub Actions |
+| APK alignment and signature checks | Verified in CI |
+| Full on-device Android SDK build engine | Not yet complete |
+| Full Kotlin compiler integration | Not yet complete |
+| Full native C/C++ toolchain | Not yet complete |
+| Production-grade Gradle/dependency integration | Not yet complete |
+| Integrated debugger and Logcat workflow | Not yet complete |
+| Full Git clone/commit/push client | Not yet complete |
+
+A successful CI build proves that the current source can produce the CI APK in the configured hosted environment. It does not prove that every toolchain component runs locally on an Android phone.
 
 ---
 
-## 🤝 Join the Revolution (How to Contribute)
-We cannot do this alone. If you are an open-source enthusiast, an Android Engineer, a UI/UX designer, or a C++ developer who knows how to compile binaries for ARM:
-1. **Fork** this repository.
-2. Check the `CONTRIBUTING.md` file.
-3. Pick a task from Phase 2 or Phase 3.
-4. Submit a **Pull Request**.
+## Roadmap
 
-Let's build the ultimate mobile IDE. For the developers, by the developers.
+The roadmap is intentionally incremental. Each feature should be implemented, tested, and documented before it is marked complete.
+
+1. **Stabilize the foundation**
+   - Keep build status truthful.
+   - Add automated source and manifest checks.
+   - Remove secrets and generated build outputs from source control where appropriate.
+   - Document the actual runtime boundaries.
+
+2. **Editor experience**
+   - Reliable multi-file workspace and tabs.
+   - Syntax highlighting for Java, XML, JSON, and Kotlin.
+   - Search, replace, bracket matching, and editor state recovery.
+   - Useful diagnostics without claiming compiler-backed checks that do not exist.
+
+3. **Build system**
+   - Integrate a real Android build pipeline.
+   - Validate resource compilation, Java compilation, DEX generation, alignment, and signing as separate stages.
+   - Add reproducible build reports and actionable errors.
+   - Investigate on-device ARM64 compatibility rather than assuming desktop binaries will run on Android.
+
+4. **Developer tools**
+   - Build output panel and structured logs.
+   - Device installation workflow.
+   - Debugging and Logcat integration.
+   - Dependency and SDK management.
+
+5. **Git and collaboration**
+   - Real Git clone, status, diff, commit, and push support.
+   - Secure credential handling.
+   - Clear conflict and network error reporting.
+
+## Engineering principles
+
+- **Truthful status:** never display a successful build, clone, compiler, or cleanup result unless the operation actually succeeded.
+- **Security first:** secrets and signing keys stay outside version control.
+- **Small, verifiable changes:** each feature should have a test or a clearly documented manual verification procedure.
+- **Mobile-aware design:** memory, storage, battery, thermal limits, and Android background execution must be considered.
+- **No fake feature claims:** a placeholder or starter screen must be labelled as such.
+
+## Contributing
+
+Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md), review the [architecture guide](ARCHITECTURE.md), and choose a scoped task from the [project status and roadmap](docs/PROJECT_STATUS.md).
+
+For bugs, use the [bug report template](https://github.com/lion36508/android-studio-light-for-mobile-/issues/new?template=bug_report.md). For feature proposals, use the [feature request template](https://github.com/lion36508/android-studio-light-for-mobile-/issues/new?template=feature_request.md).
+
+## License
+
+OxDroid Studio is distributed under the [MIT License](LICENSE).
+
+---
+
+**OxDroid Studio is a work in progress.** The goal is ambitious; the implementation will earn each capability through working code, repeatable builds, and honest verification.
