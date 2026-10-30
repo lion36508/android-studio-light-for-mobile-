@@ -286,7 +286,7 @@ public class MainActivity extends Activity {
 
         // Card 3: Clone Git (Purple)
         cardsRow.addView(buildActionCard(
-            "🔗", "Clone Git", "From\nrepository",
+            "🔗", "Git (Soon)", "From\nrepository",
             Color.parseColor("#6E2CF2"), Color.parseColor("#DCBFFF"),
             new View.OnClickListener() {
                 @Override
@@ -757,8 +757,12 @@ public class MainActivity extends Activity {
                     if (which == 0) {
                         String abi = EngineCore.runShellCommand("getprop ro.product.cpu.abi");
                         new AlertDialog.Builder(MainActivity.this)
-                            .setTitle("🚀 Native Compilers Ready")
-                            .setMessage("• CPU Architecture: " + abi + "\n• Python 3 Runtime: ACTIVE (No Permission Error)\n• C++ ARM64 Engine: ACTIVE\n• Java ECJ / Dalvik: ACTIVE\n• Kotlin Compiler Engine: ACTIVE\n• System Shell (/system/bin/sh): CONNECTED")
+                            .setTitle("Runtime & Build Toolchain Status")
+                            .setMessage("CPU Architecture: " + abi + "\n\n" +
+                                "On-device Android APK build: NOT AVAILABLE yet.\n" +
+                                "Python/C++/Java/Kotlin fallback: limited evaluator, not a full language compiler/runtime.\n" +
+                                "Python/C++ daemon: used only if a real local service responds.\n" +
+                                "Shell: Android /system/bin/sh is available.")
                             .setPositiveButton("Awesome", null)
                             .show();
                     } else if (which == 1) {
