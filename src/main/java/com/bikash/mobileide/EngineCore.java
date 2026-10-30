@@ -43,13 +43,22 @@ public class EngineCore {
         return file;
     }
 
-    public static void saveFile(Context context, String fileName, String content) {
+    public static boolean saveFile(Context context, String fileName, String content) {
+        FileOutputStream fos = null;
         try {
             File file = workspaceFile(context, fileName);
-            FileOutputStream fos = new FileOutputStream(file);
+            fos = new FileOutputStream(file);
             fos.write(content.getBytes("UTF-8"));
+            fos.flush();
+            fos.getFD().sync();
             fos.close();
-        } catch (Exception ignored) {}
+            return true;
+        } catch (Exception e) {
+            if (fos != null) {
+                try { fos.close(); } catch (Exception ignored) {}
+            }
+            return false;
+        }
     }
 
     public static String loadFile(Context context, String fileName, String defaultContent) {
