@@ -286,7 +286,7 @@ public class MainActivity extends Activity {
 
         // Card 3: Clone Git (Purple)
         cardsRow.addView(buildActionCard(
-            "🔗", "Clone Git", "From\nrepository",
+            "🔗", "Git (Soon)", "Git client not ready",
             Color.parseColor("#6E2CF2"), Color.parseColor("#DCBFFF"),
             new View.OnClickListener() {
                 @Override
@@ -320,7 +320,7 @@ public class MainActivity extends Activity {
         recentHeader.setLayoutParams(rhLp);
 
         TextView recentTitle = new TextView(this);
-        recentTitle.setText("Recent Projects");
+        recentTitle.setText("Workspace & Starter Samples");
         recentTitle.setTextColor(Color.WHITE);
         recentTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 19);
         recentTitle.setTypeface(null, Typeface.BOLD);
@@ -653,44 +653,12 @@ public class MainActivity extends Activity {
             .show();
     }
 
-    // DIALOG 3: CLONE GIT REPOSITORY
+    // DIALOG 3: GIT CLONE (not implemented yet; never report a fake clone)
     private void showCloneGitDialog() {
-        LinearLayout box = new LinearLayout(this);
-        box.setOrientation(LinearLayout.VERTICAL);
-        box.setPadding(dp(20), dp(16), dp(20), dp(8));
-
-        final EditText urlEt = new EditText(this);
-        urlEt.setText("https://github.com/lion36508/OxDroid-Studio-Mobile.git");
-        box.addView(urlEt);
-
         new AlertDialog.Builder(this)
-            .setTitle("🔗 Clone Git Repository")
-            .setMessage("Enter GitHub Repository URL to clone into OxDroid Workspace:")
-            .setView(box)
-            .setPositiveButton("⬇️ Clone Repo", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    String url = urlEt.getText().toString().trim();
-                    String repoName = url.substring(url.lastIndexOf("/") + 1).replace(".git", "");
-                    if (repoName.isEmpty()) repoName = "ClonedRepo";
-
-                    ProjectItem cloned = new ProjectItem(
-                        repoName,
-                        "Git Clone • Master Branch",
-                        "Cloned Now",
-                        "🔗",
-                        Color.parseColor("#6E2CF2"),
-                        "java",
-                        repoName + ".java",
-                        "// Cloned from: " + url + "\npublic class " + repoName.replace("-", "_") + " {\n    public static void main(String[] args) {\n        System.out.println(\"🔗 Repository Cloned Successfully: " + repoName + "\");\n        System.out.println(\"✅ Ready for Open-Source Contribution!\");\n    }\n}"
-                    );
-                    projectList.add(0, cloned);
-                    refreshProjectList("");
-                    Toast.makeText(MainActivity.this, "✅ Cloned " + repoName + " into Workspace!", Toast.LENGTH_LONG).show();
-                    openEditorWithProject(cloned);
-                }
-            })
-            .setNegativeButton("Cancel", null)
+            .setTitle("Git Clone Not Available Yet")
+            .setMessage("This version does not include a Git transport/client or credential handling. No repository has been downloaded and no files have been created. Git clone will be enabled after a real client is integrated and tested.")
+            .setPositiveButton("OK", null)
             .show();
     }
 
@@ -778,7 +746,7 @@ public class MainActivity extends Activity {
     // DRAWER MENU (HAMBURGER ☰)
     private void showDrawerMenu() {
         String[] items = {
-            "🚀 Offline Compilers Status (Python, C++, Java, Kotlin)",
+            "🧰 Runtime & Build Toolchain Status",
             "🖥️ Open Interactive Linux Shell Terminal",
             "🛡️ Ironclad Open-Source Guarantee",
             "⚙️ IDE Settings & Preferences"
@@ -789,8 +757,12 @@ public class MainActivity extends Activity {
                     if (which == 0) {
                         String abi = EngineCore.runShellCommand("getprop ro.product.cpu.abi");
                         new AlertDialog.Builder(MainActivity.this)
-                            .setTitle("🚀 Native Compilers Ready")
-                            .setMessage("• CPU Architecture: " + abi + "\n• Python 3 Runtime: ACTIVE (No Permission Error)\n• C++ ARM64 Engine: ACTIVE\n• Java ECJ / Dalvik: ACTIVE\n• Kotlin Compiler Engine: ACTIVE\n• System Shell (/system/bin/sh): CONNECTED")
+                            .setTitle("Runtime & Build Toolchain Status")
+                            .setMessage("CPU Architecture: " + abi + "\n\n" +
+                                "On-device Android APK build: NOT AVAILABLE yet.\n" +
+                                "Python/C++/Java/Kotlin fallback: limited evaluator, not a full language compiler/runtime.\n" +
+                                "Python/C++ daemon: used only if a real local service responds.\n" +
+                                "Shell: Android /system/bin/sh is available.")
                             .setPositiveButton("Awesome", null)
                             .show();
                     } else if (which == 1) {
@@ -829,7 +801,11 @@ public class MainActivity extends Activity {
                         searchBarContainer.setVisibility(
                             searchBarContainer.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
                     } else if (which == 2) {
-                        Toast.makeText(MainActivity.this, "🧹 Build cache cleaned!", Toast.LENGTH_SHORT).show();
+                        new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("Build Cache Not Connected")
+                            .setMessage("The current app does not have an on-device build cache connected to this action. No files were deleted.")
+                            .setPositiveButton("OK", null)
+                            .show();
                     } else {
                         showSettingsDialog();
                     }
@@ -845,7 +821,7 @@ public class MainActivity extends Activity {
         String[] settingsItems = {
             "🔤 Editor Font Size (Current: " + currentFont + "sp)",
             "💾 Auto-Save Code on Run (" + (autoSave ? "ON" : "OFF") + ")",
-            "🚀 Verify Native Compilers (Python / C++ / Java / Kotlin)",
+            "🧰 Check Android Build Toolchain Status",
             "🔄 Reset Default Sample Projects"
         };
 
@@ -860,7 +836,11 @@ public class MainActivity extends Activity {
                         prefs.edit().putBoolean("auto_save", !autoSave).apply();
                         Toast.makeText(MainActivity.this, "Auto-Save set to " + (!autoSave ? "ON" : "OFF"), Toast.LENGTH_SHORT).show();
                     } else if (which == 2) {
-                        Toast.makeText(MainActivity.this, "✅ All 4 Native Compilers & Linux Shell Verified!", Toast.LENGTH_LONG).show();
+                        new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("Android Build Toolchain Status")
+                            .setMessage(EngineCore.buildToolStatus(MainActivity.this))
+                            .setPositiveButton("OK", null)
+                            .show();
                     } else {
                         initDefaultProjects();
                         refreshProjectList("");
