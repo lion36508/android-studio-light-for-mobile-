@@ -19,7 +19,7 @@ require_tool() {
 }
 
 [[ -f "$ANDROID_JAR" ]] || { echo "ERROR: android.jar not found: $ANDROID_JAR" >&2; exit 2; }
-for tool in aapt ecj d8 apksigner zip; do require_tool "$tool"; done
+for tool in aapt ecj d8 zipalign apksigner zip; do require_tool "$tool"; done
 
 rm -rf "$BUILD_DIR" "$GEN_DIR" "$OUT_DIR/dex" "$OUT_DIR/app-unsigned.apk" "$OUT_DIR/app-aligned.apk" "$OUT_DIR/$APK_NAME"
 mkdir -p "$BUILD_DIR" "$GEN_DIR" "$OUT_DIR"
@@ -45,9 +45,10 @@ aapt package -f -M AndroidManifest.xml -S res -A assets -I "$ANDROID_JAR" -F "$O
 (cd "$OUT_DIR/dex" && zip -q -u ../app-unsigned.apk classes.dex)
 
 echo "[*] Signing APK..."
-KEYSTORE="${KEYSTORE:-$ROOT_DIR/ide_keystore.jks}"
+: "${KEYSTORE:?ERROR: set KEYSTORE to a private signing-keystore path; do not use a keystore committed to the repository.}"
+: "${KEYSTORE_PASS:?ERROR: set KEYSTORE_PASS in your local environment.}"
 [[ -f "$KEYSTORE" ]] || { echo "ERROR: signing keystore not found: $KEYSTORE" >&2; exit 2; }
 zipalign -f -p 4 "$OUT_DIR/app-unsigned.apk" "$OUT_DIR/app-aligned.apk"
-apksigner sign --ks "$KEYSTORE" --ks-pass pass:android --out "$OUT_DIR/$APK_NAME" "$OUT_DIR/app-aligned.apk"
+apksigner sign --ks "$KEYSTORE" --ks-pass env:KEYSTORE_PASS --out "$OUT_DIR/$APK_NAME" "$OUT_DIR/app-aligned.apk"
 
 echo "BUILD SUCCESSFUL: $OUT_DIR/$APK_NAME"
