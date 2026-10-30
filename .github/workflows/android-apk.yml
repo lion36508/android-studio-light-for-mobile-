@@ -1,0 +1,98 @@
+name: Android APK build
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-debug-apk:
+    name: Build and verify Android APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Set up Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: ''
+
+      - name: Install Android build tools
+        run: sdkmanager "build-tools;35.0.0"
+
+      - name: Wire the Android toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          BUILD_TOOLS="$ANDROID_HOME/build-tools/35.0.0"
+          TOOL_BIN="$RUNNER_TEMP/oxdroid-tool-bin"
+          mkdir -p "$TOOL_BIN"
+
+          for tool in aapt d8 zipalign apksigner; do
+            if [[ ! -x "$BUILD_TOOLS/$tool" ]]; then
+              echo "Missing Android build tool: $BUILD_TOOLS/$tool" >&2
+              exit 1
+            fi
+            ln -sf "$BUILD_TOOLS/$tool" "$TOOL_BIN/$tool"
+          done
+
+          cat > "$TOOL_BIN/ecj" <<'EOF'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          exec java -jar "$GITHUB_WORKSPACE/assets/lib/ecj.jar" "$@"
+          EOF
+          chmod +x "$TOOL_BIN/ecj"
+          echo "$TOOL_BIN" >> "$GITHUB_PATH"
+
+      - name: Create temporary CI-only signing key
+        shell: bash
+        run: |
+          set -euo pipefail
+          KEYSTORE="$RUNNER_TEMP/oxdroid-ci-debug.jks"
+          KEYSTORE_PASS="$(openssl rand -hex 24)"
+          keytool -genkeypair -noprompt \
+            -keystore "$KEYSTORE" \
+            -storepass "$KEYSTORE_PASS" \
+            -keypass "$KEYSTORE_PASS" \
+            -alias oxdroid-ci \
+            -keyalg RSA -keysize 2048 -validity 365 \
+            -dname "CN=OxDroid CI,O=OxDroid,C=IN"
+          {
+            echo "KEYSTORE=$KEYSTORE"
+            echo "KEYSTORE_PASS=$KEYSTORE_PASS"
+          } >> "$GITHUB_ENV"
+
+      - name: Build APK
+        run: bash build.sh
+
+      - name: Verify APK structure, alignment, and signature
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="bin/OxDroid-Mobile-IDE.apk"
+          test -s "$APK"
+          unzip -t "$APK"
+          zipalign -c -v 4 "$APK"
+          apksigner verify --verbose "$APK"
+          aapt dump badging "$APK" | head -n 8
+
+      - name: Upload debug-signed APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: oxdroid-mobile-ide-debug-apk
+          path: bin/OxDroid-Mobile-IDE.apk
+          if-no-files-found: error
+          retention-days: 7
