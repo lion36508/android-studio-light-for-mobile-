@@ -30,6 +30,7 @@ jobs:
       - name: Validate release tag
         shell: bash
         env:
+          GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
           set -euo pipefail
