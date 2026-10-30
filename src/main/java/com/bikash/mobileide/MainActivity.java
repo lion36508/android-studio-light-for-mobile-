@@ -286,7 +286,7 @@ public class MainActivity extends Activity {
 
         // Card 3: Clone Git (Purple)
         cardsRow.addView(buildActionCard(
-            "🔗", "Git (Soon)", "From\nrepository",
+            "🔗", "Git (Soon)", "Git client not ready",
             Color.parseColor("#6E2CF2"), Color.parseColor("#DCBFFF"),
             new View.OnClickListener() {
                 @Override
