@@ -35,6 +35,7 @@ public class EditorActivity extends Activity {
     private String currentFileName = "MainActivity.java";
     private String currentLanguage = "java";
     private boolean isHighlighting = false;
+    private boolean isDirty = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +55,7 @@ public class EditorActivity extends Activity {
 
         String savedCode = EngineCore.loadFile(this, currentFileName, starterCode);
         codeEditor.setText(savedCode);
+        isDirty = false;
         updateLineNumbers();
         applySyntaxHighlighting(codeEditor.getText());
     }
@@ -83,8 +85,7 @@ public class EditorActivity extends Activity {
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EngineCore.saveFile(EditorActivity.this, currentFileName, codeEditor.getText().toString());
-                finish();
+                if (saveCurrentFile(true)) finish();
             }
         });
         topBar.addView(backBtn);
@@ -142,6 +143,20 @@ public class EditorActivity extends Activity {
             }
         });
         topBar.addView(buildBtn);
+
+        TextView saveBtn = new TextView(this);
+        saveBtn.setText("💾");
+        saveBtn.setTextColor(Color.WHITE);
+        saveBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        saveBtn.setPadding(dp(10), dp(6), dp(4), dp(6));
+        saveBtn.setContentDescription("Save current file");
+        saveBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveCurrentFile(true);
+            }
+        });
+        topBar.addView(saveBtn);
 
         root.addView(topBar);
 
@@ -203,6 +218,7 @@ public class EditorActivity extends Activity {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                isDirty = true;
                 updateLineNumbers();
             }
             @Override
@@ -321,19 +337,21 @@ public class EditorActivity extends Activity {
         tab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EngineCore.saveFile(EditorActivity.this, currentFileName, codeEditor.getText().toString());
+                if (!saveCurrentFile(false)) return;
                 currentFileName = file;
                 currentLanguage = lang;
                 fileTitleTv.setText("📄 " + currentFileName);
                 langBadgeTv.setText(currentLanguage.toUpperCase());
                 String content = EngineCore.loadFile(EditorActivity.this, currentFileName, defaultCode);
                 codeEditor.setText(content);
+                isDirty = false;
             }
         });
         return tab;
     }
 
     private void runCurrentCode() {
+        if (!saveCurrentFile(true)) return;
         final String code = codeEditor.getText().toString();
         consoleContainer.setVisibility(View.VISIBLE);
         consoleOutputTv.setText("⏳ Executing on OxDroid Industrial Engine...");
@@ -353,12 +371,37 @@ public class EditorActivity extends Activity {
 
     private void runBuildPipeline() {
         String code = codeEditor.getText().toString();
-        EngineCore.saveFile(this, currentFileName, code);
+        if (!EngineCore.saveFile(this, currentFileName, code)) {
+            Toast.makeText(this, "Save failed. Build was not started.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        isDirty = false;
         consoleContainer.setVisibility(View.VISIBLE);
         consoleOutputTv.setText("Checking the on-device Android build toolchain...");
         final String status = EngineCore.buildToolStatus(this);
         consoleOutputTv.setText(status);
         Toast.makeText(this, "Build unavailable: no APK was produced", Toast.LENGTH_LONG).show();
+    }
+
+    private boolean saveCurrentFile(boolean showFeedback) {
+        if (codeEditor == null) return false;
+        boolean saved = EngineCore.saveFile(this, currentFileName, codeEditor.getText().toString());
+        if (saved) {
+            isDirty = false;
+            if (showFeedback) Toast.makeText(this, "Saved: " + currentFileName, Toast.LENGTH_SHORT).show();
+        } else if (showFeedback) {
+            Toast.makeText(this, "Save failed. Check workspace storage.", Toast.LENGTH_LONG).show();
+        }
+        return saved;
+    }
+
+    @Override
+    protected void onPause() {
+        if (isDirty && codeEditor != null &&
+            getSharedPreferences("oxdroid_prefs", MODE_PRIVATE).getBoolean("auto_save", true)) {
+            saveCurrentFile(false);
+        }
+        super.onPause();
     }
 
     private void updateLineNumbers() {
