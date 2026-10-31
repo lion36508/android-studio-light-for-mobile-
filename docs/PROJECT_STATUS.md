@@ -19,6 +19,8 @@ This page records what is present and what still needs implementation. A feature
 
 ## Current feature assessment
 
+- Background file guard is opt-in and supports explicit start/stop/status/run-once commands. See [Background Guard](BACKGROUND_GUARD.md).
+
 | Feature | Assessment | Notes |
 |---|---|---|
 | App shell and dashboard | Present | Needs continued UX and device testing |
