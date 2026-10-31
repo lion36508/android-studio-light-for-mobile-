@@ -227,7 +227,12 @@ echo "[*] Signing APK..."
 : "${KEYSTORE:?ERROR: set KEYSTORE to a private signing-keystore path; do not use a keystore committed to the repository.}"
 : "${KEYSTORE_PASS:?ERROR: set KEYSTORE_PASS in your local environment.}"
 [[ -f "$KEYSTORE" ]] || { echo "ERROR: signing keystore not found: $KEYSTORE" >&2; exit 2; }
+KEY_PASS="${KEY_PASS:-$KEYSTORE_PASS}"
+APKSIGNER_ALIAS_ARGS=()
+if [[ -n "${KEY_ALIAS:-}" ]]; then
+    APKSIGNER_ALIAS_ARGS+=(--ks-key-alias "$KEY_ALIAS")
+fi
 zipalign -f -p 4 "$OUT_DIR/app-unsigned.apk" "$OUT_DIR/app-aligned.apk"
-apksigner sign --ks "$KEYSTORE" --ks-pass env:KEYSTORE_PASS --out "$OUT_DIR/$APK_NAME" "$OUT_DIR/app-aligned.apk"
+apksigner sign --ks "$KEYSTORE" --ks-pass env:KEYSTORE_PASS --key-pass env:KEY_PASS "${APKSIGNER_ALIAS_ARGS[@]}" --out "$OUT_DIR/$APK_NAME" "$OUT_DIR/app-aligned.apk"
 
 echo "BUILD SUCCESSFUL: $OUT_DIR/$APK_NAME"
