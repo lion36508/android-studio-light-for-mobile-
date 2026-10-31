@@ -172,20 +172,20 @@ public final class CommandRunner {
                 terminateProcess(process, interrupted);
             }
 
-            boolean stdoutStillRunning = joinReader(stdoutReader, READER_JOIN_MS, interrupted);
-            boolean stderrStillRunning = joinReader(stderrReader, READER_JOIN_MS, interrupted);
+            boolean stdoutStillRunning = join(stdoutReader, READER_JOIN_MS, interrupted);
+            boolean stderrStillRunning = join(stderrReader, READER_JOIN_MS, interrupted);
 
             if (stdoutStillRunning) {
                 outputReadIncomplete = true;
                 closeQuietly(stdoutStream);
                 if (stdoutReader != null) stdoutReader.interrupt();
-                joinReader(stdoutReader, 250L, interrupted);
+                join(stdoutReader, 250L, interrupted);
             }
             if (stderrStillRunning) {
                 outputReadIncomplete = true;
                 closeQuietly(stderrStream);
                 if (stderrReader != null) stderrReader.interrupt();
-                joinReader(stderrReader, 250L, interrupted);
+                join(stderrReader, 250L, interrupted);
             }
         }
 
