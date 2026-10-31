@@ -1,14 +1,14 @@
 package com.bikash.mobileide;
 
 import android.content.Context;
-import java.util.Locale;
 
 /** Creates a real, portable Android project tree inside the IDE workspace. */
 public final class ProjectScaffold {
     private ProjectScaffold() {}
 
     public static String create(Context context, String rawName, boolean videoTemplate) {
-        String slug = slugify(rawName);
+        if (ProjectName.validationError(rawName) != null) return null;
+        String slug = ProjectName.fileStem(rawName);
         String packageName = "com.oxdroid." + slug.replace('-', '_');
         String root = "projects/" + slug + "/";
         String javaPath = root + "app/src/main/java/" + packageName.replace('.', '/') + "/MainActivity.java";
@@ -67,14 +67,6 @@ public final class ProjectScaffold {
                 "<TextView android:text=\"Connect a backend API for feed, auth, upload, comments and subscriptions.\" android:paddingTop=\"20dp\" android:layout_width=\"match_parent\" android:layout_height=\"wrap_content\" />" +
                 "<Button android:id=\"@+id/upload_button\" android:text=\"Upload authorized video\" android:layout_width=\"match_parent\" android:layout_height=\"wrap_content\" />" +
                 "</LinearLayout></ScrollView>\n";
-    }
-
-    private static String slugify(String value) {
-        String s = value == null ? "NewApp" : value.trim().toLowerCase(Locale.US).replaceAll("[^a-z0-9]+", "-");
-        s = s.replaceAll("^-+|-+$", "");
-        if (s.isEmpty()) s = "new-app";
-        if (Character.isDigit(s.charAt(0))) s = "app-" + s;
-        return s;
     }
 
     private static String escapeXml(String value) {

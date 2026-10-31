@@ -617,24 +617,30 @@ public class MainActivity extends Activity {
                 public void onClick(DialogInterface dialog, int which) {
                     String rawName = nameEt.getText().toString().trim();
                     if (rawName.isEmpty()) rawName = "OxProject" + (projectList.size() + 1);
+                    String nameError = ProjectName.validationError(rawName);
+                    if (nameError != null) {
+                        Toast.makeText(MainActivity.this, nameError, Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                    String fileStem = ProjectName.fileStem(rawName);
 
                     ProjectItem newItem;
                     if (which == 0) {
                         newItem = new ProjectItem(rawName, "Java • Android SDK", "Just now", "☕",
-                            Color.parseColor("#00ACC1"), "java", rawName + ".java",
-                            "public class " + rawName.replace(" ", "") + " {\n    public static void main(String[] args) {\n        System.out.println(\"🚀 Welcome to " + rawName + " (Java)!\");\n    }\n}");
+                            Color.parseColor("#00ACC1"), "java", fileStem + ".java",
+                            "public class " + ProjectName.javaClassName(rawName) + " {\n    public static void main(String[] args) {\n        System.out.println(\"🚀 Welcome to " + ProjectName.javaStringContent(rawName) + " (Java)!\");\n    }\n}");
                     } else if (which == 1) {
                         newItem = new ProjectItem(rawName, "Video App • Android Java", "Just now", "▶",
-                            Color.parseColor("#E53935"), "java", rawName + ".java",
+                            Color.parseColor("#E53935"), "java", fileStem + ".java",
                             "// Video App Starter\n// Use the generated Android project tree and connect your authorized backend API.\n");
                     } else if (which == 2) {
                         newItem = new ProjectItem(rawName, "Python 3 • Native Script", "Just now", "🐍",
-                            Color.parseColor("#D29922"), "python", rawName.toLowerCase() + ".py",
-                            "# " + rawName + " - Python 3\nname = '" + rawName + "'\nprint('🐍 Running Python Project:', name)\nfor i in range(3):\n    print('Step:', i)");
+                            Color.parseColor("#D29922"), "python", fileStem + ".py",
+                            "# " + rawName + " - Python 3\nname = \"" + ProjectName.pythonStringContent(rawName) + "\"\nprint('🐍 Running Python Project:', name)\nfor i in range(3):\n    print('Step:', i)");
                     } else {
                         newItem = new ProjectItem(rawName, "C++ • Native Project", "Just now", "⚡",
-                            Color.parseColor("#8957E5"), "cpp", rawName.toLowerCase() + ".cpp",
-                            "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"⚡ C++ Project " + rawName + " Running!\" << endl;\n    return 0;\n}");
+                            Color.parseColor("#8957E5"), "cpp", fileStem + ".cpp",
+                            "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"⚡ C++ Project " + ProjectName.javaStringContent(rawName) + " Running!\" << endl;\n    return 0;\n}");
                     }
 
                     if (which == 0 || which == 1) {
