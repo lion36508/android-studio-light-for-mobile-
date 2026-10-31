@@ -451,9 +451,7 @@ public class EditorActivity extends Activity {
             tabLp.setMargins(dp(3), 0, dp(3), 0);
             tab.setLayoutParams(tabLp);
             tab.setMinimumHeight(dp(48));
-            tab.setContentDescription(
-                "Open " + item.fileName + " in " + item.language + " editor"
-            );
+            tab.setContentDescription("Open " + item.fileName + " in " + item.language + " editor");
 
             final TextView label = new TextView(this);
             String marker = item.fileName.equals(currentFileName)
