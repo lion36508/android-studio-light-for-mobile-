@@ -8,6 +8,8 @@ This page records what is present and what still needs implementation. A feature
 
 ## Verified in the repository
 
+- Source editing and saving remain available; code execution is intentionally disabled until an OS-enforced sandbox is implemented and verified. See [Code Execution Security](EXECUTION_SECURITY.md).
+
 - Java Android application entry point and editor activity exist.
 - Project scaffolding code exists.
 - Android manifest declares package `com.bikash.mobileide`, minimum SDK 24, and target SDK 30.
