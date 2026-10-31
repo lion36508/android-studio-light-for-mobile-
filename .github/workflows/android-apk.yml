@@ -64,6 +64,15 @@ jobs:
           exec java -jar "$GITHUB_WORKSPACE/assets/lib/ecj.jar" "$@"
           EOF
           chmod +x "$TOOL_BIN/ecj"
+
+          # setup-android installs the emulator package but does not guarantee
+          # that its directory is on PATH for subsequent GitHub Actions steps.
+          EMULATOR_BIN="$SDK_ROOT/emulator"
+          if [[ ! -x "$EMULATOR_BIN/emulator" ]]; then
+            echo "Missing Android emulator binary: $EMULATOR_BIN/emulator" >&2
+            exit 1
+          fi
+          echo "$EMULATOR_BIN" >> "$GITHUB_PATH"
           echo "$TOOL_BIN" >> "$GITHUB_PATH"
 
       - name: Create temporary CI-only signing key
