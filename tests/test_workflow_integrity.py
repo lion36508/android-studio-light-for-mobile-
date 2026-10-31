@@ -28,7 +28,7 @@ class WorkflowIntegrityTests(unittest.TestCase):
         config = path.read_text(encoding="utf-8")
         self.assertIn('package-ecosystem: "github-actions"', config)
         self.assertIn('directory: "/"', config)
-        self.assertRegex(config, r"interval:\s*weekly")
+        self.assertIn('interval: "weekly"', config)
 
     def test_quality_workflow_runs_real_checks(self):
         workflow = (WORKFLOWS / "code_quality_guard.yml").read_text(encoding="utf-8")
