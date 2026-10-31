@@ -549,7 +549,6 @@ public class MainActivity extends Activity {
     }
 
     private void openEditorWithProject(ProjectItem item) {
-        EngineCore.loadFile(this, item.fileName, item.starterCode);
         Intent intent = new Intent(this, EditorActivity.class);
         intent.putExtra("project_name", item.name);
         intent.putExtra("file_name", item.fileName);
