@@ -36,6 +36,7 @@ public class EditorActivity extends Activity {
     private String currentLanguage = "java";
     private boolean isHighlighting = false;
     private boolean isDirty = false;
+    private boolean workspaceFileLoaded = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,11 +54,19 @@ public class EditorActivity extends Activity {
 
         setContentView(buildEditorUI());
 
-        String savedCode = EngineCore.loadFile(this, currentFileName, starterCode);
-        codeEditor.setText(savedCode);
+        EngineCore.WorkspaceReadResult loaded = EngineCore.loadWorkspaceFile(this, currentFileName, starterCode);
+        workspaceFileLoaded = loaded.success;
+        if (loaded.success) {
+            codeEditor.setEnabled(true);
+            codeEditor.setText(loaded.content);
+            applySyntaxHighlighting(codeEditor.getText());
+        } else {
+            codeEditor.setText("");
+            codeEditor.setEnabled(false);
+            Toast.makeText(this, loaded.error, Toast.LENGTH_LONG).show();
+        }
         isDirty = false;
         updateLineNumbers();
-        applySyntaxHighlighting(codeEditor.getText());
     }
 
     private View buildEditorUI() {
@@ -338,13 +347,21 @@ public class EditorActivity extends Activity {
         tab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!saveCurrentFile(false)) return;
+                if (workspaceFileLoaded && !saveCurrentFile(false)) return;
+                EngineCore.WorkspaceReadResult loaded = EngineCore.loadWorkspaceFile(
+                    EditorActivity.this, file, defaultCode
+                );
+                if (!loaded.success) {
+                    Toast.makeText(EditorActivity.this, loaded.error, Toast.LENGTH_LONG).show();
+                    return;
+                }
                 currentFileName = file;
                 currentLanguage = lang;
+                workspaceFileLoaded = true;
+                codeEditor.setEnabled(true);
                 fileTitleTv.setText("📄 " + currentFileName);
                 langBadgeTv.setText(currentLanguage.toUpperCase());
-                String content = EngineCore.loadFile(EditorActivity.this, currentFileName, defaultCode);
-                codeEditor.setText(content);
+                codeEditor.setText(loaded.content);
                 isDirty = false;
             }
         });
@@ -352,6 +369,10 @@ public class EditorActivity extends Activity {
     }
 
     private void runCurrentCode() {
+        if (!workspaceFileLoaded) {
+            Toast.makeText(this, "Run blocked: the source file could not be loaded safely.", Toast.LENGTH_LONG).show();
+            return;
+        }
         if (!saveCurrentFile(true)) return;
         final String code = codeEditor.getText().toString();
         consoleContainer.setVisibility(View.VISIBLE);
@@ -371,6 +392,10 @@ public class EditorActivity extends Activity {
     }
 
     private void runBuildPipeline() {
+        if (!workspaceFileLoaded) {
+            Toast.makeText(this, "Build blocked: the source file could not be loaded safely.", Toast.LENGTH_LONG).show();
+            return;
+        }
         String code = codeEditor.getText().toString();
         if (!EngineCore.saveFile(this, currentFileName, code)) {
             Toast.makeText(this, "Save failed. Build was not started.", Toast.LENGTH_LONG).show();
@@ -385,9 +410,15 @@ public class EditorActivity extends Activity {
     }
 
     private boolean saveCurrentFile(boolean showFeedback) {
-        if (codeEditor == null) return false;
+        if (codeEditor == null || !workspaceFileLoaded) {
+            if (showFeedback) {
+                Toast.makeText(this, "Save blocked: the source file was not loaded safely.", Toast.LENGTH_LONG).show();
+            }
+            return false;
+        }
         boolean saved = EngineCore.saveFile(this, currentFileName, codeEditor.getText().toString());
         if (saved) {
+            workspaceFileLoaded = true;
             isDirty = false;
             if (showFeedback) Toast.makeText(this, "Saved: " + currentFileName, Toast.LENGTH_SHORT).show();
         } else if (showFeedback) {
