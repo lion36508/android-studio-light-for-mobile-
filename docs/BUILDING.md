@@ -6,12 +6,13 @@ This guide documents the repository's current command-line/CI build path. It doe
 
 - Bash
 - JDK 17
-- Android SDK platform JAR
+- Android SDK Platform 36 (`platforms;android-36`)
+- Android SDK Build Tools 36.0.0 (`build-tools;36.0.0`)
 - Android Build Tools providing `aapt`, `d8`, `zipalign`, and `apksigner`
 - `zip`
 - ECJ JAR at `assets/lib/ecj.jar`
 
-The script defaults `ANDROID_JAR` to the root-level `android.jar`. Override it if using a different Android platform JAR.
+When `ANDROID_SDK_ROOT` or `ANDROID_HOME` is set, the script requires and defaults to `platforms/android-36/android.jar`. Without an SDK root, it falls back to the repository's root-level `android.jar`; for an API 36 build, set `ANDROID_JAR` explicitly to Platform 36.
 
 ## 2. Prepare the toolchain
 
