@@ -111,7 +111,7 @@ public class EngineCore {
     // Try connecting to the Real CPython 3.12 / Clang++ Industrial Daemon on 127.0.0.1:49152
     private static String tryIndustrialDaemon(String language, String fileName, String code) {
         try {
-            URL url = new URL("http://127.0.0.1:49152/execute");
+            URL url = new URL("http://localhost:49152/execute");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setConnectTimeout(800);
             conn.setReadTimeout(16000);
