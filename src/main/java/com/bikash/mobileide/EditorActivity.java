@@ -450,6 +450,10 @@ public class EditorActivity extends Activity {
             );
             tabLp.setMargins(dp(3), 0, dp(3), 0);
             tab.setLayoutParams(tabLp);
+            tab.setMinimumHeight(dp(48));
+            tab.setContentDescription(
+                "Open " + item.fileName + " in " + item.language + " editor"
+            );
 
             final TextView label = new TextView(this);
             String marker = item.fileName.equals(currentFileName)
@@ -477,8 +481,8 @@ public class EditorActivity extends Activity {
             close.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
             close.setTextColor(Color.parseColor("#91A8BE"));
             close.setGravity(Gravity.CENTER);
-            close.setMinWidth(dp(32));
-            close.setMinHeight(dp(36));
+            close.setMinWidth(dp(48));
+            close.setMinHeight(dp(48));
             close.setContentDescription("Close " + item.fileName);
             close.setOnClickListener(new View.OnClickListener() {
                 @Override
