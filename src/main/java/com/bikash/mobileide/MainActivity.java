@@ -24,6 +24,10 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.util.Log;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +66,9 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         prefs = getSharedPreferences("oxdroid_prefs", MODE_PRIVATE);
-        initDefaultProjects();
+        if (!loadProjectCatalog()) {
+            initDefaultProjects();
+        }
         setContentView(buildOriginalUI());
     }
 
@@ -108,6 +114,58 @@ public class MainActivity extends Activity {
             "pycore_ai.py",
             "# PyCore AI - Native Python 3 Engine\nmodel = 'OxDroid-Mini-v1'\nprint('🐍 Python 3 Offline Engine Connected!')\nprint('🤖 Running AI Model:', model)\nfor step in range(3):\n    print('⚡ Training Epoch:', step)\nprint('✅ Model Ready on Android!')"
         ));
+        saveProjectCatalog();
+    }
+
+    private boolean loadProjectCatalog() {
+        String saved = prefs.getString("project_catalog", null);
+        if (saved == null) return false;
+        try {
+            JSONArray catalog = new JSONArray(saved);
+            projectList.clear();
+            for (int i = 0; i < catalog.length(); i++) {
+                JSONObject item = catalog.optJSONObject(i);
+                if (item == null) continue;
+                String name = item.optString("name", "").trim();
+                String fileName = item.optString("fileName", "").trim();
+                if (name.isEmpty() || fileName.isEmpty()) continue;
+                projectList.add(new ProjectItem(
+                    name,
+                    item.optString("subtitle", ""),
+                    item.optString("date", ""),
+                    item.optString("icon", "📁"),
+                    item.optInt("badgeColor", Color.GRAY),
+                    item.optString("lang", "java"),
+                    fileName,
+                    item.optString("starterCode", "")
+                ));
+            }
+            return true;
+        } catch (JSONException error) {
+            Log.e("OxDroid", "Saved project catalog is invalid; restoring defaults", error);
+            return false;
+        }
+    }
+
+    private void saveProjectCatalog() {
+        JSONArray catalog = new JSONArray();
+        try {
+            for (ProjectItem item : projectList) {
+                JSONObject saved = new JSONObject();
+                saved.put("name", item.name);
+                saved.put("subtitle", item.subtitle);
+                saved.put("date", item.date);
+                saved.put("icon", item.icon);
+                saved.put("badgeColor", item.badgeColor);
+                saved.put("lang", item.lang);
+                saved.put("fileName", item.fileName);
+                saved.put("starterCode", item.starterCode);
+                catalog.put(saved);
+            }
+            prefs.edit().putString("project_catalog", catalog.toString()).apply();
+        } catch (JSONException error) {
+            Log.e("OxDroid", "Unable to save project catalog", error);
+        }
     }
 
     private View buildOriginalUI() {
@@ -668,6 +726,7 @@ public class MainActivity extends Activity {
                         newItem.starterCode = loaded.content;
                     }
                     projectList.add(0, newItem);
+                    saveProjectCatalog();
                     refreshProjectList("");
                     openEditorWithProject(newItem);
                 }
@@ -801,6 +860,7 @@ public class MainActivity extends Activity {
                             .show();
                     } else {
                         projectList.remove(item);
+                        saveProjectCatalog();
                         refreshProjectList("");
                         Toast.makeText(MainActivity.this, "Removed " + item.name, Toast.LENGTH_SHORT).show();
                     }
