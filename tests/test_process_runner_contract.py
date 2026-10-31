@@ -35,16 +35,16 @@ class BoundedProcessRunnerContractTests(unittest.TestCase):
         self.assertIn("cancelled", self.runner)
 
     def test_structured_result_preserves_exit_code_and_diagnostics(self):
-        for field in (
-            "stdout",
-            "stderr",
-            "exitCode",
-            "timedOut",
-            "cancelled",
-            "durationMillis",
-            "launchError",
+        for declaration in (
+            "public final String stdout;",
+            "public final String stderr;",
+            "public final int exitCode;",
+            "public final boolean timedOut;",
+            "public final boolean cancelled;",
+            "public final long durationMillis;",
+            "public final String launchError;",
         ):
-            self.assertIn("public final " + ("int " if field == "exitCode" else "long " if field == "durationMillis" else "boolean " if field in ("timedOut", "cancelled") else "String " if field in ("stdout", "stderr", "launchError") else ""), self.runner)
+            self.assertIn(declaration, self.runner)
         self.assertIn("Process exited with code ", self.runner)
         self.assertIn("[timeout]", self.runner)
 
