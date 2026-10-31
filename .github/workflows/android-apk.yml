@@ -29,7 +29,7 @@ jobs:
         uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
           # Install only the tools needed by the current Java/AAPT build pipeline.
         with:
-          packages: 'platforms;android-36 build-tools;36.0.0'
+          packages: 'platforms;android-36 build-tools;36.0.0 emulator system-images;android-36;google_apis;x86_64'
 
       - name: Wire the Android toolchain
         shell: bash
@@ -101,6 +101,40 @@ jobs:
           zipalign -c -v 4 "$APK"
           apksigner verify --verbose "$APK"
           aapt dump badging "$APK" | head -n 8
+
+      - name: Create Android 16 emulator
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "no" | avdmanager create avd --force -n oxdroid-api36 -k "system-images;android-36;google_apis;x86_64"
+
+      - name: Boot Android 16 emulator
+        shell: bash
+        run: |
+          set -euo pipefail
+          emulator -avd oxdroid-api36 -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot -wipe-data > "$RUNNER_TEMP/oxdroid-emulator.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/oxdroid-emulator.pid"
+          adb wait-for-device
+          booted=""
+          for attempt in $(seq 1 120); do
+            booted="$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\\r')"
+            if [[ "$booted" == "1" ]]; then
+              break
+            fi
+            sleep 2
+          done
+          if [[ "$booted" != "1" ]]; then
+            tail -n 120 "$RUNNER_TEMP/oxdroid-emulator.log" || true
+            echo "Android 16 emulator did not finish booting." >&2
+            exit 1
+          fi
+          adb shell settings put global window_animation_scale 0
+          adb shell settings put global transition_animation_scale 0
+          adb shell settings put global animator_duration_scale 0
+          adb shell input keyevent 82 || true
+
+      - name: Install and smoke-test dashboard and editor
+        run: python3 scripts/android_emulator_smoke.py bin/OxDroid-Mobile-IDE.apk
 
       - name: Upload debug-signed APK artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
