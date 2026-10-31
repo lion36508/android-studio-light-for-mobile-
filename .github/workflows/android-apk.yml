@@ -123,18 +123,18 @@ jobs:
           set -euo pipefail
           EMULATOR_LOG="$RUNNER_TEMP/oxdroid-emulator.log"
           EMULATOR_PID="$RUNNER_TEMP/oxdroid-emulator.pid"
-          emulator -avd oxdroid-api36 -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot -wipe-data > "$EMULATOR_LOG" 2>&1 &
+          emulator -avd oxdroid-api36 -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -accel off -no-snapshot -wipe-data > "$EMULATOR_LOG" 2>&1 &
           echo $! > "$EMULATOR_PID"
 
-          if ! timeout 120s adb wait-for-device; then
-            echo "ADB did not detect the Android 16 emulator within 120 seconds." >&2
+          if ! timeout 300s adb wait-for-device; then
+            echo "ADB did not detect the Android 16 emulator within 300 seconds." >&2
             adb devices -l || true
             tail -n 120 "$EMULATOR_LOG" || true
             exit 1
           fi
 
           booted=""
-          boot_deadline=$((SECONDS + 180))
+          boot_deadline=$((SECONDS + 300))
           while (( SECONDS < boot_deadline )); do
             booted="$(timeout 5s adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r' || true)"
             if [[ "$booted" == "1" ]]; then
@@ -150,7 +150,7 @@ jobs:
           if [[ "$booted" != "1" ]]; then
             adb devices -l || true
             tail -n 160 "$EMULATOR_LOG" || true
-            echo "Android 16 emulator did not finish booting before the 180-second deadline." >&2
+            echo "Android 16 emulator did not finish booting before the 300-second deadline." >&2
             exit 1
           fi
 
