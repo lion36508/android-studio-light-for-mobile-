@@ -20,8 +20,6 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class EditorActivity extends Activity {
 
@@ -480,22 +478,22 @@ public class EditorActivity extends Activity {
             s.removeSpan(span);
         }
 
-        // Keywords (Orange/Red)
-        Matcher kw = Pattern.compile("\\b(public|private|protected|class|static|void|int|long|double|float|String|boolean|fun|val|var|def|for|in|range|while|if|else|return|import|package|include|using|namespace|std|cout|endl|print|println)\\b").matcher(s);
-        while (kw.find()) {
-            s.setSpan(new ForegroundColorSpan(Color.parseColor("#FF7B72")), kw.start(), kw.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
-
-        // Strings (Green)
-        Matcher str = Pattern.compile("\"[^\"]*\"|'[^']*'").matcher(s);
-        while (str.find()) {
-            s.setSpan(new ForegroundColorSpan(Color.parseColor("#A5D6FF")), str.start(), str.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
-
-        // Comments (Grey)
-        Matcher cm = Pattern.compile("//.*|#.*").matcher(s);
-        while (cm.find()) {
-            s.setSpan(new ForegroundColorSpan(Color.parseColor("#8B949E")), cm.start(), cm.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        for (SourceSyntaxHighlighter.Token token :
+                SourceSyntaxHighlighter.tokenize(s, currentLanguage)) {
+            int color;
+            if (token.kind == SourceSyntaxHighlighter.Kind.STRING) {
+                color = Color.parseColor("#A5D6FF");
+            } else if (token.kind == SourceSyntaxHighlighter.Kind.COMMENT) {
+                color = Color.parseColor("#8B949E");
+            } else {
+                color = Color.parseColor("#FF7B72");
+            }
+            s.setSpan(
+                new ForegroundColorSpan(color),
+                token.start,
+                token.end,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            );
         }
     }
 
