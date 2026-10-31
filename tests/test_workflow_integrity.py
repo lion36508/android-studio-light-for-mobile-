@@ -1,0 +1,43 @@
+"""Validate immutable action pins and automated update configuration."""
+import pathlib
+import re
+import unittest
+
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+WORKFLOWS = ROOT / ".github" / "workflows"
+
+
+class WorkflowIntegrityTests(unittest.TestCase):
+    def test_every_external_action_is_pinned_to_a_full_commit_sha(self):
+        uses_lines = []
+        for path in sorted(WORKFLOWS.glob("*.yml")) + sorted(WORKFLOWS.glob("*.yaml")):
+            for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+                stripped = line.strip()
+                if stripped.startswith("uses:"):
+                    uses_lines.append((path.name, line_number, stripped.split("uses:", 1)[1].strip().split()[0]))
+        self.assertTrue(uses_lines, "Expected workflow action references.")
+        for filename, line_number, reference in uses_lines:
+            self.assertRegex(
+                reference,
+                r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+@[0-9a-f]{40}$",
+                "{}:{} action must use a full immutable SHA: {}".format(filename, line_number, reference),
+            )
+
+    def test_dependabot_updates_github_actions_weekly(self):
+        path = ROOT / ".github" / "dependabot.yml"
+        config = path.read_text(encoding="utf-8")
+        self.assertIn('package-ecosystem: "github-actions"', config)
+        self.assertIn('directory: "/"', config)
+        self.assertRegex(config, r"interval:\s*weekly")
+
+    def test_quality_workflow_runs_real_checks(self):
+        workflow = (WORKFLOWS / "code_quality_guard.yml").read_text(encoding="utf-8")
+        self.assertIn("bash -n", workflow)
+        self.assertIn("ast.parse", workflow)
+        self.assertIn("python3 -m unittest discover -s tests -v", workflow)
+        self.assertIn("git diff --check", workflow)
+        self.assertNotIn("exit 0", workflow)
+
+
+if __name__ == "__main__":
+    unittest.main()
