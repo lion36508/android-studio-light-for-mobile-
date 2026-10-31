@@ -388,6 +388,7 @@ public class MainActivity extends Activity {
         }));
 
         root.addView(bottomNav);
+        SystemBarInsets.apply(root);
         return root;
     }
 
