@@ -8,6 +8,8 @@ This page records what is present and what still needs implementation. A feature
 
 ## Verified in the repository
 
+- Dashboard and editor controls now expose accessible names and minimum 48dp touch targets where applicable. Decorative text/icon children are grouped to avoid duplicate announcements. See [Accessibility Notes](ACCESSIBILITY.md).
+
 - Workspace source writes now use Android `AtomicFile`; reads loop until EOF and distinguish missing files from I/O errors. The editor blocks unsafe save/build/run actions when the current file could not be loaded. See [Workspace File I/O](WORKSPACE_FILE_IO.md).
 
 - Removed the duplicate `assets/android.jar` copy and unused duplicate UI image filenames; retained the two menu images referenced by `MainActivity`. See [APK Asset Policy](ASSET_POLICY.md).
