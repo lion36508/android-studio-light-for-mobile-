@@ -42,6 +42,9 @@ class SigningSecretPolicyTests(unittest.TestCase):
         self.assertIn('openssl rand -hex 24', workflow)
         self.assertNotIn("ide_keystore.jks", workflow)
 
+    def test_background_guard_has_valid_bash_syntax(self):
+        subprocess.run(["bash", "-n", str(ROOT / "ox_background_guard.sh")], check=True)
+
     def test_background_guard_never_whitelists_a_keystore(self):
         guard = (ROOT / "ox_background_guard.sh").read_text(encoding="utf-8")
         self.assertNotIn("WHITELIST_KEYSTORE", guard)
