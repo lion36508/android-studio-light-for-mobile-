@@ -78,6 +78,9 @@ jobs:
             echo "KEYSTORE_PASS=$KEYSTORE_PASS"
           } >> "$GITHUB_ENV"
 
+      - name: Verify network security policy
+        run: python3 -m unittest discover -s tests -v
+
       - name: Build APK
         run: bash build.sh
 
