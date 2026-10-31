@@ -354,7 +354,7 @@ public class EditorActivity extends Activity {
         if (!saveCurrentFile(true)) return;
         final String code = codeEditor.getText().toString();
         consoleContainer.setVisibility(View.VISIBLE);
-        consoleOutputTv.setText("⏳ Executing on OxDroid Industrial Engine...");
+        consoleOutputTv.setText("Execution is disabled until an isolated sandbox is available. Saving source...");
         new Thread(new Runnable() {
             @Override
             public void run() {
