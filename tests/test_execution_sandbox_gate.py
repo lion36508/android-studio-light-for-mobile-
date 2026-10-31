@@ -18,13 +18,13 @@ class ExecutionSandboxGateTest(unittest.TestCase):
         }
         self.assertNotIn("subprocess", imports)
         self.assertNotIn("os", imports)
-        self.assertIn("self.send_response(501)", source)
+        self.assertIn("self._send_json(501, UNAVAILABLE)", source)
         self.assertIn('"status": "unsupported"', source)
 
     def test_android_runtime_does_not_fall_back_to_unsandboxed_execution(self):
         source = (ROOT / "src/main/java/com/bikash/mobileide/EngineCore.java").read_text(encoding="utf-8")
         match = re.search(
-            r"public static String executeCode\(Context context, String language, String fileName, String code\) \{(.*?)\n    \}",
+            r"public static String executeCode\\(Context context, String language, String fileName, String code\\) \\{(.*?)\\n    \\}",
             source,
             re.S,
         )
