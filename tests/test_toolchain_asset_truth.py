@@ -20,7 +20,7 @@ class ToolchainAssetTruthTests(unittest.TestCase):
             ROOT / "src/main/java/com/bikash/mobileide/EngineCore.java"
         ).read_text(encoding="utf-8")
         start = source.index("public static String buildToolStatus")
-        end = source.index("// Try connecting", start)
+        end = source.index("private static final int MAX_DAEMON_REQUEST_BYTES", start)
         status = source[start:end]
         self.assertIn("AAPT2/AAPT: unavailable", status)
         self.assertIn("D8: unavailable", status)
