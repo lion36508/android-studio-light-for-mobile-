@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-ROOT_DIR="$(cd "$(dirname "\${BASH_SOURCE[0]}")" && pwd -P)"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 cd "$ROOT_DIR"
 
-ANDROID_JAR="\${ANDROID_JAR:-$ROOT_DIR/android.jar}"
-BUILD_DIR="\${BUILD_DIR:-$ROOT_DIR/obj}"
-OUT_DIR="\${OUT_DIR:-$ROOT_DIR/bin}"
-GEN_DIR="\${GEN_DIR:-$ROOT_DIR/gen}"
-APK_NAME="\${APK_NAME:-OxDroid-Mobile-IDE.apk}"
+ANDROID_JAR="${ANDROID_JAR:-$ROOT_DIR/android.jar}"
+BUILD_DIR="${BUILD_DIR:-$ROOT_DIR/obj}"
+OUT_DIR="${OUT_DIR:-$ROOT_DIR/bin}"
+GEN_DIR="${GEN_DIR:-$ROOT_DIR/gen}"
+APK_NAME="${APK_NAME:-OxDroid-Mobile-IDE.apk}"
 
 fail() {
     echo "ERROR: $*" >&2
@@ -31,12 +31,12 @@ normalize_absolute_path() {
     local result="/"
 
     IFS='/' read -r -a raw_parts <<< "$input"
-    for part in "\${raw_parts[@]}"; do
+    for part in "${raw_parts[@]}"; do
         case "$part" in
             ""|".") ;;
             "..")
-                if (( \${#parts[@]} > 0 )); then
-                    last_index=$(('\${#parts[@]}' - 1))
+                if (( ${#parts[@]} > 0 )); then
+                    last_index=$((${#parts[@]} - 1))
                     unset "parts[$last_index]"
                 fi
                 ;;
@@ -44,7 +44,7 @@ normalize_absolute_path() {
         esac
     done
 
-    for part in "\${parts[@]}"; do
+    for part in "${parts[@]}"; do
         if [[ "$result" == "/" ]]; then
             result+="$part"
         else
@@ -121,7 +121,7 @@ validate_output_dir() {
     [[ "$candidate" != "$ROOT_DIR" ]] || fail "$label cannot be the repository root."
     [[ "$ROOT_DIR" != "$candidate/"* ]] ||
         fail "$label is an ancestor of the repository and is unsafe: $candidate"
-    if [[ -n "\${HOME:-}" ]]; then
+    if [[ -n "${HOME:-}" ]]; then
         [[ "$candidate" != "$HOME" ]] || fail "$label cannot be the home directory."
         [[ "$HOME" != "$candidate/"* ]] ||
             fail "$label is an ancestor of the home directory and is unsafe: $candidate"
@@ -144,10 +144,10 @@ validate_output_dir() {
     done
 
     if ! is_within_path "$candidate" "$ROOT_DIR" &&
-       { [[ -z "\${HOME:-}" ]] || ! is_within_path "$candidate" "$HOME"; } &&
+       { [[ -z "${HOME:-}" ]] || ! is_within_path "$candidate" "$HOME"; } &&
        ! is_within_path "$candidate" "/tmp" &&
-       { [[ -z "\${TMPDIR:-}" ]] || ! is_within_path "$candidate" "$TMPDIR"; } &&
-       [[ "\${ALLOW_EXTERNAL_BUILD_OUTPUTS:-0}" != "1" ]]; then
+       { [[ -z "${TMPDIR:-}" ]] || ! is_within_path "$candidate" "$TMPDIR"; } &&
+       [[ "${ALLOW_EXTERNAL_BUILD_OUTPUTS:-0}" != "1" ]]; then
         fail "$label must be inside the repository, home, or temporary directory. Set ALLOW_EXTERNAL_BUILD_OUTPUTS=1 only for a deliberate external destination."
     fi
 }
@@ -196,22 +196,22 @@ mapfile -t JAVA_SOURCES < <(
     find src/main/java -name '*.java' -type f ! -name 'R.java'
     find "$GEN_DIR" -name '*.java' -type f
 )
-[[ "\${#JAVA_SOURCES[@]}" -gt 0 ]] || { echo "ERROR: no Java sources found." >&2; exit 2; }
-ecj -source 8 -target 8 -d "$BUILD_DIR" -classpath "$ANDROID_JAR" "\${JAVA_SOURCES[@]}"
+[[ "${#JAVA_SOURCES[@]}" -gt 0 ]] || { echo "ERROR: no Java sources found." >&2; exit 2; }
+ecj -source 8 -target 8 -d "$BUILD_DIR" -classpath "$ANDROID_JAR" "${JAVA_SOURCES[@]}"
 
 echo "[*] Converting bytecode to DEX..."
 mkdir -p -- "$OUT_DIR/dex"
 mapfile -t CLASS_FILES < <(find "$BUILD_DIR" -name '*.class' -type f | sort)
-[[ "\${#CLASS_FILES[@]}" -gt 0 ]] || { echo "ERROR: no compiled class files found." >&2; exit 2; }
-d8 --release --lib "$ANDROID_JAR" --output "$OUT_DIR/dex" "\${CLASS_FILES[@]}"
+[[ "${#CLASS_FILES[@]}" -gt 0 ]] || { echo "ERROR: no compiled class files found." >&2; exit 2; }
+d8 --release --lib "$ANDROID_JAR" --output "$OUT_DIR/dex" "${CLASS_FILES[@]}"
 
 echo "[*] Packaging unsigned APK..."
 aapt package -f -M AndroidManifest.xml -S res -A assets -I "$ANDROID_JAR" -F "$OUT_DIR/app-unsigned.apk"
 (cd "$OUT_DIR/dex" && zip -q -u ../app-unsigned.apk classes.dex)
 
 echo "[*] Signing APK..."
-: "\${KEYSTORE:?ERROR: set KEYSTORE to a private signing-keystore path; do not use a keystore committed to the repository.}"
-: "\${KEYSTORE_PASS:?ERROR: set KEYSTORE_PASS in your local environment.}"
+: "${KEYSTORE:?ERROR: set KEYSTORE to a private signing-keystore path; do not use a keystore committed to the repository.}"
+: "${KEYSTORE_PASS:?ERROR: set KEYSTORE_PASS in your local environment.}"
 [[ -f "$KEYSTORE" ]] || { echo "ERROR: signing keystore not found: $KEYSTORE" >&2; exit 2; }
 zipalign -f -p 4 "$OUT_DIR/app-unsigned.apk" "$OUT_DIR/app-aligned.apk"
 apksigner sign --ks "$KEYSTORE" --ks-pass env:KEYSTORE_PASS --out "$OUT_DIR/$APK_NAME" "$OUT_DIR/app-aligned.apk"
