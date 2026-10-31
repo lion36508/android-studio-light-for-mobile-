@@ -307,6 +307,9 @@ public class EditorActivity extends Activity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 isDirty = true;
+                if (activeTabLabel != null) {
+                    activeTabLabel.setText("● " + new File(currentFileName).getName());
+                }
                 updateLineNumbers();
             }
             @Override
