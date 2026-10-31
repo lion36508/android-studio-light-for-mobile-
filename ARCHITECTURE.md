@@ -44,6 +44,8 @@ The CI key is ephemeral and must never be reused as a production signing identit
 
 ## 4. Current boundaries
 
+The repository intentionally does not bundle placeholder files under compiler names. The previous 9-byte Python stub, the duplicate BusyBox-as-`cpp_engine` file, and the empty Kotlin compiler JAR have been removed. Their deletion does not add a replacement compiler; the matching language toolchains remain unsupported until a real ABI-compatible implementation is integrated and verified.
+
 The following are not yet established as complete, end-to-end application features:
 
 - Building arbitrary Android projects entirely on-device.
