@@ -125,7 +125,11 @@ public class MainActivity extends Activity {
         menuBtn.setText("☰");
         menuBtn.setTextColor(Color.WHITE);
         menuBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
-        menuBtn.setPadding(0, 0, dp(16), 0);
+        menuBtn.setContentDescription("Open navigation menu");
+        menuBtn.setMinimumWidth(dp(48));
+        menuBtn.setMinimumHeight(dp(48));
+        menuBtn.setGravity(Gravity.CENTER);
+        menuBtn.setPadding(0, 0, dp(8), 0);
         addTouchEffect(menuBtn);
         menuBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -158,7 +162,11 @@ public class MainActivity extends Activity {
         TextView searchBtn = new TextView(this);
         searchBtn.setText("🔍");
         searchBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
-        searchBtn.setPadding(dp(10), dp(4), dp(10), dp(4));
+        searchBtn.setContentDescription("Search projects");
+        searchBtn.setMinimumWidth(dp(48));
+        searchBtn.setMinimumHeight(dp(48));
+        searchBtn.setGravity(Gravity.CENTER);
+        searchBtn.setPadding(dp(8), dp(4), dp(8), dp(4));
         addTouchEffect(searchBtn);
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -178,7 +186,11 @@ public class MainActivity extends Activity {
         moreBtn.setText("⋮");
         moreBtn.setTextColor(Color.WHITE);
         moreBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
-        moreBtn.setPadding(dp(10), 0, dp(4), 0);
+        moreBtn.setContentDescription("More OxDroid Studio options");
+        moreBtn.setMinimumWidth(dp(48));
+        moreBtn.setMinimumHeight(dp(48));
+        moreBtn.setGravity(Gravity.CENTER);
+        moreBtn.setPadding(dp(8), 0, dp(4), 0);
         addTouchEffect(moreBtn);
         moreBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -332,6 +344,9 @@ public class MainActivity extends Activity {
         seeAllBtn.setTextColor(Color.parseColor("#388BFD"));
         seeAllBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
         seeAllBtn.setTypeface(null, Typeface.BOLD);
+        seeAllBtn.setContentDescription("Show all workspace projects");
+        seeAllBtn.setMinimumHeight(dp(48));
+        seeAllBtn.setGravity(Gravity.CENTER_VERTICAL);
         addTouchEffect(seeAllBtn);
         seeAllBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -402,11 +417,16 @@ public class MainActivity extends Activity {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(122), 1f);
         lp.setMargins(dp(4), 0, dp(4), 0);
         card.setLayoutParams(lp);
+        card.setMinimumHeight(dp(112));
+        card.setContentDescription((title + ". " + sub).replace("\n", " "));
+        card.setFocusable(true);
+        card.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
 
         TextView iconTv = new TextView(this);
         iconTv.setText(icon);
         iconTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
         iconTv.setGravity(Gravity.CENTER);
+        iconTv.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
 
         TextView titleTv = new TextView(this);
         titleTv.setText(title);
@@ -415,12 +435,14 @@ public class MainActivity extends Activity {
         titleTv.setTypeface(null, Typeface.BOLD);
         titleTv.setGravity(Gravity.CENTER);
         titleTv.setPadding(0, dp(6), 0, dp(4));
+        titleTv.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
 
         TextView subTv = new TextView(this);
         subTv.setText(sub);
         subTv.setTextColor(subColor);
         subTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
         subTv.setGravity(Gravity.CENTER);
+        subTv.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
 
         card.addView(iconTv);
         card.addView(titleTv);
@@ -446,6 +468,9 @@ public class MainActivity extends Activity {
             card.setGravity(Gravity.CENTER_VERTICAL);
             card.setPadding(dp(14), dp(14), dp(14), dp(14));
             card.setBackground(makeRoundedBg(Color.parseColor("#161B22"), dp(14), Color.parseColor("#21262D")));
+            card.setContentDescription("Open project " + item.name + ", " + item.subtitle);
+            card.setMinimumHeight(dp(72));
+            card.setFocusable(true);
 
             LinearLayout.LayoutParams cardLp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -493,7 +518,12 @@ public class MainActivity extends Activity {
             menuDots.setText("⋮");
             menuDots.setTextColor(Color.parseColor("#8B949E"));
             menuDots.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-            menuDots.setPadding(dp(12), 0, dp(4), dp(4));
+            menuDots.setContentDescription("More options for " + item.name);
+            menuDots.setMinimumWidth(dp(48));
+            menuDots.setMinimumHeight(dp(48));
+            menuDots.setGravity(Gravity.CENTER);
+            menuDots.setFocusable(true);
+            menuDots.setPadding(dp(8), 0, dp(4), dp(4));
             menuDots.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -526,13 +556,17 @@ public class MainActivity extends Activity {
         LinearLayout tab = new LinearLayout(this);
         tab.setOrientation(LinearLayout.VERTICAL);
         tab.setGravity(Gravity.CENTER);
-        tab.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        tab.setLayoutParams(new LinearLayout.LayoutParams(0, dp(56), 1f));
+        tab.setMinimumHeight(dp(48));
+        tab.setContentDescription(label);
+        tab.setFocusable(true);
 
         TextView iconTv = new TextView(this);
         iconTv.setText(icon);
         iconTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
         iconTv.setTextColor(active ? Color.parseColor("#388BFD") : Color.parseColor("#8B949E"));
         iconTv.setGravity(Gravity.CENTER);
+        iconTv.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
 
         TextView labelTv = new TextView(this);
         labelTv.setText(label);
@@ -540,6 +574,7 @@ public class MainActivity extends Activity {
         labelTv.setTextColor(active ? Color.parseColor("#388BFD") : Color.parseColor("#8B949E"));
         labelTv.setPadding(0, dp(2), 0, 0);
         labelTv.setGravity(Gravity.CENTER);
+        labelTv.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
 
         tab.addView(iconTv);
         tab.addView(labelTv);
@@ -938,6 +973,9 @@ public class MainActivity extends Activity {
                     android.view.View touchZone = new android.view.View(this);
                     touchZone.setLayoutParams(new android.widget.LinearLayout.LayoutParams(
                         android.view.ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+                    touchZone.setMinimumHeight(dp(48));
+                    touchZone.setContentDescription(items[idx].replaceAll("^[^a-zA-Z0-9]+", "").trim());
+                    touchZone.setFocusable(true);
                     touchZone.setOnClickListener(new android.view.View.OnClickListener() {
                         @Override
                         public void onClick(android.view.View v) {
@@ -967,6 +1005,9 @@ public class MainActivity extends Activity {
                     tv.setGravity(android.view.Gravity.CENTER_VERTICAL);
                     tv.setLayoutParams(new android.widget.LinearLayout.LayoutParams(
                         android.view.ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+                    tv.setMinimumHeight(dp(48));
+                    tv.setContentDescription(cleanText);
+                    tv.setFocusable(true);
 
                     tv.setOnClickListener(new android.view.View.OnClickListener() {
                         @Override
