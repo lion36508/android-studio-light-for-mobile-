@@ -36,7 +36,7 @@ class EditorWorkspaceTabsStateTests(unittest.TestCase):
         for key in ("STATE_FILE", "STATE_LANGUAGE", "STATE_CONTENT", "STATE_DIRTY"):
             self.assertIn(key, self.source)
         self.assertIn('savedInstanceState.getString(STATE_CONTENT, loaded.content)', self.source)
-        self.assertIn('savedInstanceState.putBoolean(STATE_DIRTY, isDirty)', self.source)
+        self.assertIn('outState.putBoolean(STATE_DIRTY, isDirty)', self.source)
 
     def test_activity_restores_cursor_scroll_and_open_tabs(self):
         for key in (
