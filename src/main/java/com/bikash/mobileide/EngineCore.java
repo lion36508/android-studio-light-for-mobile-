@@ -37,18 +37,26 @@ public class EngineCore {
         return dir;
     }
 
-    private static File workspaceFile(Context context, String fileName) throws Exception {
+    private static File resolveWorkspaceEntry(Context context, String fileName) throws Exception {
         if (fileName == null || fileName.trim().isEmpty()) throw new Exception("File name is empty");
         String normalized = fileName.replace('\\', '/');
+        while (normalized.length() > 1 && normalized.endsWith("/")) {
+            normalized = normalized.substring(0, normalized.length() - 1);
+        }
         if (normalized.startsWith("/") || normalized.equals("..") || normalized.startsWith("../") || normalized.contains("/../")) {
             throw new Exception("Unsafe workspace path");
         }
         File root = getWorkspaceDir(context).getCanonicalFile();
-        File file = new File(root, normalized).getCanonicalFile();
-        if (file.getPath().equals(root.getPath()) ||
-            !file.getPath().startsWith(root.getPath() + File.separator)) {
+        File entry = new File(root, normalized).getCanonicalFile();
+        if (entry.getPath().equals(root.getPath()) ||
+            !entry.getPath().startsWith(root.getPath() + File.separator)) {
             throw new Exception("Unsafe workspace path");
         }
+        return entry;
+    }
+
+    private static File workspaceFile(Context context, String fileName) throws Exception {
+        File file = resolveWorkspaceEntry(context, fileName);
         File parent = file.getParentFile();
         if (parent != null && !parent.exists() && !parent.mkdirs() && !parent.isDirectory()) {
             throw new Exception("Unable to create workspace directory: " + parent.getAbsolutePath());
@@ -60,6 +68,50 @@ public class EngineCore {
             throw new Exception("Workspace path is not a regular file: " + file.getAbsolutePath());
         }
         return file;
+    }
+
+    /**
+     * Checks whether a workspace file or directory already exists.
+     * Invalid paths fail closed so callers never overwrite an unknown target.
+     */
+    public static synchronized boolean workspaceEntryExists(Context context, String relativePath) {
+        try {
+            return resolveWorkspaceEntry(context, relativePath).exists();
+        } catch (Exception error) {
+            return true;
+        }
+    }
+
+    /**
+     * Removes a workspace subtree after a failed multi-file creation.
+     * Canonical-path checks prevent deleting outside the private workspace.
+     */
+    public static synchronized boolean deleteWorkspaceTree(Context context, String relativePath) {
+        try {
+            File root = getWorkspaceDir(context).getCanonicalFile();
+            File entry = resolveWorkspaceEntry(context, relativePath);
+            return deleteWorkspaceEntry(entry, root);
+        } catch (Exception error) {
+            return false;
+        }
+    }
+
+    private static boolean deleteWorkspaceEntry(File entry, File root) throws Exception {
+        File absolute = entry.getAbsoluteFile();
+        File canonical = entry.getCanonicalFile();
+        if (!canonical.getPath().startsWith(root.getPath() + File.separator)) return false;
+
+        // Do not traverse symbolic links. Delete the link itself, not its target.
+        if (!canonical.equals(absolute)) return absolute.delete();
+
+        if (entry.isDirectory()) {
+            File[] children = entry.listFiles();
+            if (children == null) return false;
+            for (File child : children) {
+                if (!deleteWorkspaceEntry(child, root)) return false;
+            }
+        }
+        return entry.delete();
     }
 
     /**

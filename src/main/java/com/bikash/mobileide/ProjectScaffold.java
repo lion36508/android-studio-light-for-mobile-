@@ -6,24 +6,40 @@ import android.content.Context;
 public final class ProjectScaffold {
     private ProjectScaffold() {}
 
-    public static String create(Context context, String rawName, boolean videoTemplate) {
+    public static synchronized String create(Context context, String rawName, boolean videoTemplate) {
         if (ProjectName.validationError(rawName) != null) return null;
+
         String slug = ProjectName.fileStem(rawName);
         String packageName = "com.oxdroid." + slug.replace('-', '_');
         String root = "projects/" + slug + "/";
         String javaPath = root + "app/src/main/java/" + packageName.replace('.', '/') + "/MainActivity.java";
 
-        EngineCore.saveFile(context, root + "settings.gradle", "pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }\n" +
+        // Never replace an existing project (including a partially-created one).
+        if (EngineCore.workspaceEntryExists(context, root)) return null;
+
+        String[][] generatedFiles = {
+            {
+                root + "settings.gradle",
+                "pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }\n" +
                 "dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }\n" +
-                "rootProject.name = '" + slug + "'\ninclude ':app'\n");
-        EngineCore.saveFile(context, root + "build.gradle", "plugins {\n" +
+                "rootProject.name = '" + slug + "'\ninclude ':app'\n"
+            },
+            {
+                root + "build.gradle",
+                "plugins {\n" +
                 "    id 'com.android.application' version '8.2.2' apply false\n" +
-                "}\n");
-        EngineCore.saveFile(context, root + "app/build.gradle", "plugins { id 'com.android.application' }\n\n" +
+                "}\n"
+            },
+            {
+                root + "app/build.gradle",
+                "plugins { id 'com.android.application' }\n\n" +
                 "android { namespace '" + packageName + "'; compileSdk 34\n" +
                 "    defaultConfig { applicationId '" + packageName + "'; minSdk 24; targetSdk 34; versionCode 1; versionName '1.0' }\n" +
-                "}\n");
-        EngineCore.saveFile(context, root + "app/src/main/AndroidManifest.xml", "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "}\n"
+            },
+            {
+                root + "app/src/main/AndroidManifest.xml",
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\" package=\"" + packageName + "\">\n" +
                 "    <uses-permission android:name=\"android.permission.INTERNET\" />\n" +
                 "    <application android:theme=\"@style/AppTheme\" android:label=\"" + escapeXml(rawName) + "\">\n" +
@@ -31,12 +47,38 @@ public final class ProjectScaffold {
                 "            <intent-filter><action android:name=\"android.intent.action.MAIN\" /><category android:name=\"android.intent.category.LAUNCHER\" /></intent-filter>\n" +
                 "        </activity>\n" +
                 "    </application>\n" +
-                "</manifest>\n");
-        EngineCore.saveFile(context, root + "app/src/main/res/values/styles.xml", "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<resources><style name=\"AppTheme\" parent=\"android:style/Theme.Material.Light.NoActionBar\"><item name=\"android:fontFamily\">sans</item><item name=\"android:colorAccent\">#3F51B5</item></style></resources>\n");
-        EngineCore.saveFile(context, root + "app/src/main/res/values/strings.xml", "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<resources><string name=\"app_name\">" + escapeXml(rawName) + "</string></resources>\n");
-        EngineCore.saveFile(context, root + "app/src/main/res/layout/activity_main.xml", videoTemplate ? videoLayout() : basicLayout());
-        EngineCore.saveFile(context, javaPath, videoTemplate ? videoActivity(packageName) : basicActivity(packageName));
-        return javaPath;
+                "</manifest>\n"
+            },
+            {
+                root + "app/src/main/res/values/styles.xml",
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<resources><style name=\"AppTheme\" parent=\"android:style/Theme.Material.Light.NoActionBar\"><item name=\"android:fontFamily\">sans</item><item name=\"android:colorAccent\">#3F51B5</item></style></resources>\n"
+            },
+            {
+                root + "app/src/main/res/values/strings.xml",
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<resources><string name=\"app_name\">" + escapeXml(rawName) + "</string></resources>\n"
+            },
+            {
+                root + "app/src/main/res/layout/activity_main.xml",
+                videoTemplate ? videoLayout() : basicLayout()
+            },
+            {
+                javaPath,
+                videoTemplate ? videoActivity(packageName) : basicActivity(packageName)
+            }
+        };
+
+        try {
+            for (String[] generatedFile : generatedFiles) {
+                if (!EngineCore.saveFile(context, generatedFile[0], generatedFile[1])) {
+                    EngineCore.deleteWorkspaceTree(context, root);
+                    return null;
+                }
+            }
+            return javaPath;
+        } catch (RuntimeException error) {
+            EngineCore.deleteWorkspaceTree(context, root);
+            return null;
+        }
     }
 
     private static String basicActivity(String packageName) {

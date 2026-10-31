@@ -712,7 +712,7 @@ public class MainActivity extends Activity {
                     if (which == 0 || which == 1) {
                         String generatedFile = ProjectScaffold.create(MainActivity.this, rawName, which == 1);
                         if (generatedFile == null || generatedFile.trim().isEmpty()) {
-                            Toast.makeText(MainActivity.this, "Project creation failed. No project was added.", Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this, "Project already exists or workspace storage could not save every file. No project was added.", Toast.LENGTH_LONG).show();
                             return;
                         }
                         newItem.fileName = generatedFile;
