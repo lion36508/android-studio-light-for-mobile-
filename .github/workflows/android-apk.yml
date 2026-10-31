@@ -66,6 +66,7 @@ jobs:
           set -euo pipefail
           KEYSTORE="$RUNNER_TEMP/oxdroid-ci-debug.jks"
           KEYSTORE_PASS="$(openssl rand -hex 24)"
+          echo "::add-mask::$KEYSTORE_PASS"
           keytool -genkeypair -noprompt \
             -keystore "$KEYSTORE" \
             -storepass "$KEYSTORE_PASS" \
