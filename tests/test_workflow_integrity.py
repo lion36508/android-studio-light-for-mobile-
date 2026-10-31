@@ -51,6 +51,24 @@ class WorkflowIntegrityTests(unittest.TestCase):
         self.assertIn('[[ ! -x "$EMULATOR_BIN/emulator" ]]', tool_step)
         self.assertIn('echo "$EMULATOR_BIN" >> "$GITHUB_PATH"', tool_step)
 
+    def test_android_emulator_steps_are_gated_when_runner_lacks_kvm(self):
+        workflow = (WORKFLOWS / "android-apk.yml").read_text(encoding="utf-8")
+        self.assertIn("id: emulator_accel", workflow)
+        self.assertIn("[[ -c /dev/kvm && -r /dev/kvm && -w /dev/kvm ]]", workflow)
+        self.assertIn('emulator -accel-check > "$ACCEL_LOG" 2>&1', workflow)
+        self.assertIn('echo "available=false" >> "$GITHUB_OUTPUT"', workflow)
+        self.assertIn("Android 16 device smoke test skipped", workflow)
+        for step in (
+            "Create Android 16 emulator",
+            "Boot Android 16 emulator",
+            "Install and smoke-test dashboard and editor",
+        ):
+            start = workflow.index("- name: " + step)
+            self.assertIn(
+                "if: steps.emulator_accel.outputs.available == 'true'",
+                workflow[start:start + 180],
+            )
+
     def test_quality_workflow_runs_real_checks(self):
         workflow = (WORKFLOWS / "code_quality_guard.yml").read_text(encoding="utf-8")
         self.assertIn("bash -n", workflow)
