@@ -27,20 +27,20 @@ public final class ProjectScaffold {
             {
                 root + "build.gradle",
                 "plugins {\n" +
-                "    id 'com.android.application' version '8.2.2' apply false\n" +
+                "    id 'com.android.application' version '8.9.2' apply false\n" +
                 "}\n"
             },
             {
                 root + "app/build.gradle",
                 "plugins { id 'com.android.application' }\n\n" +
-                "android { namespace '" + packageName + "'; compileSdk 34\n" +
-                "    defaultConfig { applicationId '" + packageName + "'; minSdk 24; targetSdk 34; versionCode 1; versionName '1.0' }\n" +
+                "android { namespace '" + packageName + "'; compileSdk 36\n" +
+                "    defaultConfig { applicationId '" + packageName + "'; minSdk 24; targetSdk 36; versionCode 1; versionName '1.0' }\n" +
                 "}\n"
             },
             {
                 root + "app/src/main/AndroidManifest.xml",
                 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-                "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\" package=\"" + packageName + "\">\n" +
+                "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\">\n" +
                 "    <uses-permission android:name=\"android.permission.INTERNET\" />\n" +
                 "    <application android:theme=\"@style/AppTheme\" android:label=\"" + escapeXml(rawName) + "\">\n" +
                 "        <activity android:name=\".MainActivity\" android:exported=\"true\">\n" +

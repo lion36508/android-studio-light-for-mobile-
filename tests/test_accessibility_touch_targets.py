@@ -32,18 +32,18 @@ class AccessibilityTouchTargetTests(unittest.TestCase):
         source = MAIN.read_text(encoding="utf-8")
         self.assertIn('card.setContentDescription((title + ". " + sub).replace("\\n", " "))', source)
         self.assertIn("View.IMPORTANT_FOR_ACCESSIBILITY_NO", source)
-        self.assertIn('card.setContentDescription("Open project " + item.name + ", " + item.subtitle)', source)
+        self.assertIn('card.setContentDescription("Open project or workspace file " + item.name + ", " + item.subtitle + ", " + item.fileName)', source)
 
     def test_editor_primary_controls_are_named_and_large_enough(self):
         source = EDITOR.read_text(encoding="utf-8")
         for snippet in (
             'backBtn.setContentDescription("Return to workspace")',
-            'runBtn.setContentDescription("Run current source;',
+            'runButton.setContentDescription("Run current source;',
             'buildBtn.setContentDescription("Build current project;',
             'saveBtn.setContentDescription("Save current file")',
             'closeConsoleBtn.setContentDescription("Close terminal output panel")',
             "backBtn.setMinimumHeight(dp(48))",
-            "runBtn.setMinimumHeight(dp(48))",
+            "runButton.setMinimumHeight(dp(48))",
             "buildBtn.setMinimumHeight(dp(48))",
             "saveBtn.setMinimumHeight(dp(48))",
             "closeConsoleBtn.setMinimumHeight(dp(48))",
@@ -53,7 +53,7 @@ class AccessibilityTouchTargetTests(unittest.TestCase):
     def test_editor_symbols_and_tabs_are_announceable(self):
         source = EDITOR.read_text(encoding="utf-8")
         self.assertIn("symBtn.setContentDescription", source)
-        self.assertIn('tab.setContentDescription("Open " + file + " in " + lang + " editor")', source)
+        self.assertIn('tab.setContentDescription("Open " + item.fileName + " in " + item.language + " editor")', source)
         self.assertIn('codeEditor.setContentDescription("Source code editor")', source)
 
 
