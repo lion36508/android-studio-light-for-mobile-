@@ -8,20 +8,16 @@ public final class ProjectName {
 
     /** Returns null when valid, otherwise a user-readable validation error. */
     public static String validationError(String rawName) {
-        if (rawName == null || rawName.trim().isEmpty()) {
-            return "Enter a project name.";
-        }
+        if (rawName == null || rawName.trim().isEmpty()) return "Enter a project name.";
         String name = rawName.trim();
-        if (name.length() > 64) {
-            return "Project name must be 64 characters or fewer.";
-        }
+        if (name.length() > 64) return "Project name must be 64 characters or fewer.";
         for (int i = 0; i < name.length(); i++) {
             char c = name.charAt(i);
             if (Character.isISOControl(c)) {
                 return "Project name cannot contain control characters or line breaks.";
             }
-            if (c == '/' || c == '\\\\') {
-                return "Project name cannot contain path separators (/ or \\\\).";
+            if (c == '/' || c == '\\') {
+                return "Project name cannot contain path separators (/ or \\).";
             }
         }
         return null;
@@ -51,12 +47,10 @@ public final class ProjectName {
         return result.toString();
     }
 
-    /** Escapes content for a Java string literal, without adding surrounding quotes. */
     public static String javaStringContent(String value) {
         return escapeQuotedContent(value);
     }
 
-    /** Escapes content for a Python double-quoted string literal. */
     public static String pythonStringContent(String value) {
         return escapeQuotedContent(value);
     }
@@ -67,14 +61,14 @@ public final class ProjectName {
         for (int i = 0; i < value.length(); i++) {
             char c = value.charAt(i);
             switch (c) {
-                case '\\\\': escaped.append("\\\\\\\\"); break;
-                case '"': escaped.append("\\\\\""); break;
-                case '\\n': escaped.append("\\\\n"); break;
-                case '\\r': escaped.append("\\\\r"); break;
-                case '\\t': escaped.append("\\\\t"); break;
+                case '\\': escaped.append("\\\\"); break;
+                case '"': escaped.append("\\\""); break;
+                case '\n': escaped.append("\\n"); break;
+                case '\r': escaped.append("\\r"); break;
+                case '\t': escaped.append("\\t"); break;
                 default:
                     if (Character.isISOControl(c)) {
-                        escaped.append(String.format(Locale.US, "\\\\u%04x", (int) c));
+                        escaped.append(String.format(Locale.US, "\\u%04x", (int) c));
                     } else {
                         escaped.append(c);
                     }
