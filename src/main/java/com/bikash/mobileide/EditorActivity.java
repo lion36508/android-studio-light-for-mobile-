@@ -1,6 +1,7 @@
 package com.bikash.mobileide;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -20,6 +21,10 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class EditorActivity extends Activity {
 
@@ -29,12 +34,40 @@ public class EditorActivity extends Activity {
     private TextView langBadgeTv;
     private TextView consoleOutputTv;
     private LinearLayout consoleContainer;
+    private LinearLayout tabRow;
+    private ScrollView editorScroll;
+    private HorizontalScrollView editorHorizontalScroll;
+    private TextView runButton;
+    private TextView activeTabLabel;
 
+    private static final String STATE_FILE = "editor_file";
+    private static final String STATE_LANGUAGE = "editor_language";
+    private static final String STATE_CONTENT = "editor_content";
+    private static final String STATE_DIRTY = "editor_dirty";
+    private static final String STATE_SELECTION_START = "editor_selection_start";
+    private static final String STATE_SELECTION_END = "editor_selection_end";
+    private static final String STATE_SCROLL_Y = "editor_scroll_y";
+    private static final String STATE_SCROLL_X = "editor_scroll_x";
+    private static final String STATE_TAB_PATHS = "editor_tab_paths";
+    private static final String STATE_TAB_LANGUAGES = "editor_tab_languages";
+
+    private static final class EditorTab {
+        final String fileName;
+        final String language;
+
+        EditorTab(String fileName, String language) {
+            this.fileName = fileName;
+            this.language = language;
+        }
+    }
+
+    private final List<EditorTab> openTabs = new ArrayList<EditorTab>();
     private String currentFileName = "MainActivity.java";
     private String currentLanguage = "java";
     private boolean isHighlighting = false;
     private boolean isDirty = false;
     private boolean workspaceFileLoaded = false;
+    private boolean runInProgress = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +79,19 @@ public class EditorActivity extends Activity {
 
         if (intentFile != null) currentFileName = intentFile;
         if (intentLang != null) currentLanguage = intentLang;
+        if (savedInstanceState != null) {
+            currentFileName = savedInstanceState.getString(STATE_FILE, currentFileName);
+            currentLanguage = savedInstanceState.getString(STATE_LANGUAGE, currentLanguage);
+            String[] paths = savedInstanceState.getStringArray(STATE_TAB_PATHS);
+            String[] languages = savedInstanceState.getStringArray(STATE_TAB_LANGUAGES);
+            if (paths != null && languages != null) {
+                for (int i = 0; i < Math.min(paths.length, languages.length); i++) {
+                    if (paths[i] != null && !paths[i].trim().isEmpty()) {
+                        addTabIfMissing(paths[i], languages[i]);
+                    }
+                }
+            }
+        }
         if (starterCode == null) {
             starterCode = "public class MainActivity {\n    public static void main(String[] args) {\n        System.out.println(\"🚀 OxDroid Studio Ready!\");\n    }\n}";
         }
@@ -56,15 +102,44 @@ public class EditorActivity extends Activity {
         workspaceFileLoaded = loaded.success;
         if (loaded.success) {
             codeEditor.setEnabled(true);
-            codeEditor.setText(loaded.content);
+            String restoredContent = savedInstanceState != null
+                ? savedInstanceState.getString(STATE_CONTENT, loaded.content)
+                : loaded.content;
+            codeEditor.setText(restoredContent);
             applySyntaxHighlighting(codeEditor.getText());
         } else {
             codeEditor.setText("");
             codeEditor.setEnabled(false);
             Toast.makeText(this, loaded.error, Toast.LENGTH_LONG).show();
         }
-        isDirty = false;
+
+        if (workspaceFileLoaded) {
+            addTabIfMissing(currentFileName, currentLanguage);
+        }
+        isDirty = workspaceFileLoaded && savedInstanceState != null
+            && savedInstanceState.getBoolean(STATE_DIRTY, false);
+        refreshTabRow();
         updateLineNumbers();
+
+        if (savedInstanceState != null && workspaceFileLoaded) {
+            final int selectionStart = savedInstanceState.getInt(STATE_SELECTION_START, 0);
+            final int selectionEnd = savedInstanceState.getInt(STATE_SELECTION_END, selectionStart);
+            final int scrollY = savedInstanceState.getInt(STATE_SCROLL_Y, 0);
+            final int scrollX = savedInstanceState.getInt(STATE_SCROLL_X, 0);
+            codeEditor.post(new Runnable() {
+                @Override
+                public void run() {
+                    int length = codeEditor.length();
+                    int start = Math.max(0, Math.min(selectionStart, length));
+                    int end = Math.max(0, Math.min(selectionEnd, length));
+                    codeEditor.setSelection(Math.min(start, end), Math.max(start, end));
+                    if (editorScroll != null) editorScroll.scrollTo(0, Math.max(0, scrollY));
+                    if (editorHorizontalScroll != null) {
+                        editorHorizontalScroll.scrollTo(Math.max(0, scrollX), 0);
+                    }
+                }
+            });
+        }
     }
 
     private View buildEditorUI() {
@@ -120,28 +195,28 @@ public class EditorActivity extends Activity {
         topBar.addView(langBadgeTv);
 
         // ▶ RUN BUTTON
-        TextView runBtn = new TextView(this);
-        runBtn.setText("▶ RUN");
-        runBtn.setTextColor(Color.WHITE);
-        runBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-        runBtn.setTypeface(null, Typeface.BOLD);
-        runBtn.setPadding(dp(12), dp(7), dp(12), dp(7));
-        runBtn.setContentDescription("Run current source; execution is disabled until a secure sandbox is available");
-        runBtn.setMinimumHeight(dp(48));
-        runBtn.setMinimumWidth(dp(64));
-        runBtn.setGravity(Gravity.CENTER);
-        runBtn.setBackground(makeRounded(Color.parseColor("#238636"), dp(8)));
+        runButton = new TextView(this);
+        runButton.setText("▶ RUN");
+        runButton.setTextColor(Color.WHITE);
+        runButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        runButton.setTypeface(null, Typeface.BOLD);
+        runButton.setPadding(dp(12), dp(7), dp(12), dp(7));
+        runButton.setContentDescription("Run current source; execution is disabled until a secure sandbox is available");
+        runButton.setMinimumHeight(dp(48));
+        runButton.setMinimumWidth(dp(64));
+        runButton.setGravity(Gravity.CENTER);
+        runButton.setBackground(makeRounded(Color.parseColor("#238636"), dp(8)));
         LinearLayout.LayoutParams runLp = new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         runLp.setMargins(dp(8), 0, dp(6), 0);
-        runBtn.setLayoutParams(runLp);
-        runBtn.setOnClickListener(new View.OnClickListener() {
+        runButton.setLayoutParams(runLp);
+        runButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 runCurrentCode();
             }
         });
-        topBar.addView(runBtn);
+        topBar.addView(runButton);
 
         // 🛠️ BUILD BUTTON
         TextView buildBtn = new TextView(this);
@@ -182,37 +257,26 @@ public class EditorActivity extends Activity {
 
         root.addView(topBar);
 
-        // 2. MULTI-LANGUAGE FILE SWITCHER TABS
+        // 2. REAL WORKSPACE FILE TABS — no hard-coded language demo files.
         HorizontalScrollView tabScroll = new HorizontalScrollView(this);
         tabScroll.setBackgroundColor(Color.parseColor("#0D1117"));
         tabScroll.setHorizontalScrollBarEnabled(false);
 
-        LinearLayout tabRow = new LinearLayout(this);
+        tabRow = new LinearLayout(this);
         tabRow.setOrientation(LinearLayout.HORIZONTAL);
         tabRow.setPadding(dp(8), dp(6), dp(8), dp(6));
-
-        tabRow.addView(buildLangTab("☕ MainActivity.java", "java", "MainActivity.java",
-            "public class MainActivity {\n    public static void main(String[] args) {\n        String ide = \"OxDroid Studio\";\n        System.out.println(\"☕ Java Engine Running inside \" + ide);\n    }\n}"));
-        tabRow.addView(buildLangTab("🟣 Main.kt", "kotlin", "Main.kt",
-            "fun main() {\n    val lang = \"Kotlin Native\"\n    println(\"🟣 Running \" + lang + \" on Android!\")\n}"));
-        tabRow.addView(buildLangTab("🐍 script.py", "python", "script.py",
-            "# Python 3 Native Script\nprint('🐍 Python 3 Offline Interpreter Ready!')\nfor i in range(3):\n    print('🔥 Python Loop Count:', i)"));
-        tabRow.addView(buildLangTab("⚡ native.cpp", "cpp", "native.cpp",
-            "#include <iostream>\nusing namespace std;\n\nint main() {\n    int a = 50;\n    int b = 70;\n    int sum = a + b;\n    cout << \"⚡ C++ Engine Sum: \" << sum << endl;\n    return 0;\n}"));
-        tabRow.addView(buildLangTab("🖥️ shell.sh", "shell", "shell.sh",
-            "echo '🖥️ OxDroid Linux Shell Connected'\nuname -a"));
 
         tabScroll.addView(tabRow);
         root.addView(tabScroll);
 
         // 3. MAIN CODE EDITOR + LINE NUMBERS
-        ScrollView editorScroll = new ScrollView(this);
+        editorScroll = new ScrollView(this);
         editorScroll.setFillViewport(true);
         editorScroll.setLayoutParams(new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
 
-        HorizontalScrollView hScroll = new HorizontalScrollView(this);
-        hScroll.setFillViewport(true);
+        editorHorizontalScroll = new HorizontalScrollView(this);
+        editorHorizontalScroll.setFillViewport(true);
 
         LinearLayout editorRow = new LinearLayout(this);
         editorRow.setOrientation(LinearLayout.HORIZONTAL);
@@ -256,8 +320,8 @@ public class EditorActivity extends Activity {
         });
 
         editorRow.addView(codeEditor);
-        hScroll.addView(editorRow);
-        editorScroll.addView(hScroll);
+        editorHorizontalScroll.addView(editorRow);
+        editorScroll.addView(editorHorizontalScroll);
         root.addView(editorScroll);
 
         // 4. COLLAPSIBLE BOTTOM TERMINAL / OUTPUT CONSOLE
@@ -272,8 +336,8 @@ public class EditorActivity extends Activity {
         consoleHeader.setGravity(Gravity.CENTER_VERTICAL);
 
         TextView consoleTitle = new TextView(this);
-        consoleTitle.setText("🖥️ LIVE TERMINAL OUTPUT");
-        consoleTitle.setTextColor(Color.parseColor("#3FB950"));
+        consoleTitle.setText("RUN STATUS");
+        consoleTitle.setTextColor(Color.parseColor("#D29922"));
         consoleTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
         consoleTitle.setTypeface(null, Typeface.BOLD);
         consoleTitle.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
@@ -355,67 +419,280 @@ public class EditorActivity extends Activity {
         return root;
     }
 
-    private View buildLangTab(String title, final String lang, final String file, final String defaultCode) {
-        TextView tab = new TextView(this);
-        tab.setText(title);
-        tab.setTextColor(Color.parseColor("#C9D1D9"));
-        tab.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-        tab.setContentDescription("Open " + file + " in " + lang + " editor");
-        tab.setMinimumHeight(dp(48));
-        tab.setFocusable(true);
-        tab.setPadding(dp(12), dp(6), dp(12), dp(6));
-        tab.setBackground(makeRounded(Color.parseColor("#161B22"), dp(8)));
+    private void addTabIfMissing(String fileName, String language) {
+        for (EditorTab tab : openTabs) {
+            if (tab.fileName.equals(fileName)) return;
+        }
+        openTabs.add(new EditorTab(fileName, language == null ? languageForFile(fileName) : language));
+    }
 
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.setMargins(dp(4), 0, dp(4), 0);
-        tab.setLayoutParams(lp);
+    private void refreshTabRow() {
+        if (tabRow == null) return;
+        tabRow.removeAllViews();
+        activeTabLabel = null;
 
-        tab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (workspaceFileLoaded && !saveCurrentFile(false)) return;
-                EngineCore.WorkspaceReadResult loaded = EngineCore.loadWorkspaceFile(
-                    EditorActivity.this, file, defaultCode
-                );
-                if (!loaded.success) {
-                    Toast.makeText(EditorActivity.this, loaded.error, Toast.LENGTH_LONG).show();
-                    return;
+        for (final EditorTab item : openTabs) {
+            LinearLayout tab = new LinearLayout(this);
+            tab.setOrientation(LinearLayout.HORIZONTAL);
+            tab.setGravity(Gravity.CENTER_VERTICAL);
+            tab.setPadding(dp(7), dp(3), dp(5), dp(3));
+            tab.setBackground(makeRounded(
+                item.fileName.equals(currentFileName)
+                    ? Color.parseColor("#18354A")
+                    : Color.parseColor("#161B22"),
+                dp(8)
+            ));
+            LinearLayout.LayoutParams tabLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, dp(44)
+            );
+            tabLp.setMargins(dp(3), 0, dp(3), 0);
+            tab.setLayoutParams(tabLp);
+
+            final TextView label = new TextView(this);
+            String marker = item.fileName.equals(currentFileName)
+                ? (isDirty ? "● " : "› ")
+                : "";
+            label.setText(marker + new File(item.fileName).getName());
+            label.setTextColor(item.fileName.equals(currentFileName)
+                ? Color.parseColor("#73D8EA")
+                : Color.parseColor("#C9D1D9"));
+            label.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+            label.setSingleLine(true);
+            label.setContentDescription("Open " + item.fileName);
+            label.setPadding(dp(6), dp(4), dp(6), dp(4));
+            label.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    switchToWorkspaceFile(item.fileName, item.language);
                 }
-                currentFileName = file;
-                currentLanguage = lang;
-                workspaceFileLoaded = true;
-                codeEditor.setEnabled(true);
-                fileTitleTv.setText("📄 " + currentFileName);
-                langBadgeTv.setText(currentLanguage.toUpperCase());
-                codeEditor.setText(loaded.content);
-                isDirty = false;
+            });
+            tab.addView(label);
+            if (item.fileName.equals(currentFileName)) activeTabLabel = label;
+
+            TextView close = new TextView(this);
+            close.setText("×");
+            close.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+            close.setTextColor(Color.parseColor("#91A8BE"));
+            close.setGravity(Gravity.CENTER);
+            close.setMinWidth(dp(32));
+            close.setMinHeight(dp(36));
+            close.setContentDescription("Close " + item.fileName);
+            close.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    closeWorkspaceTab(item.fileName);
+                }
+            });
+            tab.addView(close);
+            tabRow.addView(tab);
+        }
+
+        TextView open = new TextView(this);
+        open.setText("+ Open");
+        open.setTextColor(Color.parseColor("#73D8EA"));
+        open.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        open.setGravity(Gravity.CENTER);
+        open.setPadding(dp(12), 0, dp(12), 0);
+        open.setMinHeight(dp(44));
+        open.setContentDescription("Open a workspace file tab");
+        open.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showWorkspaceFilePicker();
             }
         });
-        return tab;
+        tabRow.addView(open);
+    }
+
+    private void switchToWorkspaceFile(String fileName, String language) {
+        if (fileName == null || fileName.trim().isEmpty()) return;
+        if (fileName.equals(currentFileName)) return;
+        if (workspaceFileLoaded && !saveCurrentFile(false)) return;
+
+        EngineCore.WorkspaceReadResult loaded = EngineCore.loadWorkspaceFile(
+            this, fileName, ""
+        );
+        if (!loaded.success) {
+            Toast.makeText(this, loaded.error, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        currentFileName = fileName;
+        currentLanguage = language == null ? languageForFile(fileName) : language;
+        workspaceFileLoaded = true;
+        codeEditor.setEnabled(true);
+        fileTitleTv.setText("📄 " + currentFileName);
+        langBadgeTv.setText(currentLanguage.toUpperCase());
+        codeEditor.setText(loaded.content);
+        isDirty = false;
+        updateLineNumbers();
+        refreshTabRow();
+    }
+
+    private void closeWorkspaceTab(String fileName) {
+        if (openTabs.size() <= 1) {
+            Toast.makeText(this, "Keep at least one file tab open.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        boolean closingCurrent = fileName.equals(currentFileName);
+        if (closingCurrent && workspaceFileLoaded && !saveCurrentFile(false)) return;
+
+        int index = -1;
+        for (int i = 0; i < openTabs.size(); i++) {
+            if (openTabs.get(i).fileName.equals(fileName)) {
+                index = i;
+                break;
+            }
+        }
+        if (index < 0) return;
+        openTabs.remove(index);
+
+        if (closingCurrent) {
+            EditorTab next = openTabs.get(Math.min(index, openTabs.size() - 1));
+            currentFileName = next.fileName;
+            currentLanguage = next.language;
+            EngineCore.WorkspaceReadResult loaded = EngineCore.loadWorkspaceFile(this, next.fileName, "");
+            if (!loaded.success) {
+                workspaceFileLoaded = false;
+                codeEditor.setText("");
+                codeEditor.setEnabled(false);
+                Toast.makeText(this, loaded.error, Toast.LENGTH_LONG).show();
+                refreshTabRow();
+                return;
+            }
+            workspaceFileLoaded = true;
+            codeEditor.setEnabled(true);
+            fileTitleTv.setText("📄 " + currentFileName);
+            langBadgeTv.setText(currentLanguage.toUpperCase());
+            codeEditor.setText(loaded.content);
+            isDirty = false;
+            updateLineNumbers();
+        }
+        refreshTabRow();
+    }
+
+    private void showWorkspaceFilePicker() {
+        final List<String> files = new ArrayList<String>();
+        File root = EngineCore.getWorkspaceDir(this);
+        collectWorkspaceFiles(root, root, files, 0);
+        Collections.sort(files);
+        if (files.isEmpty()) {
+            Toast.makeText(this, "No source files were found in the workspace.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        String[] labels = files.toArray(new String[0]);
+        new AlertDialog.Builder(this)
+            .setTitle("Open workspace file")
+            .setItems(labels, new android.content.DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(android.content.DialogInterface dialog, int which) {
+                    if (which >= 0 && which < files.size()) {
+                        String fileName = files.get(which);
+                        addTabIfMissing(fileName, languageForFile(fileName));
+                        switchToWorkspaceFile(fileName, languageForFile(fileName));
+                        refreshTabRow();
+                    }
+                }
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
+    }
+
+    private void collectWorkspaceFiles(
+        File root, File directory, List<String> files, int depth
+    ) {
+        if (depth > 24 || files.size() >= 200) return;
+        File[] children = directory.listFiles();
+        if (children == null) return;
+        File canonicalRoot;
+        try {
+            canonicalRoot = root.getCanonicalFile();
+        } catch (Exception error) {
+            return;
+        }
+
+        for (File child : children) {
+            if (files.size() >= 200) return;
+            String name = child.getName();
+            if (name.startsWith(".") || "build".equals(name) ||
+                ".gradle".equals(name) || "out".equals(name)) continue;
+            try {
+                File canonical = child.getCanonicalFile();
+                if (!canonical.getPath().startsWith(canonicalRoot.getPath() + File.separator)) continue;
+                if (!canonical.equals(child.getAbsoluteFile())) continue;
+                if (canonical.isDirectory()) {
+                    collectWorkspaceFiles(root, canonical, files, depth + 1);
+                } else if (canonical.isFile() && isEditorFile(name)) {
+                    String relative = canonical.getPath().substring(canonicalRoot.getPath().length() + 1);
+                    files.add(relative.replace(File.separatorChar, '/'));
+                }
+            } catch (Exception ignored) {
+                // Unreadable entries are skipped; they are never opened as source files.
+            }
+        }
+    }
+
+    private boolean isEditorFile(String name) {
+        String lower = name.toLowerCase();
+        return lower.endsWith(".java") || lower.endsWith(".kt") ||
+            lower.endsWith(".py") || lower.endsWith(".cpp") ||
+            lower.endsWith(".c") || lower.endsWith(".h") ||
+            lower.endsWith(".xml") || lower.endsWith(".json") ||
+            lower.endsWith(".sh") || lower.endsWith(".gradle") ||
+            lower.endsWith(".txt") || lower.endsWith(".md");
+    }
+
+    private String languageForFile(String fileName) {
+        String lower = fileName.toLowerCase();
+        if (lower.endsWith(".kt")) return "kotlin";
+        if (lower.endsWith(".py")) return "python";
+        if (lower.endsWith(".cpp") || lower.endsWith(".c") || lower.endsWith(".h")) return "cpp";
+        if (lower.endsWith(".sh")) return "shell";
+        if (lower.endsWith(".xml")) return "xml";
+        if (lower.endsWith(".json")) return "json";
+        return "java";
     }
 
     private void runCurrentCode() {
+        if (runInProgress) {
+            Toast.makeText(this, "Run request already in progress.", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (!workspaceFileLoaded) {
             Toast.makeText(this, "Run blocked: the source file could not be loaded safely.", Toast.LENGTH_LONG).show();
             return;
         }
         if (!saveCurrentFile(true)) return;
+
+        // Capture the complete request on the UI thread. A later tab switch must
+        // never change which language or file the worker reports.
         final String code = codeEditor.getText().toString();
+        final String language = currentLanguage;
+        final String fileName = currentFileName;
+        runInProgress = true;
+        runButton.setEnabled(false);
+        runButton.setText("SAVING…");
         consoleContainer.setVisibility(View.VISIBLE);
-        consoleOutputTv.setText("Execution is disabled until an isolated sandbox is available. Saving source...");
+        consoleOutputTv.setText("Execution is disabled until an isolated sandbox is available. Saving source only...");
+
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final String output = EngineCore.executeCode(EditorActivity.this, currentLanguage, currentFileName, code);
+                final String output = EngineCore.executeCode(
+                    getApplicationContext(), language, fileName, code
+                );
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         consoleOutputTv.setText(output);
+                        runInProgress = false;
+                        runButton.setEnabled(true);
+                        runButton.setText("▶ RUN");
                     }
                 });
             }
-        }).start();
+        }, "oxdroid-run-status").start();
     }
 
     private void runBuildPipeline() {
@@ -447,11 +724,39 @@ public class EditorActivity extends Activity {
         if (saved) {
             workspaceFileLoaded = true;
             isDirty = false;
+            refreshTabRow();
             if (showFeedback) Toast.makeText(this, "Saved: " + currentFileName, Toast.LENGTH_SHORT).show();
         } else if (showFeedback) {
             Toast.makeText(this, "Save failed. Check workspace storage.", Toast.LENGTH_LONG).show();
         }
         return saved;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if (outState != null) {
+            outState.putString(STATE_FILE, currentFileName);
+            outState.putString(STATE_LANGUAGE, currentLanguage);
+            outState.putBoolean(STATE_DIRTY, isDirty);
+            if (workspaceFileLoaded && codeEditor != null) {
+                outState.putString(STATE_CONTENT, codeEditor.getText().toString());
+                outState.putInt(STATE_SELECTION_START, Math.max(0, codeEditor.getSelectionStart()));
+                outState.putInt(STATE_SELECTION_END, Math.max(0, codeEditor.getSelectionEnd()));
+            }
+            if (editorScroll != null) outState.putInt(STATE_SCROLL_Y, editorScroll.getScrollY());
+            if (editorHorizontalScroll != null) {
+                outState.putInt(STATE_SCROLL_X, editorHorizontalScroll.getScrollX());
+            }
+            String[] paths = new String[openTabs.size()];
+            String[] languages = new String[openTabs.size()];
+            for (int i = 0; i < openTabs.size(); i++) {
+                paths[i] = openTabs.get(i).fileName;
+                languages[i] = openTabs.get(i).language;
+            }
+            outState.putStringArray(STATE_TAB_PATHS, paths);
+            outState.putStringArray(STATE_TAB_LANGUAGES, languages);
+        }
+        super.onSaveInstanceState(outState);
     }
 
     @Override
