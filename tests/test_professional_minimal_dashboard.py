@@ -39,8 +39,8 @@ class ProfessionalMinimalDashboardTests(unittest.TestCase):
 
     def test_project_rows_use_monograms_and_accessible_menu_targets(self):
         self.assertIn("String projectMark =", self.source)
-        self.assertIn('menuDots.setMinWidth(dp(40))', self.source)
-        self.assertIn('menuDots.setMinHeight(dp(40))', self.source)
+        self.assertIn('menuDots.setMinWidth(dp(48))', self.source)
+        self.assertIn('menuDots.setMinHeight(dp(48))', self.source)
         self.assertIn("card.setContentDescription", self.source)
 
     def test_bottom_navigation_preserves_existing_destinations(self):
