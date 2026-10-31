@@ -29,7 +29,7 @@ jobs:
         uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
           # Install only the tools needed by the current Java/AAPT build pipeline.
         with:
-          packages: 'build-tools;35.0.0'
+          packages: 'platforms;android-36 build-tools;36.0.0'
 
       - name: Wire the Android toolchain
         shell: bash
@@ -40,7 +40,13 @@ jobs:
             echo "Android SDK root was not configured by setup-android." >&2
             exit 1
           fi
-          BUILD_TOOLS="$SDK_ROOT/build-tools/35.0.0"
+          BUILD_TOOLS="$SDK_ROOT/build-tools/36.0.0"
+          ANDROID_PLATFORM_JAR="$SDK_ROOT/platforms/android-36/android.jar"
+          if [[ ! -f "$ANDROID_PLATFORM_JAR" ]]; then
+            echo "Missing Android SDK Platform 36: $ANDROID_PLATFORM_JAR" >&2
+            exit 1
+          fi
+          echo "ANDROID_JAR=$ANDROID_PLATFORM_JAR" >> "$GITHUB_ENV"
           TOOL_BIN="$RUNNER_TEMP/oxdroid-tool-bin"
           mkdir -p "$TOOL_BIN"
 
