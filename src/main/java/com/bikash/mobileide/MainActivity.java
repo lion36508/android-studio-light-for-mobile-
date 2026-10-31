@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.os.Build;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
@@ -772,7 +773,7 @@ public class MainActivity extends Activity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     if (which == 0) {
-                        String abi = EngineCore.runShellCommand("getprop ro.product.cpu.abi");
+                        String abi = (Build.SUPPORTED_ABIS != null && Build.SUPPORTED_ABIS.length > 0) ? Build.SUPPORTED_ABIS[0] : Build.CPU_ABI;
                         new AlertDialog.Builder(MainActivity.this)
                             .setTitle("Runtime & Build Toolchain Status")
                             .setMessage("CPU Architecture: " + abi + "\n\n" +
