@@ -74,7 +74,7 @@ public final class CommandRunnerHarness {
         Thread worker = new Thread(new Runnable() {
             @Override
             public void run() {
-                resultRef.set(run("sleep 8", 10000L, 2048));
+                resultRef.set(CommandRunnerHarness.run("sleep 8", 10000L, 2048));
                 interruptRestored.set(Thread.currentThread().isInterrupted());
             }
         }, "command-runner-cancellation-test");
