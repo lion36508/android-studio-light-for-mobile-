@@ -30,6 +30,26 @@ class WorkflowIntegrityTests(unittest.TestCase):
         self.assertIn('directory: "/"', config)
         self.assertIn('interval: "weekly"', config)
 
+    def test_android_emulator_boot_waits_are_bounded_and_diagnostic(self):
+        workflow = (WORKFLOWS / "android-apk.yml").read_text(encoding="utf-8")
+        start = workflow.index("- name: Boot Android 16 emulator")
+        end = workflow.index("- name: Install and smoke-test", start)
+        boot_step = workflow[start:end]
+        self.assertIn("timeout 120s adb wait-for-device", boot_step)
+        self.assertIn("boot_deadline=$((SECONDS + 180))", boot_step)
+        self.assertIn("timeout 5s adb shell getprop sys.boot_completed", boot_step)
+        self.assertIn('tail -n 160 "$EMULATOR_LOG"', boot_step)
+        self.assertIn("did not finish booting before the 180-second deadline", boot_step)
+
+    def test_android_emulator_binary_is_added_to_path(self):
+        workflow = (WORKFLOWS / "android-apk.yml").read_text(encoding="utf-8")
+        start = workflow.index("- name: Wire the Android toolchain")
+        end = workflow.index("- name: Create temporary CI-only signing key", start)
+        tool_step = workflow[start:end]
+        self.assertIn('EMULATOR_BIN="$SDK_ROOT/emulator"', tool_step)
+        self.assertIn('[[ ! -x "$EMULATOR_BIN/emulator" ]]', tool_step)
+        self.assertIn('echo "$EMULATOR_BIN" >> "$GITHUB_PATH"', tool_step)
+
     def test_quality_workflow_runs_real_checks(self):
         workflow = (WORKFLOWS / "code_quality_guard.yml").read_text(encoding="utf-8")
         self.assertIn("bash -n", workflow)

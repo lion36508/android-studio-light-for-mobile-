@@ -157,22 +157,23 @@ public class EngineCore {
         return result.content;
     }
 
+    public static CommandRunner.Result runShellCommandResult(String cmd) {
+        return runShellCommandResult(cmd, 5000L, 8 * 1024);
+    }
+
+    public static CommandRunner.Result runShellCommandResult(
+        String cmd,
+        long timeoutMillis,
+        int maxOutputChars
+    ) {
+        ProcessBuilder builder = new ProcessBuilder(
+            "/system/bin/sh", "-c", cmd == null ? "" : cmd
+        );
+        return CommandRunner.run(builder, timeoutMillis, maxOutputChars);
+    }
+
     public static String runShellCommand(String cmd) {
-        StringBuilder out = new StringBuilder();
-        try {
-            ProcessBuilder pb = new ProcessBuilder("/system/bin/sh", "-c", cmd);
-            pb.redirectErrorStream(true);
-            Process p = pb.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                out.append(line).append("\n");
-            }
-            p.waitFor();
-        } catch (Exception e) {
-            out.append("Shell Error: ").append(e.getMessage());
-        }
-        return out.toString().trim();
+        return runShellCommandResult(cmd).toDisplayString();
     }
 
     public static String buildToolStatus(Context context) {
