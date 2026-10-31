@@ -228,6 +228,7 @@ echo "[*] Signing APK..."
 : "${KEYSTORE_PASS:?ERROR: set KEYSTORE_PASS in your local environment.}"
 [[ -f "$KEYSTORE" ]] || { echo "ERROR: signing keystore not found: $KEYSTORE" >&2; exit 2; }
 KEY_PASS="${KEY_PASS:-$KEYSTORE_PASS}"
+export KEY_PASS
 APKSIGNER_ALIAS_ARGS=()
 if [[ -n "${KEY_ALIAS:-}" ]]; then
     APKSIGNER_ALIAS_ARGS+=(--ks-key-alias "$KEY_ALIAS")
