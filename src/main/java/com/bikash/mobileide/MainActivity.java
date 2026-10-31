@@ -18,6 +18,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -265,12 +266,14 @@ public class MainActivity extends Activity {
         bannerWrapper.addView(bannerImg);
         content.addView(bannerWrapper);
 
-        // 3. FOUR QUICK ACTION CARDS ROW
-        LinearLayout cardsRow = new LinearLayout(this);
-        cardsRow.setOrientation(LinearLayout.HORIZONTAL);
+        // 3. RESPONSIVE QUICK ACTION GRID: two columns on phones, four on wide screens.
+        GridLayout cardsRow = new GridLayout(this);
+        cardsRow.setColumnCount(getResources().getConfiguration().screenWidthDp >= 600 ? 4 : 2);
+        cardsRow.setUseDefaultMargins(false);
+        cardsRow.setAlignmentMode(GridLayout.ALIGN_MARGINS);
         LinearLayout.LayoutParams rowLp = new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        rowLp.setMargins(0, 0, 0, dp(22));
+        rowLp.setMargins(-dp(4), 0, -dp(4), dp(22));
         cardsRow.setLayoutParams(rowLp);
 
         // Card 1: New Project (Blue)
@@ -415,8 +418,12 @@ public class MainActivity extends Activity {
         card.setPadding(dp(6), dp(14), dp(6), dp(14));
         card.setBackground(makeRoundedBg(bgColor, dp(16), Color.parseColor("#30363D")));
 
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(122), 1f);
-        lp.setMargins(dp(4), 0, dp(4), 0);
+        GridLayout.LayoutParams lp = new GridLayout.LayoutParams(
+            GridLayout.spec(GridLayout.UNDEFINED, 1f),
+            GridLayout.spec(GridLayout.UNDEFINED, 1f));
+        lp.width = 0;
+        lp.height = dp(124);
+        lp.setMargins(dp(4), dp(4), dp(4), dp(4));
         card.setLayoutParams(lp);
         card.setMinimumHeight(dp(112));
         card.setContentDescription((title + ". " + sub).replace("\n", " "));
@@ -432,7 +439,7 @@ public class MainActivity extends Activity {
         TextView titleTv = new TextView(this);
         titleTv.setText(title);
         titleTv.setTextColor(Color.WHITE);
-        titleTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        titleTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
         titleTv.setTypeface(null, Typeface.BOLD);
         titleTv.setGravity(Gravity.CENTER);
         titleTv.setPadding(0, dp(6), 0, dp(4));
@@ -441,7 +448,7 @@ public class MainActivity extends Activity {
         TextView subTv = new TextView(this);
         subTv.setText(sub);
         subTv.setTextColor(subColor);
-        subTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
+        subTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
         subTv.setGravity(Gravity.CENTER);
         subTv.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
 
