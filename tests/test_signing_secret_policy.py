@@ -62,7 +62,7 @@ class SigningSecretPolicyTests(unittest.TestCase):
         self.assertNotIn("ide_keystore.jks", guard)
         self.assertIn("-name '*.keystore'", guard)
         self.assertIn("-name '*.jks'", guard)
-        self.assertIn('WHITELIST_APK="./bin/OxDroid-Mobile-IDE.apk"', guard)
+        self.assertIn('WHITELIST_APK="${OX_GUARD_WHITELIST_APK:-./bin/OxDroid-Mobile-IDE.apk}"', guard)
 
 
 if __name__ == "__main__":
