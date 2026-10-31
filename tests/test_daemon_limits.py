@@ -98,14 +98,26 @@ class DaemonHttpIntegrationTest(unittest.TestCase):
 
 class BoundedConcurrencyTest(unittest.TestCase):
     def test_server_rejects_requests_above_concurrency_limit(self):
-        barrier = threading.Barrier(MAX_CONCURRENT_REQUESTS)
+        active_lock = threading.Lock()
+        active_count = 0
+        all_slots_occupied = threading.Event()
+        release_workers = threading.Event()
 
         class BlockingHandler(http.server.BaseHTTPRequestHandler):
             def log_message(self, format, *args):
                 pass
 
             def do_GET(self):
-                barrier.wait(timeout=4)
+                nonlocal active_count
+                with active_lock:
+                    active_count += 1
+                    if active_count == MAX_CONCURRENT_REQUESTS:
+                        all_slots_occupied.set()
+
+                if not release_workers.wait(timeout=8):
+                    self.send_error(504, "Test worker release timed out.")
+                    return
+
                 self.send_response(200)
                 self.send_header("Content-Length", "0")
                 self.end_headers()
@@ -134,20 +146,32 @@ class BoundedConcurrencyTest(unittest.TestCase):
 
         clients = [
             threading.Thread(target=make_request)
-            for _ in range(MAX_CONCURRENT_REQUESTS + 1)
+            for _ in range(MAX_CONCURRENT_REQUESTS)
         ]
         try:
             for client in clients:
                 client.start()
-            for client in clients:
-                client.join(timeout=6)
-            self.assertTrue(all(not client.is_alive() for client in clients))
-            self.assertEqual(results.count(200), MAX_CONCURRENT_REQUESTS)
-            self.assertEqual(results.count(503), 1)
+
+            self.assertTrue(
+                all_slots_occupied.wait(timeout=5),
+                "The first four requests did not occupy all daemon worker slots.",
+            )
+
+            # All four worker slots are now deliberately held open. A fifth
+            # request must be rejected immediately instead of starting a thread.
+            make_request()
         finally:
+            release_workers.set()
+            for client in clients:
+                client.join(timeout=5)
             server.shutdown()
             server.server_close()
             server_thread.join(timeout=2)
+
+        self.assertTrue(all(not client.is_alive() for client in clients))
+        self.assertEqual(results.count(200), MAX_CONCURRENT_REQUESTS)
+        self.assertEqual(results.count(503), 1)
+        self.assertNotIn("error", results)
 
 
 if __name__ == "__main__":
