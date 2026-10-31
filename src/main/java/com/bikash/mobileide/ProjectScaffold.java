@@ -1,7 +1,6 @@
 package com.bikash.mobileide;
 
 import android.content.Context;
-import java.util.Locale;
 
 /** Creates a real, portable Android project tree inside the IDE workspace. */
 public final class ProjectScaffold {
