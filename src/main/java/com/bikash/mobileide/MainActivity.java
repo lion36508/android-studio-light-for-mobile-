@@ -126,7 +126,7 @@ public class MainActivity extends Activity {
         menuBtn.setTextColor(Color.WHITE);
         menuBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 27);
         menuBtn.setGravity(Gravity.CENTER);
-        menuBtn.setMinWidth(dp(42));
+        menuBtn.setMinWidth(dp(48));
         menuBtn.setMinHeight(dp(42));
         menuBtn.setBackground(makeRoundedBg(Color.parseColor("#101E2E"), dp(12), Color.parseColor("#223A52")));
         addTouchEffect(menuBtn);
@@ -162,7 +162,7 @@ public class MainActivity extends Activity {
         searchBtn.setText("⌕");
         searchBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 25);
         searchBtn.setGravity(Gravity.CENTER);
-        searchBtn.setMinWidth(dp(42));
+        searchBtn.setMinWidth(dp(48));
         searchBtn.setMinHeight(dp(42));
         searchBtn.setBackground(makeRoundedBg(Color.parseColor("#101E2E"), dp(12), Color.parseColor("#223A52")));
         addTouchEffect(searchBtn);
@@ -185,7 +185,7 @@ public class MainActivity extends Activity {
         moreBtn.setTextColor(Color.parseColor("#D9E5F2"));
         moreBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
         moreBtn.setGravity(Gravity.CENTER);
-        moreBtn.setMinWidth(dp(42));
+        moreBtn.setMinWidth(dp(48));
         moreBtn.setMinHeight(dp(42));
         moreBtn.setBackground(makeRoundedBg(Color.parseColor("#101E2E"), dp(12), Color.parseColor("#223A52")));
         addTouchEffect(moreBtn);
@@ -457,7 +457,7 @@ public class MainActivity extends Activity {
         inspect.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
         inspect.setTypeface(null, Typeface.BOLD);
         inspect.setGravity(Gravity.CENTER_VERTICAL);
-        inspect.setMinHeight(dp(36));
+        inspect.setMinHeight(dp(48));
         inspect.setContentDescription("View build toolchain details");
         inspect.setOnClickListener(new View.OnClickListener() {
             @Override
