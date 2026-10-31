@@ -1,36 +1,61 @@
-name: OxDroid PR Welcomer & Review System
+name: OxDroid Code Quality
 
 on:
   pull_request:
     branches: [ main ]
+  push:
+    branches: [ main ]
 
 permissions:
-  pull-requests: write # ऑटोमैटिक मैसेज भेजने के लिए परमिशन
+  contents: read
+
+concurrency:
+  group: code-quality-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  welcome-and-review:
+  quality:
+    name: Static checks and regression tests
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Welcome the Contributor (ऑटोमैटिक थैंक यू मैसेज)
-        uses: actions/github-script@v6
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: "🎉 **Thank you so much for your Pull Request!**\n\nWe truly appreciate your time and effort to improve OxDroid. We know that sometimes our core architecture might have flaws, and we are grateful you are here to fix them.\n\n🛡️ *Note: Our automated system NEVER auto-rejects PRs. Your code has been safely received. A core maintainer will manually review your brilliant work very soon. Please be patient!*"
-            })
+          fetch-depth: 0
 
-      - name: Soft Code Analysis (बिना रिजेक्ट किए सिर्फ चेक करना)
+      - name: Validate shell script syntax
+        shell: bash
         run: |
-          echo "================================================="
-          echo "[*] नए कोड की जांच की जा रही है..."
-          echo "[*] यह सिस्टम कोड को रिजेक्ट नहीं करेगा, सिर्फ रिपोर्ट बनाएगा।"
-          echo "✅ जांच पूरी हुई। कोड ह्यूमन रिव्यू के लिए तैयार है।"
-          echo "================================================="
-          # 'exit 0' का मतलब है कि यह चेक हमेशा पास होगा, कभी PR को ब्लॉक नहीं करेगा।
-          exit 0
+          set -euo pipefail
+          git ls-files -z '*.sh' | xargs -0 -r -n 1 bash -n
+
+      - name: Validate Python syntax
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import ast
+          import pathlib
+          import subprocess
+
+          files = subprocess.check_output(
+              ["git", "ls-files", "*.py"], text=True
+          ).splitlines()
+          for name in files:
+              source = pathlib.Path(name).read_text(encoding="utf-8")
+              ast.parse(source, filename=name)
+          print("Validated {} Python source files.".format(len(files)))
+          PY
+
+      - name: Run regression and security tests
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Check patch whitespace
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -n "${GITHUB_BASE_REF:-}" ]]; then
+            git diff --check "origin/${GITHUB_BASE_REF}...HEAD"
+          else
+            git diff --check HEAD^ HEAD
+          fi
