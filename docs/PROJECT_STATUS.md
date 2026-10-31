@@ -8,6 +8,8 @@ This page records what is present and what still needs implementation. A feature
 
 ## Verified in the repository
 
+- Removed the duplicate `assets/android.jar` copy and unused duplicate UI image filenames; retained the two menu images referenced by `MainActivity`. See [APK Asset Policy](ASSET_POLICY.md).
+
 - The app now targets Android 16 (API 36). The hosted build uses Android SDK Platform 36 and Build Tools 36.0.0. Main dashboard and editor roots apply system-bar insets for enforced edge-to-edge layouts on Android 15+.
 
 - Placeholder `assets/bin/python`, `assets/bin/cpp_engine`, and empty `assets/lib/kotlin-compiler.jar` assets have been removed. No on-device Python, Kotlin, or C++ compiler is claimed; source execution remains disabled pending an OS-enforced sandbox, and on-device APK builds remain unavailable until a verified ARM64 toolchain is integrated.
