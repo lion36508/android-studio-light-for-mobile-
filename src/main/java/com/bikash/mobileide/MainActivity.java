@@ -30,7 +30,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MainActivity extends Activity {
 
@@ -67,7 +69,8 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         prefs = getSharedPreferences("oxdroid_prefs", MODE_PRIVATE);
         if (!loadProjectCatalog()) {
-            initDefaultProjects();
+            projectList.clear();
+            saveProjectCatalog();
         }
         setContentView(buildOriginalUI());
     }
@@ -318,7 +321,11 @@ public class MainActivity extends Activity {
         bannerImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openEditorWithProject(projectList.get(0));
+                if (projectList.isEmpty()) {
+                    showNewProjectDialog();
+                } else {
+                    openEditorWithProject(projectList.get(0));
+                }
             }
         });
         bannerWrapper.addView(bannerImg);
@@ -415,7 +422,8 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 searchBarContainer.setVisibility(View.VISIBLE);
                 searchInput.setText("");
-                Toast.makeText(MainActivity.this, "Showing all " + projectList.size() + " workspace projects", Toast.LENGTH_SHORT).show();
+                refreshProjectList("");
+                Toast.makeText(MainActivity.this, "Showing projects and indexed workspace files", Toast.LENGTH_SHORT).show();
             }
         });
         recentHeader.addView(seeAllBtn);
@@ -521,20 +529,39 @@ public class MainActivity extends Activity {
 
     private void refreshProjectList(String query) {
         projectsContainer.removeAllViews();
-        String q = query.trim().toLowerCase();
+        String q = query == null ? "" : query.trim().toLowerCase();
 
-        for (int i = 0; i < projectList.size(); i++) {
-            final ProjectItem item = projectList.get(i);
-            if (!q.isEmpty() && !item.name.toLowerCase().contains(q) && !item.subtitle.toLowerCase().contains(q)) {
-                continue;
-            }
+        // Re-index the private workspace after each refresh/search so files
+        // created outside the dashboard are still discoverable.
+        List<ProjectItem> visibleItems = new ArrayList<ProjectItem>(projectList);
+        Set<String> indexedPaths = new HashSet<String>();
+        for (ProjectItem item : projectList) indexedPaths.add(item.fileName);
+
+        File workspaceRoot = EngineCore.getWorkspaceDir(this);
+        List<String> workspaceFiles = new ArrayList<String>();
+        collectWorkspaceSourceFiles(workspaceRoot, workspaceRoot, workspaceFiles, 0);
+        for (String relativePath : workspaceFiles) {
+            if (indexedPaths.contains(relativePath)) continue;
+            String name = new File(relativePath).getName();
+            visibleItems.add(new ProjectItem(
+                name, "Workspace file • " + relativePath, "On disk", "▤",
+                Color.parseColor("#24506A"), languageForWorkspaceFile(name),
+                relativePath, ""
+            ));
+        }
+
+        int shown = 0;
+        for (final ProjectItem item : visibleItems) {
+            String searchable = (item.name + " " + item.subtitle + " " + item.fileName)
+                .toLowerCase();
+            if (!q.isEmpty() && !searchable.contains(q)) continue;
 
             LinearLayout card = new LinearLayout(this);
             card.setOrientation(LinearLayout.HORIZONTAL);
             card.setGravity(Gravity.CENTER_VERTICAL);
             card.setPadding(dp(14), dp(14), dp(14), dp(14));
             card.setBackground(makeRoundedBg(Color.parseColor("#161B22"), dp(14), Color.parseColor("#21262D")));
-            card.setContentDescription("Open project " + item.name + ", " + item.subtitle);
+            card.setContentDescription("Open " + item.name + ", " + item.subtitle);
             card.setMinimumHeight(dp(72));
             card.setFocusable(true);
 
@@ -543,7 +570,6 @@ public class MainActivity extends Activity {
             cardLp.setMargins(0, 0, 0, dp(12));
             card.setLayoutParams(cardLp);
 
-            // Colored Icon Box
             TextView iconBox = new TextView(this);
             iconBox.setText(item.icon);
             iconBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
@@ -554,10 +580,10 @@ public class MainActivity extends Activity {
             iconBox.setLayoutParams(iconLp);
             card.addView(iconBox);
 
-            // Project Name + Language Info
             LinearLayout infoCol = new LinearLayout(this);
             infoCol.setOrientation(LinearLayout.VERTICAL);
-            infoCol.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            infoCol.setLayoutParams(new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
             TextView nameTv = new TextView(this);
             nameTv.setText(item.name);
@@ -575,7 +601,6 @@ public class MainActivity extends Activity {
             infoCol.addView(subTv);
             card.addView(infoCol);
 
-            // Right Side: 3-dots + Date
             LinearLayout rightCol = new LinearLayout(this);
             rightCol.setOrientation(LinearLayout.VERTICAL);
             rightCol.setGravity(Gravity.END);
@@ -615,7 +640,73 @@ public class MainActivity extends Activity {
             });
 
             projectsContainer.addView(card);
+            shown++;
         }
+
+        if (shown == 0) {
+            TextView empty = new TextView(this);
+            empty.setText(q.isEmpty()
+                ? "No projects yet. Create a project or open a starter from Samples."
+                : "No projects or workspace files match \"" + query + "\".");
+            empty.setTextColor(Color.parseColor("#91A8BE"));
+            empty.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
+            empty.setPadding(dp(16), dp(22), dp(16), dp(22));
+            empty.setGravity(Gravity.CENTER);
+            projectsContainer.addView(empty);
+        }
+    }
+
+    private void collectWorkspaceSourceFiles(
+        File root, File directory, List<String> files, int depth
+    ) {
+        if (depth > 24 || files.size() >= 200) return;
+        File[] children = directory.listFiles();
+        if (children == null) return;
+        try {
+            File canonicalRoot = root.getCanonicalFile();
+            for (File child : children) {
+                if (files.size() >= 200) return;
+                String name = child.getName();
+                if (name.startsWith(".") || "build".equals(name) ||
+                    ".gradle".equals(name) || "out".equals(name)) continue;
+                try {
+                    File canonical = child.getCanonicalFile();
+                    if (!canonical.getPath().startsWith(canonicalRoot.getPath() + File.separator)) continue;
+                    if (!canonical.equals(child.getAbsoluteFile())) continue;
+                    if (canonical.isDirectory()) {
+                        collectWorkspaceSourceFiles(root, canonical, files, depth + 1);
+                    } else if (canonical.isFile() && isWorkspaceSourceFile(name)) {
+                        String relative = canonical.getPath().substring(canonicalRoot.getPath().length() + 1);
+                        files.add(relative.replace(File.separatorChar, '/'));
+                    }
+                } catch (Exception ignored) {
+                    // Skip unreadable and redirected paths; never expose them as source.
+                }
+            }
+        } catch (Exception ignored) {
+            // Fail closed when the private workspace root cannot be resolved.
+        }
+    }
+
+    private boolean isWorkspaceSourceFile(String name) {
+        String lower = name.toLowerCase();
+        return lower.endsWith(".java") || lower.endsWith(".kt") ||
+            lower.endsWith(".py") || lower.endsWith(".cpp") ||
+            lower.endsWith(".c") || lower.endsWith(".h") ||
+            lower.endsWith(".xml") || lower.endsWith(".json") ||
+            lower.endsWith(".sh") || lower.endsWith(".gradle") ||
+            lower.endsWith(".txt") || lower.endsWith(".md");
+    }
+
+    private String languageForWorkspaceFile(String fileName) {
+        String lower = fileName.toLowerCase();
+        if (lower.endsWith(".kt")) return "kotlin";
+        if (lower.endsWith(".py")) return "python";
+        if (lower.endsWith(".cpp") || lower.endsWith(".c") || lower.endsWith(".h")) return "cpp";
+        if (lower.endsWith(".sh")) return "shell";
+        if (lower.endsWith(".xml")) return "xml";
+        if (lower.endsWith(".json")) return "json";
+        return "java";
     }
 
     private View buildNavTab(String icon, String label, boolean active, View.OnClickListener listener) {
@@ -737,40 +828,58 @@ public class MainActivity extends Activity {
 
     // DIALOG 2: OPEN PROJECT / STORAGE EXPLORER
     private void showOpenProjectDialog() {
-        File ws = EngineCore.getWorkspaceDir(this);
-        File[] files = ws.listFiles();
-        final List<String> names = new ArrayList<String>();
-        for (ProjectItem p : projectList) {
-            names.add("📦 " + p.name + " (" + p.fileName + ")");
-        }
-        if (files != null) {
-            for (File f : files) {
-                String label = "📄 " + f.getName();
-                if (!names.contains(label)) names.add(label);
-            }
+        final List<ProjectItem> choices = new ArrayList<ProjectItem>();
+        Set<String> indexedPaths = new HashSet<String>();
+        for (ProjectItem item : projectList) {
+            choices.add(item);
+            indexedPaths.add(item.fileName);
         }
 
-        String[] arr = names.toArray(new String[0]);
+        File root = EngineCore.getWorkspaceDir(this);
+        List<String> workspaceFiles = new ArrayList<String>();
+        collectWorkspaceSourceFiles(root, root, workspaceFiles, 0);
+        for (String path : workspaceFiles) {
+            if (indexedPaths.contains(path)) continue;
+            String language = languageForWorkspaceFile(path);
+            choices.add(new ProjectItem(
+                new File(path).getName(), "Workspace file • " + path, "On disk",
+                "▤", Color.parseColor("#24506A"), language, path, ""
+            ));
+        }
+
+        if (choices.isEmpty()) {
+            new AlertDialog.Builder(this)
+                .setTitle("Workspace is empty")
+                .setMessage("No source files or projects were found. Create a project or open a starter from Samples.")
+                .setPositiveButton("Create project", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        showNewProjectDialog();
+                    }
+                })
+                .setNegativeButton("Samples", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        showSamplesDialog();
+                    }
+                })
+                .show();
+            return;
+        }
+
+        String[] labels = new String[choices.size()];
+        for (int i = 0; i < choices.size(); i++) {
+            ProjectItem item = choices.get(i);
+            labels[i] = item.name + "  —  " + item.fileName;
+        }
+
         new AlertDialog.Builder(this)
-            .setTitle("📁 Open Workspace Project")
-            .setItems(arr, new DialogInterface.OnClickListener() {
+            .setTitle("Open project or workspace file")
+            .setItems(labels, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    if (which < projectList.size()) {
-                        openEditorWithProject(projectList.get(which));
-                    } else {
-                        String picked = names.get(which).replace("📄 ", "").trim();
-                        String lang = picked.endsWith(".py") ? "python" : picked.endsWith(".cpp") ? "cpp" : picked.endsWith(".kt") ? "kotlin" : "java";
-                        EngineCore.WorkspaceReadResult loaded = EngineCore.loadWorkspaceFile(
-                            MainActivity.this, picked, "// File: " + picked
-                        );
-                        if (!loaded.success) {
-                            Toast.makeText(MainActivity.this, loaded.error, Toast.LENGTH_LONG).show();
-                            return;
-                        }
-                        ProjectItem temp = new ProjectItem(picked, lang.toUpperCase() + " • Workspace File", "Opened", "📄",
-                            Color.parseColor("#1A6EF5"), lang, picked, loaded.content);
-                        openEditorWithProject(temp);
+                    if (which >= 0 && which < choices.size()) {
+                        openEditorWithProject(choices.get(which));
                     }
                 }
             })
@@ -833,10 +942,25 @@ public class MainActivity extends Activity {
 
     // PROJECT 3-DOTS CONTEXT MENU
     private void showProjectItemMenu(final ProjectItem item) {
+        if (!projectList.contains(item)) {
+            new AlertDialog.Builder(this)
+                .setTitle(item.name)
+                .setMessage(item.fileName)
+                .setPositiveButton("Open in Code Editor", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        openEditorWithProject(item);
+                    }
+                })
+                .setNegativeButton("Close", null)
+                .show();
+            return;
+        }
+
         String[] options = {
-            "📝 Open in Code Editor",
-            "▶️ Run Project Directly",
-            "🗑️ Remove from List"
+            "Open in Code Editor",
+            "Check runtime status (source will not execute)",
+            "Remove from List"
         };
         new AlertDialog.Builder(this)
             .setTitle(item.icon + " " + item.name)
@@ -846,10 +970,12 @@ public class MainActivity extends Activity {
                     if (which == 0) {
                         openEditorWithProject(item);
                     } else if (which == 1) {
-                        String out = EngineCore.executeCode(MainActivity.this, item.lang, item.fileName, item.starterCode);
+                        String status = EngineCore.executeCode(
+                            MainActivity.this, item.lang, item.fileName, item.starterCode
+                        );
                         new AlertDialog.Builder(MainActivity.this)
-                            .setTitle("▶️ Execution Output: " + item.name)
-                            .setMessage(out)
+                            .setTitle("Runtime availability")
+                            .setMessage(status)
                             .setPositiveButton("Open Editor", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface d, int w) {
@@ -858,11 +984,11 @@ public class MainActivity extends Activity {
                             })
                             .setNegativeButton("Close", null)
                             .show();
-                    } else {
+                    } else if (which == 2) {
                         projectList.remove(item);
                         saveProjectCatalog();
-                        refreshProjectList("");
-                        Toast.makeText(MainActivity.this, "Removed " + item.name, Toast.LENGTH_SHORT).show();
+                        refreshProjectList(searchInput == null ? "" : searchInput.getText().toString());
+                        Toast.makeText(MainActivity.this, "Removed " + item.name + " from the project list. Workspace files were kept.", Toast.LENGTH_LONG).show();
                     }
                 }
             })
@@ -948,7 +1074,7 @@ public class MainActivity extends Activity {
             "🔤 Editor Font Size (Current: " + currentFont + "sp)",
             "💾 Auto-Save Code on Run (" + (autoSave ? "ON" : "OFF") + ")",
             "🧰 Check Android Build Toolchain Status",
-            "🔄 Reset Default Sample Projects"
+            "🧹 Clear Recent Projects List"
         };
 
         showMasterNeonDialog(settingsItems, "ui/blue_neon.png", false, new DialogInterface.OnClickListener() {
@@ -968,9 +1094,10 @@ public class MainActivity extends Activity {
                             .setPositiveButton("OK", null)
                             .show();
                     } else {
-                        initDefaultProjects();
+                        projectList.clear();
+                        saveProjectCatalog();
                         refreshProjectList("");
-                        Toast.makeText(MainActivity.this, "✅ Default projects restored!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "Recent project list cleared. Workspace files and Samples were kept.", Toast.LENGTH_LONG).show();
                     }
                 }
             });
