@@ -38,6 +38,7 @@ class StableReleaseSigningTests(unittest.TestCase):
     def test_build_script_supports_key_alias_and_distinct_key_password(self):
         content = BUILD_SCRIPT.read_text(encoding="utf-8")
         self.assertIn('KEY_PASS="${KEY_PASS:-$KEYSTORE_PASS}"', content)
+        self.assertIn("export KEY_PASS", content)
         self.assertIn('APKSIGNER_ALIAS_ARGS+=(--ks-key-alias "$KEY_ALIAS")', content)
         self.assertIn("--key-pass env:KEY_PASS", content)
 
