@@ -31,6 +31,8 @@ The project currently provides a Java-based Android application shell, an editor
 
 ## What is in the repository today
 
+- **Asset packaging:** only referenced neon menu artwork is kept under `assets/ui`; the Android Platform JAR is not duplicated inside packaged assets.
+
 - **Application shell:** Java-based Android entry point and editor activity.
 - **Workspace foundation:** project and file-workspace scaffolding.
 - **Project generator:** starter Android project structure generation.
