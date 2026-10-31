@@ -35,7 +35,6 @@ class WorkspaceDashboardIndexTests(unittest.TestCase):
             self.source,
         )
         self.assertIn('refreshProjectList("")', self.source)
-        self.assertIn("refreshProjectList(\"")", self.source)
 
     def test_workspace_scan_is_bounded_and_rejects_redirected_paths(self):
         self.assertIn("depth > 24", self.source)
