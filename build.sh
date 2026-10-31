@@ -4,7 +4,12 @@ set -Eeuo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 cd "$ROOT_DIR"
 
-ANDROID_JAR="${ANDROID_JAR:-$ROOT_DIR/android.jar}"
+SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}"
+DEFAULT_ANDROID_JAR="$ROOT_DIR/android.jar"
+if [[ -n "$SDK_ROOT" ]]; then
+    DEFAULT_ANDROID_JAR="$SDK_ROOT/platforms/android-36/android.jar"
+fi
+ANDROID_JAR="${ANDROID_JAR:-$DEFAULT_ANDROID_JAR}"
 BUILD_DIR="${BUILD_DIR:-$ROOT_DIR/obj}"
 OUT_DIR="${OUT_DIR:-$ROOT_DIR/bin}"
 GEN_DIR="${GEN_DIR:-$ROOT_DIR/gen}"
@@ -14,6 +19,11 @@ fail() {
     echo "ERROR: $*" >&2
     exit 2
 }
+
+if [[ -n "$SDK_ROOT" ]]; then
+    [[ -f "$SDK_ROOT/platforms/android-36/android.jar" ]] ||
+        fail "Android SDK Platform 36 is required when ANDROID_SDK_ROOT/ANDROID_HOME is set."
+fi
 
 require_tool() {
     command -v "$1" >/dev/null 2>&1 || {

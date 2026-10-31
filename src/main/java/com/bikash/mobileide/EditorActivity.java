@@ -318,6 +318,7 @@ public class EditorActivity extends Activity {
         symScroll.addView(symRow);
         root.addView(symScroll);
 
+        SystemBarInsets.apply(root);
         return root;
     }
 
