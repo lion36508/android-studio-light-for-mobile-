@@ -22,3 +22,8 @@ bin/app-aligned.apk
 # Logs and temporary files
 *.log
 *.tmp
+
+# Generated APK/DEX/signature outputs (use CI artifacts for distribution)
+bin/*.apk
+bin/*.dex
+bin/*.idsig
