@@ -333,7 +333,7 @@ public class EditorActivity extends Activity {
             symBtn.setMinimumWidth(dp(48));
             symBtn.setMinimumHeight(dp(48));
             symBtn.setContentDescription(sym.equals("    ") ? "Insert tab indentation" :
-                "Insert " + (sym.equals("\\\"") ? "double quote" :
+                "Insert " + (sym.equals("\"") ? "double quote" :
                 sym.equals("'") ? "single quote" : sym.equals("#") ? "hash" : sym.equals(";") ? "semicolon" : sym));
             symBtn.setBackground(makeRounded(Color.parseColor("#21262D"), dp(6)));
             LinearLayout.LayoutParams sLp = new LinearLayout.LayoutParams(
