@@ -64,7 +64,13 @@ export KEYSTORE_PASS
 
 The key created above is a local development key. It is not a shared project release key.
 
-## 4. Run the build
+## 4. Safe build-output directories
+
+`BUILD_DIR`, `GEN_DIR`, and `OUT_DIR` are canonicalized before cleanup. The build script rejects filesystem/repository roots, source/resource/Git directories, overlapping output paths, unsafe system locations, and path-like `APK_NAME` values. No cleanup command runs until these checks pass.
+
+By default, custom output directories must be inside the repository, the user's home directory, or a temporary directory. For a deliberate external destination, set `ALLOW_EXTERNAL_BUILD_OUTPUTS=1`; the root/source/system and overlap checks still apply. New nested output paths are allowed when their nearest existing parent is available.
+
+## 5. Run the build
 
 From the repository root:
 
@@ -80,7 +86,7 @@ bin/OxDroid-Mobile-IDE.apk
 
 The script stops if a required tool or signing variable is missing. A successful command should produce the APK at the configured output path.
 
-## 5. GitHub Actions build
+## 6. GitHub Actions build
 
 The workflow at `.github/workflows/android-apk.yml`:
 
@@ -94,7 +100,7 @@ The workflow at `.github/workflows/android-apk.yml`:
 
 Download artifacts from the successful workflow run. The artifact is debug-signed and expires after the retention period in the workflow.
 
-## 6. What a successful CI build means
+## 7. What a successful CI build means
 
 It means the current repository sources compiled and packaged in the configured GitHub-hosted environment, and the resulting APK passed the configured archive, alignment, and signature checks.
 
@@ -106,7 +112,7 @@ It does **not** establish that:
 - The APK is production/release-signed.
 - The app has passed device installation and runtime tests on every supported Android version.
 
-## 7. Troubleshooting
+## 8. Troubleshooting
 
 - **Tool not found:** install the relevant Android Build Tools package and add its directory to `PATH`.
 - **Missing Android JAR:** set `ANDROID_JAR` to a valid platform JAR.
