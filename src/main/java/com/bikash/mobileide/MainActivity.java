@@ -17,6 +17,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -240,9 +241,8 @@ public class MainActivity extends Activity {
         content.setOrientation(LinearLayout.VERTICAL);
         content.setPadding(dp(16), dp(6), dp(16), dp(20));
 
-        // 2. HERO BANNER (res/drawable/hero_banner.png)
-        LinearLayout bannerWrapper = new LinearLayout(this);
-        bannerWrapper.setOrientation(LinearLayout.VERTICAL);
+        // 2. HERO BANNER — scalable vector art with accessible text overlay.
+        FrameLayout bannerWrapper = new FrameLayout(this);
         bannerWrapper.setBackground(makeRoundedBg(Color.parseColor("#102238"), dp(18), Color.parseColor("#294D6D")));
         LinearLayout.LayoutParams bannerLp = new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, dp(158));
@@ -250,19 +250,52 @@ public class MainActivity extends Activity {
         bannerWrapper.setLayoutParams(bannerLp);
 
         ImageView bannerImg = new ImageView(this);
-        bannerImg.setImageResource(R.drawable.hero_banner);
+        bannerImg.setImageResource(R.drawable.oxdroid_hero_banner);
         bannerImg.setScaleType(ImageView.ScaleType.FIT_XY);
-        bannerImg.setContentDescription("Continue coding in " + projectList.get(0).name);
-        bannerImg.setLayoutParams(new LinearLayout.LayoutParams(
+        bannerImg.setLayoutParams(new FrameLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        addTouchEffect(bannerImg);
-        bannerImg.setOnClickListener(new View.OnClickListener() {
+        bannerWrapper.addView(bannerImg);
+
+        LinearLayout bannerCopy = new LinearLayout(this);
+        bannerCopy.setOrientation(LinearLayout.VERTICAL);
+        bannerCopy.setGravity(Gravity.CENTER_VERTICAL);
+        bannerCopy.setPadding(dp(18), 0, dp(8), 0);
+        FrameLayout.LayoutParams bannerCopyLp = new FrameLayout.LayoutParams(
+            dp(205), ViewGroup.LayoutParams.MATCH_PARENT, Gravity.START | Gravity.CENTER_VERTICAL);
+        bannerCopy.setLayoutParams(bannerCopyLp);
+
+        TextView bannerTitle = new TextView(this);
+        bannerTitle.setText("Build with clarity.");
+        bannerTitle.setTextColor(Color.parseColor("#F2F7FC"));
+        bannerTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        bannerTitle.setTypeface(null, Typeface.BOLD);
+        bannerTitle.setMaxLines(1);
+
+        TextView bannerSubtitle = new TextView(this);
+        bannerSubtitle.setText("Your mobile IDE for focused development.");
+        bannerSubtitle.setTextColor(Color.parseColor("#B3C9DC"));
+        bannerSubtitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
+        bannerSubtitle.setMaxLines(2);
+        bannerSubtitle.setPadding(0, dp(5), 0, dp(7));
+
+        TextView bannerAction = new TextView(this);
+        bannerAction.setText("OPEN EDITOR  →");
+        bannerAction.setTextColor(Color.parseColor("#73D8EA"));
+        bannerAction.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
+        bannerAction.setTypeface(null, Typeface.BOLD);
+
+        bannerCopy.addView(bannerTitle);
+        bannerCopy.addView(bannerSubtitle);
+        bannerCopy.addView(bannerAction);
+        bannerWrapper.addView(bannerCopy);
+        bannerWrapper.setContentDescription("Continue coding in " + projectList.get(0).name);
+        addTouchEffect(bannerWrapper);
+        bannerWrapper.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openEditorWithProject(projectList.get(0));
             }
         });
-        bannerWrapper.addView(bannerImg);
         content.addView(bannerWrapper);
 
         // 3. QUICK ACTIONS — TWO-COLUMN GRID FOR NARROW PHONE SCREENS
