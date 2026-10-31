@@ -42,11 +42,25 @@ class BuildPathSafetyTests(unittest.TestCase):
             env["BUILD_DIR"] = "/"
             self.assert_rejected_before_toolchain(env, "filesystem root")
 
+    def test_rejects_temporary_directory_root_as_build_directory(self):
+        with tempfile.TemporaryDirectory() as temp:
+            env = self.base_env(temp)
+            env["BUILD_DIR"] = "/tmp"
+            self.assert_rejected_before_toolchain(env, "temporary-directory root")
+
     def test_rejects_repository_root_as_build_directory(self):
         with tempfile.TemporaryDirectory() as temp:
             env = self.base_env(temp)
             env["BUILD_DIR"] = str(ROOT)
             self.assert_rejected_before_toolchain(env, "repository root")
+
+    def test_resolves_symlinks_before_protecting_source_directories(self):
+        with tempfile.TemporaryDirectory() as temp:
+            env = self.base_env(temp)
+            source_link = pathlib.Path(temp) / "source-link"
+            source_link.symlink_to(ROOT / "src", target_is_directory=True)
+            env["BUILD_DIR"] = str(source_link)
+            self.assert_rejected_before_toolchain(env, "protected source/project directory")
 
     def test_rejects_source_directory_as_generation_directory(self):
         with tempfile.TemporaryDirectory() as temp:
