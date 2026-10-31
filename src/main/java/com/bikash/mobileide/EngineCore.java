@@ -2,12 +2,14 @@ package com.bikash.mobileide;
 
 import android.content.Context;
 import android.util.AtomicFile;
+import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -185,79 +187,114 @@ public class EngineCore {
         return status.toString();
     }
 
-    // Try connecting to the Real CPython 3.12 / Clang++ Industrial Daemon on 127.0.0.1:49152
-    private static String tryIndustrialDaemon(String language, String fileName, String code) {
-        try {
-            URL url = new URL("http://localhost:49152/execute");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setConnectTimeout(800);
-            conn.setReadTimeout(16000);
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json; charset= utf-8");
-            conn.setDoOutput(true);
+    private static final int MAX_DAEMON_REQUEST_BYTES = 64 * 1024;
+    private static final int MAX_DAEMON_RESPONSE_CHARS = 256 * 1024;
 
-            String payload = "{\"language\":\"" + escapeJson(language) + "\","
-                           + "\"filename\":\"" + escapeJson(fileName) + "\","
-                           + "\"code\":\"" + escapeJson(code) + "\"}";
-
-            OutputStream os = conn.getOutputStream();
-            os.write(payload.getBytes("UTF-8"));
-            os.flush();
-            os.close();
-
-            if (conn.getResponseCode() == 200) {
-                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-                StringBuilder sb = new StringBuilder();
-                String line;
-                while ((line = br.readLine()) != null) sb.append(line).append("\n");
-                br.close();
-                String json = sb.toString();
-                int idx = json.indexOf("\"output\":");
-                if (idx != -1) {
-                    String rawOut = json.substring(idx + 9).trim();
-                    if (rawOut.startsWith("\"")) rawOut = rawOut.substring(1);
-                    if (rawOut.endsWith("\"}")) rawOut = rawOut.substring(0, rawOut.length() - 2);
-                    return unescapeJson(rawOut);
+    /**
+     * Reads a bounded UTF-8 daemon response. The input stream is always closed.
+     */
+    private static String readDaemonResponse(InputStream stream) throws Exception {
+        if (stream == null) return "";
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
+            StringBuilder body = new StringBuilder();
+            char[] buffer = new char[4096];
+            int count;
+            while ((count = reader.read(buffer)) != -1) {
+                if (body.length() + count > MAX_DAEMON_RESPONSE_CHARS) {
+                    throw new Exception("Daemon response exceeded the 256 KiB safety limit.");
                 }
+                body.append(buffer, 0, count);
             }
-        } catch (Exception ignored) {}
-        return null;
+            return body.toString();
+        }
     }
 
-    private static String escapeJson(String s) {
-        if (s == null) return "";
-        return s.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
-    }
+    /**
+     * Calls the local daemon protocol without enabling source execution.
+     *
+     * The app's public executeCode entry point intentionally remains fail-closed
+     * until an OS-enforced sandbox is implemented and verified.
+     */
+    private static String tryIndustrialDaemon(String language, String fileName, String code) {
+        HttpURLConnection connection = null;
+        try {
+            JSONObject request = new JSONObject();
+            request.put("language", language == null ? "" : language);
+            request.put("filename", fileName == null ? "" : fileName);
+            request.put("code", code == null ? "" : code);
+            byte[] payload = request.toString().getBytes("UTF-8");
+            if (payload.length > MAX_DAEMON_REQUEST_BYTES) {
+                return "Daemon request not sent: JSON payload exceeds the 64 KiB safety limit.";
+            }
 
-    private static String unescapeJson(String s) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            if (c == '\\' && i + 1 < s.length()) {
-                char next = s.charAt(++i);
-                if (next == 'n') sb.append('\n');
-                else if (next == 'r') sb.append('\r');
-                else if (next == 't') sb.append('\t');
-                else if (next == '"') sb.append('"');
-                else if (next == '\\') sb.append('\\');
-                else if (next == 'u' && i + 4 < s.length()) {
-                    try {
-                        int hex = Integer.parseInt(s.substring(i + 1, i + 5), 16);
-                        sb.append((char) hex);
-                        i += 4;
-                    } catch (Exception e) {
-                        sb.append("\\u");
-                    }
-                } else sb.append(next);
-            } else {
-                sb.append(c);
+            URL url = new URL("http://localhost:49152/execute");
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setConnectTimeout(800);
+            connection.setReadTimeout(16000);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setFixedLengthStreamingMode(payload.length);
+            connection.setDoOutput(true);
+
+            try (OutputStream output = connection.getOutputStream()) {
+                output.write(payload);
+                output.flush();
+            }
+
+            int responseCode = connection.getResponseCode();
+            InputStream responseStream = (responseCode >= 200 && responseCode < 300)
+                ? connection.getInputStream()
+                : connection.getErrorStream();
+            String responseBody = readDaemonResponse(responseStream);
+            if (responseBody.trim().isEmpty()) {
+                return "Daemon returned HTTP " + responseCode + " with an empty response body.";
+            }
+
+            JSONObject response = new JSONObject(responseBody);
+            Object rawStatus = response.opt("status");
+            Object rawOutput = response.opt("output");
+            if (!(rawStatus instanceof String) || ((String) rawStatus).trim().isEmpty()) {
+                return "Daemon response rejected: missing or invalid string 'status' field.";
+            }
+            String status = ((String) rawStatus).trim();
+            String output = rawOutput instanceof String ? (String) rawOutput : "";
+
+            if (responseCode < 200 || responseCode >= 300) {
+                String detail = output.trim().isEmpty()
+                    ? "The daemon did not provide an error message."
+                    : output;
+                return "Daemon HTTP " + responseCode + " (" + status + "): " + detail;
+            }
+
+            if ("ok".equalsIgnoreCase(status) || "success".equalsIgnoreCase(status)) {
+                if (!(rawOutput instanceof String)) {
+                    return "Daemon response rejected: successful status has no string 'output' field.";
+                }
+                return output;
+            }
+            if ("unsupported".equalsIgnoreCase(status)) {
+                return "Daemon execution unavailable: " + (
+                    output.trim().isEmpty() ? "The requested operation is not supported." : output
+                );
+            }
+            if ("error".equalsIgnoreCase(status)) {
+                return "Daemon error: " + (
+                    output.trim().isEmpty() ? "The daemon reported an unspecified error." : output
+                );
+            }
+            return "Daemon response rejected: unexpected status '" + status + "'.";
+        } catch (org.json.JSONException e) {
+            return "Daemon response rejected: invalid JSON (" + e.getMessage() + ").";
+        } catch (Exception e) {
+            String detail = e.getMessage();
+            if (detail == null || detail.trim().isEmpty()) detail = e.getClass().getSimpleName();
+            return "Daemon communication failed: " + detail;
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
             }
         }
-        return sb.toString();
     }
 
     public static String executeCode(Context context, String language, String fileName, String code) {
