@@ -156,7 +156,7 @@ public final class CommandRunner {
             stdoutReader = startReader(stdoutStream, stdout, "oxdroid-process-stdout");
             stderrReader = startReader(stderrStream, stderr, "oxdroid-process-stderr");
 
-            if (!process.waitFor(safeTimeout, TimeUnit.MILLISECONDS)) {
+            if (!waitForWithinDeadline(process, safeTimeout)) {
                 timedOut = true;
                 terminateProcess(process, interrupted);
             }
@@ -247,15 +247,36 @@ public final class CommandRunner {
         }
     }
 
+    /**
+     * Uses System.nanoTime and short polling intervals instead of the timed
+     * Process.waitFor overload, which is unavailable on some supported Android
+     * releases. The process output readers continue draining during this wait.
+     */
+    private static boolean waitForWithinDeadline(Process process, long timeoutMillis)
+        throws InterruptedException {
+        long budgetNanos = TimeUnit.MILLISECONDS.toNanos(Math.max(0L, timeoutMillis));
+        long startedAt = System.nanoTime();
+        while (isRunning(process)) {
+            long remainingNanos = budgetNanos - (System.nanoTime() - startedAt);
+            if (remainingNanos <= 0L) return !isRunning(process);
+            long sleepMillis = Math.max(
+                1L,
+                Math.min(20L, TimeUnit.NANOSECONDS.toMillis(remainingNanos))
+            );
+            Thread.sleep(sleepMillis);
+        }
+        return true;
+    }
+
     private static void terminateProcess(Process process, AtomicBoolean interrupted) {
         if (process == null || !isRunning(process)) return;
 
         destroyDescendantsIfSupported(process);
         process.destroy();
         try {
-            if (!process.waitFor(TERMINATION_GRACE_MS, TimeUnit.MILLISECONDS)) {
+            if (!waitForWithinDeadline(process, TERMINATION_GRACE_MS)) {
                 forceDestroy(process);
-                process.waitFor(TERMINATION_GRACE_MS, TimeUnit.MILLISECONDS);
+                waitForWithinDeadline(process, TERMINATION_GRACE_MS);
             }
         } catch (InterruptedException e) {
             interrupted.set(true);
