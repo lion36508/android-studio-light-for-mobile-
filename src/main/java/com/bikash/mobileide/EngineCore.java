@@ -40,6 +40,9 @@ public class EngineCore {
     private static File resolveWorkspaceEntry(Context context, String fileName) throws Exception {
         if (fileName == null || fileName.trim().isEmpty()) throw new Exception("File name is empty");
         String normalized = fileName.replace('\\', '/');
+        while (normalized.length() > 1 && normalized.endsWith("/")) {
+            normalized = normalized.substring(0, normalized.length() - 1);
+        }
         if (normalized.startsWith("/") || normalized.equals("..") || normalized.startsWith("../") || normalized.contains("/../")) {
             throw new Exception("Unsafe workspace path");
         }
