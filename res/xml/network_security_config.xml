@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Deny cleartext traffic for every remote host by default. -->
+    <base-config cleartextTrafficPermitted="false" />
+    <!-- The local development daemon is the only HTTP exception. -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">localhost</domain>
+    </domain-config>
+</network-security-config>
