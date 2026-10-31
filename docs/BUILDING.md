@@ -121,3 +121,27 @@ It does **not** establish that:
 - **Keystore variable missing:** set `KEYSTORE` and `KEYSTORE_PASS` in the current shell.
 - **Signing fails:** verify the keystore path and password. Never print the password into logs.
 - **Build passes in CI but not on device:** the CI environment is Linux x86_64; native Android/ARM64 compatibility requires separate device-side validation.
+
+
+## Stable release signing (GitHub Actions)
+
+The manual release workflow **does not generate a temporary signing key**. It requires one stable release keystore and its credentials in repository Actions secrets before it can publish an APK.
+
+Configure these secrets in the repository's **Settings → Secrets and variables → Actions**:
+
+- `OXDROID_RELEASE_KEYSTORE_BASE64`: the release keystore file encoded as Base64.
+- `OXDROID_RELEASE_KEYSTORE_PASSWORD`: the keystore password.
+- `OXDROID_RELEASE_KEY_ALIAS`: the signing key alias inside the keystore.
+- `OXDROID_RELEASE_KEY_PASSWORD`: the password for that key.
+
+The workflow fails before building if any secret is missing or if the key alias cannot be opened with the supplied keystore password. It decodes the existing stable keystore into the runner's temporary directory, restricts file permissions, masks all secret values, and uses the configured key alias and key password to sign the APK.
+
+**Important:** create and securely back up the release identity before the first public release. Use a new key; never reuse the previously exposed development key mentioned in [SECURITY.md](../SECURITY.md). Keep the keystore and its passwords out of Git, source archives, issues, and logs. The CI debug APK workflow continues to use a disposable key and is not a release/update identity.
+
+To create the Base64 value locally without printing key material to the terminal:
+
+```bash
+base64 -w 0 /secure/path/oxdroid-release.jks > /secure/path/oxdroid-release.jks.b64
+```
+
+On platforms without `base64 -w`, use the platform's Base64 encoder and store its output directly as the secret. Do not paste the encoded keystore into chat or a public issue.

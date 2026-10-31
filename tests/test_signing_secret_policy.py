@@ -37,11 +37,20 @@ class SigningSecretPolicyTests(unittest.TestCase):
         self.assertIn('::add-mask::$KEYSTORE_PASS', workflow)
         self.assertNotIn("ide_keystore.jks", workflow)
 
-    def test_release_workflow_does_not_reuse_a_repository_keystore(self):
+    def test_release_workflow_requires_stable_protected_signing_secrets(self):
         workflow = (ROOT / ".github/workflows/publish-release.yml").read_text(encoding="utf-8")
-        self.assertIn('KEYSTORE="$RUNNER_TEMP/oxdroid-release-ci.jks"', workflow)
-        self.assertIn('openssl rand -hex 24', workflow)
-        self.assertIn('::add-mask::$KEYSTORE_PASS', workflow)
+        for secret in (
+            "OXDROID_RELEASE_KEYSTORE_BASE64",
+            "OXDROID_RELEASE_KEYSTORE_PASSWORD",
+            "OXDROID_RELEASE_KEY_ALIAS",
+            "OXDROID_RELEASE_KEY_PASSWORD",
+        ):
+            self.assertIn(secret, workflow)
+        self.assertIn('KEYSTORE="$RUNNER_TEMP/oxdroid-release.jks"', workflow)
+        self.assertIn('keytool -list', workflow)
+        self.assertIn('::add-mask::$RELEASE_KEYSTORE_PASSWORD', workflow)
+        self.assertNotIn("keytool -genkeypair", workflow)
+        self.assertNotIn("openssl rand", workflow)
         self.assertNotIn("ide_keystore.jks", workflow)
 
     def test_background_guard_has_valid_bash_syntax(self):
