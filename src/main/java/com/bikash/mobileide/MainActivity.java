@@ -561,7 +561,7 @@ public class MainActivity extends Activity {
             card.setGravity(Gravity.CENTER_VERTICAL);
             card.setPadding(dp(14), dp(14), dp(14), dp(14));
             card.setBackground(makeRoundedBg(Color.parseColor("#161B22"), dp(14), Color.parseColor("#21262D")));
-            card.setContentDescription("Open " + item.name + ", " + item.subtitle);
+            card.setContentDescription("Open project or workspace file " + item.name + ", " + item.subtitle + ", " + item.fileName);
             card.setMinimumHeight(dp(72));
             card.setFocusable(true);
 
