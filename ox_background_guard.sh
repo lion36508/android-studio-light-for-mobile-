@@ -1,31 +1,32 @@
 #!/bin/bash
+set -euo pipefail
 
 echo "================================================="
-echo "🛡 Smart OxDroid 24/7 Background Guard Started"
+echo "OxDroid security file guard started"
 echo "================================================="
 
-# हमारी सुरक्षित (Whitelist) फाइल्स जिन्हें गार्ड इग्नोर करेगा
-WHITELIST_APK="./bin/MobileIDE.apk"
-WHITELIST_KEYSTORE="./ide_keystore.jks"
+# Only the current CI/build output name is allowed as a generated APK.
+# No signing keystore is ever allowlisted.
+WHITELIST_APK="./bin/OxDroid-Mobile-IDE.apk"
 
 while true; do
-    if ping -c 1 8.8.8.8 > /dev/null 2>&1; then
-        
-        # सिर्फ उन फाइल्स को ढूंढेगा जो हमारी सुरक्षित लिस्ट से बाहर हैं
-        UNAUTHORIZED=$(find . -type f \( -name "*.apk" -o -name "*.keystore" -o -name "*.jks" \) ! -path "$WHITELIST_APK" ! -path "$WHITELIST_KEYSTORE")
-        
+    if ping -c 1 8.8.8.8 >/dev/null 2>&1; then
+        UNAUTHORIZED="$(
+            find . -path './.git' -prune -o -type f \\
+                \\( -name "*.apk" -o -name "*.keystore" -o -name "*.jks" \\) \\
+                ! -path "$WHITELIST_APK" -print
+        )"
+
         if [ -n "$UNAUTHORIZED" ]; then
-            echo "[$(date '+%T')] 🚨 ALERT: नई अनधिकृत फाइल मिली -> $UNAUTHORIZED"
-            
-            # आपके फोन की स्क्रीन पर डायरेक्ट नोटिफिकेशन भेजेगा
-            termux-notification --title "🛡️ OxDroid Security Alert" --content "प्रोजेक्ट में कोई अनजान APK या Keystore मिली है! तुरंत Termux चेक करें।" --priority high 2>/dev/null
+            echo "[$(date '+%T')] ALERT: unexpected build/signing file(s) detected:"
+            printf '%s\\n' "$UNAUTHORIZED"
+            if command -v termux-notification >/dev/null 2>&1; then
+                termux-notification --title "OxDroid Security Alert" \\
+                    --content "Unexpected APK/keystore file detected. Check the project files." \\
+                    --priority high 2>/dev/null || true
+            fi
         fi
-        
-        if [ -d ".git" ]; then
-            git status > /dev/null 2>&1
-        fi
-        
-        # हर 60 सेकंड में चेक करेगा (बैटरी बचाने के लिए)
+
         sleep 60
     else
         sleep 10
