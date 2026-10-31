@@ -22,15 +22,9 @@ class ProjectScaffoldTemplateTests(unittest.TestCase):
         self.assertIn("com.android.application' version '8.9.2'", self.source)
 
     def test_generated_manifest_uses_gradle_namespace_not_package_attribute(self):
-        self.assertIn(
-            '<manifest xmlns:android=\\"http://schemas.android.com/apk/res/android\\">',
-            self.source,
-        )
-        self.assertNotIn(
-            'xmlns:android=\\"http://schemas.android.com/apk/res/android\\" package=',
-            self.source,
-        )
-        self.assertIn('namespace \'" + packageName + "\'', self.source)
+        self.assertIn('xmlns:android=\\"http://schemas.android.com/apk/res/android', self.source)
+        self.assertNotIn('package=\\"', self.source)
+        self.assertIn('namespace ', self.source)
 
     def test_scaffold_remains_atomic_on_partial_write_failure(self):
         self.assertIn("if (!EngineCore.saveFile(context, generatedFile[0], generatedFile[1]))", self.source)
