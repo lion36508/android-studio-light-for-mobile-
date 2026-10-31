@@ -1,5 +1,6 @@
 import pathlib
 import unittest
+import xml.etree.ElementTree as ET
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "src/main/java/com/bikash/mobileide/MainActivity.java"
@@ -9,6 +10,16 @@ class ProfessionalMinimalDashboardTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.source = SOURCE.read_text(encoding="utf-8")
+
+    def test_hero_uses_a_valid_scalable_vector_with_text_overlay(self):
+        vector_path = ROOT / "res/drawable/oxdroid_hero_banner.xml"
+        root = ET.parse(vector_path).getroot()
+        self.assertEqual("vector", root.tag)
+        self.assertGreaterEqual(len(root.findall("path")), 10)
+        self.assertIn("R.drawable.oxdroid_hero_banner", self.source)
+        self.assertIn("FrameLayout bannerWrapper", self.source)
+        self.assertIn("Build with clarity.", self.source)
+        self.assertIn("bannerWrapper.setContentDescription", self.source)
 
     def test_dashboard_uses_a_two_column_action_grid(self):
         self.assertIn("LinearLayout primaryActionsRow", self.source)
