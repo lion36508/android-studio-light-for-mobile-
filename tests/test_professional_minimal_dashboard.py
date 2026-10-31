@@ -43,6 +43,19 @@ class ProfessionalMinimalDashboardTests(unittest.TestCase):
         self.assertIn('menuDots.setMinHeight(dp(48))', self.source)
         self.assertIn("card.setContentDescription", self.source)
 
+    def test_toolbar_controls_and_project_actions_have_accessible_names(self):
+        for label in (
+            "Open navigation menu",
+            "Search projects",
+            "More options",
+            "Search and view all workspace projects",
+            "More actions for ",
+        ):
+            self.assertIn(label, self.source)
+        self.assertIn("seeAllBtn.setMinHeight(dp(48))", self.source)
+        self.assertIn('menuDots.setMinWidth(dp(48))', self.source)
+        self.assertIn('menuDots.setMinHeight(dp(48))', self.source)
+
     def test_bottom_navigation_preserves_existing_destinations(self):
         for destination in ("Home", "Projects", "Editor", "Settings"):
             self.assertIn('"' + destination + '"', self.source)
