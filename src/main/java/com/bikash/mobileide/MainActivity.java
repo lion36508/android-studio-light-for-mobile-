@@ -127,7 +127,7 @@ public class MainActivity extends Activity {
         menuBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 27);
         menuBtn.setGravity(Gravity.CENTER);
         menuBtn.setMinWidth(dp(48));
-        menuBtn.setMinHeight(dp(42));
+        menuBtn.setMinHeight(dp(48));
         menuBtn.setBackground(makeRoundedBg(Color.parseColor("#101E2E"), dp(12), Color.parseColor("#223A52")));
         addTouchEffect(menuBtn);
         menuBtn.setOnClickListener(new View.OnClickListener() {
@@ -163,7 +163,7 @@ public class MainActivity extends Activity {
         searchBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 25);
         searchBtn.setGravity(Gravity.CENTER);
         searchBtn.setMinWidth(dp(48));
-        searchBtn.setMinHeight(dp(42));
+        searchBtn.setMinHeight(dp(48));
         searchBtn.setBackground(makeRoundedBg(Color.parseColor("#101E2E"), dp(12), Color.parseColor("#223A52")));
         addTouchEffect(searchBtn);
         searchBtn.setOnClickListener(new View.OnClickListener() {
@@ -186,7 +186,7 @@ public class MainActivity extends Activity {
         moreBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
         moreBtn.setGravity(Gravity.CENTER);
         moreBtn.setMinWidth(dp(48));
-        moreBtn.setMinHeight(dp(42));
+        moreBtn.setMinHeight(dp(48));
         moreBtn.setBackground(makeRoundedBg(Color.parseColor("#101E2E"), dp(12), Color.parseColor("#223A52")));
         addTouchEffect(moreBtn);
         moreBtn.setOnClickListener(new View.OnClickListener() {
@@ -597,8 +597,8 @@ public class MainActivity extends Activity {
             menuDots.setTextColor(Color.parseColor("#8B949E"));
             menuDots.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
             menuDots.setGravity(Gravity.CENTER);
-            menuDots.setMinWidth(dp(40));
-            menuDots.setMinHeight(dp(40));
+            menuDots.setMinWidth(dp(48));
+            menuDots.setMinHeight(dp(48));
             menuDots.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
