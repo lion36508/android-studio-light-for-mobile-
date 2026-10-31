@@ -41,6 +41,15 @@ class WorkflowIntegrityTests(unittest.TestCase):
         self.assertIn('tail -n 160 "$EMULATOR_LOG"', boot_step)
         self.assertIn("did not finish booting before the 180-second deadline", boot_step)
 
+    def test_android_emulator_binary_is_added_to_path(self):
+        workflow = (WORKFLOWS / "android-apk.yml").read_text(encoding="utf-8")
+        start = workflow.index("- name: Wire the Android toolchain")
+        end = workflow.index("- name: Create temporary CI-only signing key", start)
+        tool_step = workflow[start:end]
+        self.assertIn('EMULATOR_BIN="$SDK_ROOT/emulator"', tool_step)
+        self.assertIn('[[ ! -x "$EMULATOR_BIN/emulator" ]]', tool_step)
+        self.assertIn('echo "$EMULATOR_BIN" >> "$GITHUB_PATH"', tool_step)
+
     def test_quality_workflow_runs_real_checks(self):
         workflow = (WORKFLOWS / "code_quality_guard.yml").read_text(encoding="utf-8")
         self.assertIn("bash -n", workflow)
