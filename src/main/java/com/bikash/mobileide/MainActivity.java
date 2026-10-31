@@ -418,7 +418,7 @@ public class MainActivity extends Activity {
         lp.setMargins(dp(4), 0, dp(4), 0);
         card.setLayoutParams(lp);
         card.setMinimumHeight(dp(112));
-        card.setContentDescription((title + ". " + sub).replace("\\n", " "));
+        card.setContentDescription((title + ". " + sub).replace("\n", " "));
         card.setFocusable(true);
         card.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
 
