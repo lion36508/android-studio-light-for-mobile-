@@ -35,10 +35,38 @@ class DaemonJsonResponseTests(unittest.TestCase):
         self.assertIn("connection.disconnect()", self.source)
         self.assertIn('try (OutputStream output = connection.getOutputStream())', self.source)
 
-    def test_malformed_json_and_transport_failures_are_visible(self):
-        self.assertIn("Daemon response rejected: invalid JSON", self.source)
-        self.assertIn("Daemon communication failed:", self.source)
-        self.assertIn("Daemon returned HTTP ", self.source)
+    def test_malformed_json_has_an_explicit_rejection_path(self):
+        method_start = self.source.index("private static String tryIndustrialDaemon(")
+        method_end = self.source.index(
+            "public static String executeCode(", method_start
+        )
+        method = self.source[method_start:method_end]
+        self.assertIn("new JSONObject(responseBody)", method)
+        self.assertIn("catch (org.json.JSONException e)", method)
+        self.assertIn("Daemon response rejected: invalid JSON", method)
+
+    def test_http_500_reads_error_body_and_keeps_http_status(self):
+        method_start = self.source.index("private static String tryIndustrialDaemon(")
+        method_end = self.source.index(
+            "public static String executeCode(", method_start
+        )
+        method = self.source[method_start:method_end]
+        self.assertIn("connection.getResponseCode()", method)
+        self.assertIn("connection.getErrorStream()", method)
+        self.assertIn("responseCode < 200 || responseCode >= 300", method)
+        self.assertIn('return "Daemon HTTP " + responseCode', method)
+        self.assertIn("connection.disconnect()", method)
+
+    def test_unsupported_or_error_status_never_looks_like_success(self):
+        method_start = self.source.index("private static String tryIndustrialDaemon(")
+        method_end = self.source.index(
+            "public static String executeCode(", method_start
+        )
+        method = self.source[method_start:method_end]
+        self.assertIn('"unsupported".equalsIgnoreCase(status)', method)
+        self.assertIn('"error".equalsIgnoreCase(status)', method)
+        self.assertIn('"success".equalsIgnoreCase(status)', method)
+        self.assertIn("successful status has no string 'output' field", method)
 
     def test_public_execution_entry_point_stays_disabled(self):
         match = re.search(
