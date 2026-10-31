@@ -17,6 +17,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -111,7 +112,7 @@ public class MainActivity extends Activity {
     private View buildOriginalUI() {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(Color.parseColor("#0B0E14"));
+        root.setBackgroundColor(Color.parseColor("#08121F"));
         root.setLayoutParams(new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
@@ -122,10 +123,14 @@ public class MainActivity extends Activity {
         topBar.setPadding(dp(16), dp(14), dp(16), dp(10));
 
         TextView menuBtn = new TextView(this);
-        menuBtn.setText("☰");
+        menuBtn.setText("≡");
         menuBtn.setTextColor(Color.WHITE);
-        menuBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
-        menuBtn.setPadding(0, 0, dp(16), 0);
+        menuBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 27);
+        menuBtn.setGravity(Gravity.CENTER);
+        menuBtn.setContentDescription("Open navigation menu");
+        menuBtn.setMinWidth(dp(48));
+        menuBtn.setMinHeight(dp(48));
+        menuBtn.setBackground(makeRoundedBg(Color.parseColor("#101E2E"), dp(12), Color.parseColor("#223A52")));
         addTouchEffect(menuBtn);
         menuBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -143,12 +148,12 @@ public class MainActivity extends Activity {
         TextView titleTv = new TextView(this);
         titleTv.setText("OxDroid Studio");
         titleTv.setTextColor(Color.WHITE);
-        titleTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+        titleTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 19);
         titleTv.setTypeface(null, Typeface.BOLD);
 
         TextView subTitleTv = new TextView(this);
-        subTitleTv.setText("Mobile Development Workspace");
-        subTitleTv.setTextColor(Color.parseColor("#8B949E"));
+        subTitleTv.setText("ANDROID DEVELOPMENT WORKSPACE");
+        subTitleTv.setTextColor(Color.parseColor("#8FA6BC"));
         subTitleTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
 
         titleCol.addView(titleTv);
@@ -156,9 +161,13 @@ public class MainActivity extends Activity {
         topBar.addView(titleCol);
 
         TextView searchBtn = new TextView(this);
-        searchBtn.setText("🔍");
-        searchBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
-        searchBtn.setPadding(dp(10), dp(4), dp(10), dp(4));
+        searchBtn.setText("⌕");
+        searchBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 25);
+        searchBtn.setGravity(Gravity.CENTER);
+        searchBtn.setContentDescription("Search projects");
+        searchBtn.setMinWidth(dp(48));
+        searchBtn.setMinHeight(dp(48));
+        searchBtn.setBackground(makeRoundedBg(Color.parseColor("#101E2E"), dp(12), Color.parseColor("#223A52")));
         addTouchEffect(searchBtn);
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -176,9 +185,13 @@ public class MainActivity extends Activity {
 
         TextView moreBtn = new TextView(this);
         moreBtn.setText("⋮");
-        moreBtn.setTextColor(Color.WHITE);
+        moreBtn.setTextColor(Color.parseColor("#D9E5F2"));
         moreBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
-        moreBtn.setPadding(dp(10), 0, dp(4), 0);
+        moreBtn.setGravity(Gravity.CENTER);
+        moreBtn.setContentDescription("More options");
+        moreBtn.setMinWidth(dp(48));
+        moreBtn.setMinHeight(dp(48));
+        moreBtn.setBackground(makeRoundedBg(Color.parseColor("#101E2E"), dp(12), Color.parseColor("#223A52")));
         addTouchEffect(moreBtn);
         moreBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -197,12 +210,12 @@ public class MainActivity extends Activity {
         searchBarContainer.setVisibility(View.GONE);
 
         searchInput = new EditText(this);
-        searchInput.setHint("🔎 Search projects by name or language (Kotlin, C++, Python, Java)...");
-        searchInput.setHintTextColor(Color.parseColor("#6E7681"));
+        searchInput.setHint("Search projects by name or language...");
+        searchInput.setHintTextColor(Color.parseColor("#7890A8"));
         searchInput.setTextColor(Color.WHITE);
         searchInput.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
         searchInput.setPadding(dp(14), dp(10), dp(14), dp(10));
-        searchInput.setBackground(makeRoundedBg(Color.parseColor("#161B22"), dp(12), Color.parseColor("#30363D")));
+        searchInput.setBackground(makeRoundedBg(Color.parseColor("#101E2E"), dp(14), Color.parseColor("#29445E")));
         searchInput.setLayoutParams(new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         searchInput.addTextChangedListener(new TextWatcher() {
@@ -228,42 +241,76 @@ public class MainActivity extends Activity {
         content.setOrientation(LinearLayout.VERTICAL);
         content.setPadding(dp(16), dp(6), dp(16), dp(20));
 
-        // 2. HERO BANNER (res/drawable/hero_banner.png)
-        LinearLayout bannerWrapper = new LinearLayout(this);
-        bannerWrapper.setOrientation(LinearLayout.VERTICAL);
-        bannerWrapper.setBackground(makeRoundedBg(Color.parseColor("#101935"), dp(18), Color.parseColor("#1F3264")));
+        // 2. HERO BANNER — scalable vector art with accessible text overlay.
+        FrameLayout bannerWrapper = new FrameLayout(this);
+        bannerWrapper.setBackground(makeRoundedBg(Color.parseColor("#102238"), dp(18), Color.parseColor("#294D6D")));
         LinearLayout.LayoutParams bannerLp = new LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, dp(175));
+            ViewGroup.LayoutParams.MATCH_PARENT, dp(158));
         bannerLp.setMargins(0, 0, 0, dp(18));
         bannerWrapper.setLayoutParams(bannerLp);
 
         ImageView bannerImg = new ImageView(this);
-        bannerImg.setImageResource(R.drawable.hero_banner);
+        bannerImg.setImageResource(R.drawable.oxdroid_hero_banner);
         bannerImg.setScaleType(ImageView.ScaleType.FIT_XY);
-        bannerImg.setLayoutParams(new LinearLayout.LayoutParams(
+        bannerImg.setLayoutParams(new FrameLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        addTouchEffect(bannerImg);
-        bannerImg.setOnClickListener(new View.OnClickListener() {
+        bannerWrapper.addView(bannerImg);
+
+        LinearLayout bannerCopy = new LinearLayout(this);
+        bannerCopy.setOrientation(LinearLayout.VERTICAL);
+        bannerCopy.setGravity(Gravity.CENTER_VERTICAL);
+        bannerCopy.setPadding(dp(18), 0, dp(8), 0);
+        FrameLayout.LayoutParams bannerCopyLp = new FrameLayout.LayoutParams(
+            dp(205), ViewGroup.LayoutParams.MATCH_PARENT, Gravity.START | Gravity.CENTER_VERTICAL);
+        bannerCopy.setLayoutParams(bannerCopyLp);
+
+        TextView bannerTitle = new TextView(this);
+        bannerTitle.setText("Build with clarity.");
+        bannerTitle.setTextColor(Color.parseColor("#F2F7FC"));
+        bannerTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        bannerTitle.setTypeface(null, Typeface.BOLD);
+        bannerTitle.setMaxLines(1);
+
+        TextView bannerSubtitle = new TextView(this);
+        bannerSubtitle.setText("Your mobile IDE for focused development.");
+        bannerSubtitle.setTextColor(Color.parseColor("#B3C9DC"));
+        bannerSubtitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
+        bannerSubtitle.setMaxLines(2);
+        bannerSubtitle.setPadding(0, dp(5), 0, dp(7));
+
+        TextView bannerAction = new TextView(this);
+        bannerAction.setText("OPEN EDITOR  →");
+        bannerAction.setTextColor(Color.parseColor("#73D8EA"));
+        bannerAction.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
+        bannerAction.setTypeface(null, Typeface.BOLD);
+
+        bannerCopy.addView(bannerTitle);
+        bannerCopy.addView(bannerSubtitle);
+        bannerCopy.addView(bannerAction);
+        bannerWrapper.addView(bannerCopy);
+        bannerWrapper.setContentDescription("Continue coding in " + projectList.get(0).name);
+        addTouchEffect(bannerWrapper);
+        bannerWrapper.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openEditorWithProject(projectList.get(0));
             }
         });
-        bannerWrapper.addView(bannerImg);
         content.addView(bannerWrapper);
 
-        // 3. FOUR QUICK ACTION CARDS ROW
-        LinearLayout cardsRow = new LinearLayout(this);
-        cardsRow.setOrientation(LinearLayout.HORIZONTAL);
-        LinearLayout.LayoutParams rowLp = new LinearLayout.LayoutParams(
+        // 3. QUICK ACTIONS — TWO-COLUMN GRID FOR NARROW PHONE SCREENS
+        LinearLayout actionsGrid = new LinearLayout(this);
+        actionsGrid.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams actionsGridLp = new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        rowLp.setMargins(0, 0, 0, dp(22));
-        cardsRow.setLayoutParams(rowLp);
+        actionsGridLp.setMargins(0, 0, 0, dp(14));
+        actionsGrid.setLayoutParams(actionsGridLp);
 
-        // Card 1: New Project (Blue)
-        cardsRow.addView(buildActionCard(
-            "➕", "New\nProject", "Start a new\napp",
-            Color.parseColor("#1A6EF5"), Color.parseColor("#B8D4FF"),
+        LinearLayout primaryActionsRow = new LinearLayout(this);
+        primaryActionsRow.setOrientation(LinearLayout.HORIZONTAL);
+        primaryActionsRow.addView(buildActionCard(
+            "+", "New project", "Create a workspace",
+            Color.parseColor("#173B63"), Color.parseColor("#8BC9FF"),
             new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -271,11 +318,9 @@ public class MainActivity extends Activity {
                 }
             }
         ));
-
-        // Card 2: Open Project (Dark Grey)
-        cardsRow.addView(buildActionCard(
-            "📁", "Open\nProject", "Browse\nstorage",
-            Color.parseColor("#21262D"), Color.parseColor("#8B949E"),
+        primaryActionsRow.addView(buildActionCard(
+            "↗", "Open project", "Browse workspace",
+            Color.parseColor("#173E43"), Color.parseColor("#7DDCCB"),
             new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -283,11 +328,17 @@ public class MainActivity extends Activity {
                 }
             }
         ));
+        actionsGrid.addView(primaryActionsRow);
 
-        // Card 3: Clone Git (Purple)
-        cardsRow.addView(buildActionCard(
-            "🔗", "Git (Soon)", "Git client not ready",
-            Color.parseColor("#6E2CF2"), Color.parseColor("#DCBFFF"),
+        LinearLayout secondaryActionsRow = new LinearLayout(this);
+        secondaryActionsRow.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout.LayoutParams secondaryRowLp = new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        secondaryRowLp.setMargins(0, dp(8), 0, 0);
+        secondaryActionsRow.setLayoutParams(secondaryRowLp);
+        secondaryActionsRow.addView(buildActionCard(
+            "⇄", "Git", "Client not available yet",
+            Color.parseColor("#30294D"), Color.parseColor("#C3B5FF"),
             new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -295,11 +346,9 @@ public class MainActivity extends Activity {
                 }
             }
         ));
-
-        // Card 4: Samples (Green)
-        cardsRow.addView(buildActionCard(
-            "🎛️", "Samples", "Template\napps",
-            Color.parseColor("#196C3E"), Color.parseColor("#AEEBC6"),
+        secondaryActionsRow.addView(buildActionCard(
+            "▦", "Samples", "Starter templates",
+            Color.parseColor("#244132"), Color.parseColor("#A6E4B8"),
             new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -307,8 +356,9 @@ public class MainActivity extends Activity {
                 }
             }
         ));
-
-        content.addView(cardsRow);
+        actionsGrid.addView(secondaryActionsRow);
+        content.addView(actionsGrid);
+        content.addView(buildBuildStatusCard());
 
         // 4. RECENT PROJECTS HEADER (Recent Projects + See All >)
         LinearLayout recentHeader = new LinearLayout(this);
@@ -320,18 +370,22 @@ public class MainActivity extends Activity {
         recentHeader.setLayoutParams(rhLp);
 
         TextView recentTitle = new TextView(this);
-        recentTitle.setText("Workspace & Starter Samples");
+        recentTitle.setText("Recent projects");
         recentTitle.setTextColor(Color.WHITE);
-        recentTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 19);
+        recentTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
         recentTitle.setTypeface(null, Typeface.BOLD);
         recentTitle.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         recentHeader.addView(recentTitle);
 
         TextView seeAllBtn = new TextView(this);
-        seeAllBtn.setText("See All ❯");
-        seeAllBtn.setTextColor(Color.parseColor("#388BFD"));
+        seeAllBtn.setText("See all  →");
+        seeAllBtn.setTextColor(Color.parseColor("#56C8E8"));
         seeAllBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
         seeAllBtn.setTypeface(null, Typeface.BOLD);
+        seeAllBtn.setGravity(Gravity.CENTER);
+        seeAllBtn.setMinHeight(dp(48));
+        seeAllBtn.setMinWidth(dp(72));
+        seeAllBtn.setContentDescription("Search and view all workspace projects");
         addTouchEffect(seeAllBtn);
         seeAllBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -357,10 +411,10 @@ public class MainActivity extends Activity {
         LinearLayout bottomNav = new LinearLayout(this);
         bottomNav.setOrientation(LinearLayout.HORIZONTAL);
         bottomNav.setGravity(Gravity.CENTER);
-        bottomNav.setBackgroundColor(Color.parseColor("#0D1117"));
-        bottomNav.setPadding(0, dp(8), 0, dp(8));
+        bottomNav.setBackgroundColor(Color.parseColor("#0B1726"));
+        bottomNav.setPadding(0, dp(7), 0, dp(7));
 
-        bottomNav.addView(buildNavTab("🏠", "Home", true, new View.OnClickListener() {
+        bottomNav.addView(buildNavTab("⌂", "Home", true, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 searchBarContainer.setVisibility(View.GONE);
@@ -368,7 +422,7 @@ public class MainActivity extends Activity {
                 Toast.makeText(MainActivity.this, "🏠 OxDroid Home", Toast.LENGTH_SHORT).show();
             }
         }));
-        bottomNav.addView(buildNavTab("📁", "Projects", false, new View.OnClickListener() {
+        bottomNav.addView(buildNavTab("▦", "Projects", false, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showOpenProjectDialog();
@@ -380,7 +434,7 @@ public class MainActivity extends Activity {
                 openEditorWithProject(projectList.get(0));
             }
         }));
-        bottomNav.addView(buildNavTab("⚙️", "Settings", false, new View.OnClickListener() {
+        bottomNav.addView(buildNavTab("⚙", "Settings", false, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showSettingsDialog();
@@ -392,40 +446,126 @@ public class MainActivity extends Activity {
         return root;
     }
 
-    private View buildActionCard(String icon, String title, String sub, int bgColor, int subColor, View.OnClickListener listener) {
+    private View buildBuildStatusCard() {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
-        card.setGravity(Gravity.CENTER);
-        card.setPadding(dp(6), dp(14), dp(6), dp(14));
-        card.setBackground(makeRoundedBg(bgColor, dp(16), Color.parseColor("#30363D")));
+        card.setPadding(dp(15), dp(14), dp(15), dp(13));
+        card.setBackground(makeRoundedBg(
+            Color.parseColor("#101E2E"), dp(15), Color.parseColor("#29445E")
+        ));
+        LinearLayout.LayoutParams cardLp = new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        cardLp.setMargins(dp(4), dp(2), dp(4), dp(20));
+        card.setLayoutParams(cardLp);
 
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(122), 1f);
+        LinearLayout header = new LinearLayout(this);
+        header.setOrientation(LinearLayout.HORIZONTAL);
+        header.setGravity(Gravity.CENTER_VERTICAL);
+
+        TextView title = new TextView(this);
+        title.setText("Build environment");
+        title.setTextColor(Color.parseColor("#EAF2FB"));
+        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+        title.setTypeface(null, Typeface.BOLD);
+        title.setLayoutParams(new LinearLayout.LayoutParams(
+            0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f
+        ));
+
+        TextView state = new TextView(this);
+        state.setText("NOT READY");
+        state.setTextColor(Color.parseColor("#FF9A8E"));
+        state.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
+        state.setTypeface(null, Typeface.BOLD);
+        state.setPadding(dp(9), dp(5), dp(9), dp(5));
+        state.setBackground(makeRoundedBg(
+            Color.parseColor("#38242A"), dp(8), Color.parseColor("#70414A")
+        ));
+        header.addView(title);
+        header.addView(state);
+        card.addView(header);
+
+        TextView detail = new TextView(this);
+        detail.setText("On-device Android build tools are not available in this app package.");
+        detail.setTextColor(Color.parseColor("#9CB0C4"));
+        detail.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        detail.setPadding(0, dp(9), 0, dp(11));
+        card.addView(detail);
+
+        TextView inspect = new TextView(this);
+        inspect.setText("VIEW TOOLCHAIN DETAILS  →");
+        inspect.setTextColor(Color.parseColor("#56C8E8"));
+        inspect.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
+        inspect.setTypeface(null, Typeface.BOLD);
+        inspect.setGravity(Gravity.CENTER_VERTICAL);
+        inspect.setMinHeight(dp(48));
+        inspect.setContentDescription("View build toolchain details");
+        inspect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("Build toolchain status")
+                    .setMessage(EngineCore.buildToolStatus(MainActivity.this))
+                    .setPositiveButton("Close", null)
+                    .show();
+            }
+        });
+        card.addView(inspect);
+        return card;
+    }
+
+    private View buildActionCard(String icon, String title, String sub, int bgColor, int subColor, View.OnClickListener listener) {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.HORIZONTAL);
+        card.setGravity(Gravity.CENTER_VERTICAL);
+        card.setPadding(dp(12), dp(12), dp(10), dp(12));
+        card.setBackground(makeRoundedBg(
+            Color.parseColor("#101E2E"), dp(15), Color.parseColor("#223A52")
+        ));
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(94), 1f);
         lp.setMargins(dp(4), 0, dp(4), 0);
         card.setLayoutParams(lp);
+        card.setMinimumHeight(dp(88));
 
         TextView iconTv = new TextView(this);
         iconTv.setText(icon);
-        iconTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
+        iconTv.setTextColor(Color.WHITE);
+        iconTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 21);
+        iconTv.setTypeface(null, Typeface.BOLD);
         iconTv.setGravity(Gravity.CENTER);
+        iconTv.setBackground(makeRoundedBg(bgColor, dp(12), bgColor));
+        LinearLayout.LayoutParams iconLp = new LinearLayout.LayoutParams(dp(42), dp(42));
+        iconLp.setMargins(0, 0, dp(10), 0);
+        iconTv.setLayoutParams(iconLp);
+
+        LinearLayout infoCol = new LinearLayout(this);
+        infoCol.setOrientation(LinearLayout.VERTICAL);
+        infoCol.setGravity(Gravity.CENTER_VERTICAL);
+        infoCol.setLayoutParams(new LinearLayout.LayoutParams(
+            0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f
+        ));
 
         TextView titleTv = new TextView(this);
         titleTv.setText(title);
-        titleTv.setTextColor(Color.WHITE);
-        titleTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        titleTv.setTextColor(Color.parseColor("#EDF4FC"));
+        titleTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
         titleTv.setTypeface(null, Typeface.BOLD);
-        titleTv.setGravity(Gravity.CENTER);
-        titleTv.setPadding(0, dp(6), 0, dp(4));
+        titleTv.setMaxLines(1);
 
         TextView subTv = new TextView(this);
         subTv.setText(sub);
         subTv.setTextColor(subColor);
         subTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
-        subTv.setGravity(Gravity.CENTER);
+        subTv.setMaxLines(2);
+        subTv.setPadding(0, dp(3), 0, 0);
 
+        infoCol.addView(titleTv);
+        infoCol.addView(subTv);
         card.addView(iconTv);
-        card.addView(titleTv);
-        card.addView(subTv);
+        card.addView(infoCol);
 
+        card.setContentDescription(title + ". " + sub);
         addTouchEffect(card);
         card.setOnClickListener(listener);
         return card;
@@ -445,17 +585,21 @@ public class MainActivity extends Activity {
             card.setOrientation(LinearLayout.HORIZONTAL);
             card.setGravity(Gravity.CENTER_VERTICAL);
             card.setPadding(dp(14), dp(14), dp(14), dp(14));
-            card.setBackground(makeRoundedBg(Color.parseColor("#161B22"), dp(14), Color.parseColor("#21262D")));
+            card.setBackground(makeRoundedBg(Color.parseColor("#101E2E"), dp(15), Color.parseColor("#223A52")));
 
             LinearLayout.LayoutParams cardLp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             cardLp.setMargins(0, 0, 0, dp(12));
             card.setLayoutParams(cardLp);
 
-            // Colored Icon Box
+            // Minimal project monogram avoids emoji-dependent icon rendering.
             TextView iconBox = new TextView(this);
-            iconBox.setText(item.icon);
-            iconBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
+            String projectMark = item.name == null || item.name.trim().isEmpty()
+                ? "PR" : item.name.trim().substring(0, Math.min(2, item.name.trim().length())).toUpperCase();
+            iconBox.setText(projectMark);
+            iconBox.setTextColor(Color.WHITE);
+            iconBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+            iconBox.setTypeface(null, Typeface.BOLD);
             iconBox.setGravity(Gravity.CENTER);
             iconBox.setBackground(makeRoundedBg(item.badgeColor, dp(12), item.badgeColor));
             LinearLayout.LayoutParams iconLp = new LinearLayout.LayoutParams(dp(48), dp(48));
@@ -471,12 +615,12 @@ public class MainActivity extends Activity {
             TextView nameTv = new TextView(this);
             nameTv.setText(item.name);
             nameTv.setTextColor(Color.WHITE);
-            nameTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+            nameTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
             nameTv.setTypeface(null, Typeface.BOLD);
 
             TextView subTv = new TextView(this);
             subTv.setText(item.subtitle);
-            subTv.setTextColor(Color.parseColor("#8B949E"));
+            subTv.setTextColor(Color.parseColor("#91A8BE"));
             subTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
             subTv.setPadding(0, dp(3), 0, 0);
 
@@ -490,10 +634,13 @@ public class MainActivity extends Activity {
             rightCol.setGravity(Gravity.END);
 
             TextView menuDots = new TextView(this);
-            menuDots.setText("⋮");
+            menuDots.setText("⋯");
             menuDots.setTextColor(Color.parseColor("#8B949E"));
             menuDots.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-            menuDots.setPadding(dp(12), 0, dp(4), dp(4));
+            menuDots.setGravity(Gravity.CENTER);
+            menuDots.setMinWidth(dp(48));
+            menuDots.setMinHeight(dp(48));
+            menuDots.setContentDescription("More actions for " + item.name);
             menuDots.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -526,23 +673,29 @@ public class MainActivity extends Activity {
         LinearLayout tab = new LinearLayout(this);
         tab.setOrientation(LinearLayout.VERTICAL);
         tab.setGravity(Gravity.CENTER);
-        tab.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        tab.setMinimumHeight(dp(52));
+        tab.setLayoutParams(new LinearLayout.LayoutParams(0, dp(58), 1f));
 
+        int tint = active ? Color.parseColor("#56C8E8") : Color.parseColor("#8197AD");
         TextView iconTv = new TextView(this);
         iconTv.setText(icon);
-        iconTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-        iconTv.setTextColor(active ? Color.parseColor("#388BFD") : Color.parseColor("#8B949E"));
+        iconTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 19);
+        iconTv.setTypeface(null, Typeface.BOLD);
+        iconTv.setTextColor(tint);
         iconTv.setGravity(Gravity.CENTER);
+        iconTv.setMinHeight(dp(28));
 
         TextView labelTv = new TextView(this);
         labelTv.setText(label);
-        labelTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
-        labelTv.setTextColor(active ? Color.parseColor("#388BFD") : Color.parseColor("#8B949E"));
+        labelTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
+        labelTv.setTypeface(null, active ? Typeface.BOLD : Typeface.NORMAL);
+        labelTv.setTextColor(tint);
         labelTv.setPadding(0, dp(2), 0, 0);
         labelTv.setGravity(Gravity.CENTER);
 
         tab.addView(iconTv);
         tab.addView(labelTv);
+        tab.setContentDescription(label);
         addTouchEffect(tab);
         tab.setOnClickListener(listener);
         return tab;
