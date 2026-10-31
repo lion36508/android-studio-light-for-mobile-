@@ -35,11 +35,12 @@ class WorkflowIntegrityTests(unittest.TestCase):
         start = workflow.index("- name: Boot Android 16 emulator")
         end = workflow.index("- name: Install and smoke-test", start)
         boot_step = workflow[start:end]
-        self.assertIn("timeout 120s adb wait-for-device", boot_step)
-        self.assertIn("boot_deadline=$((SECONDS + 180))", boot_step)
+        self.assertIn("timeout 300s adb wait-for-device", boot_step)
+        self.assertIn("-accel off", boot_step)
+        self.assertIn("boot_deadline=$((SECONDS + 300))", boot_step)
         self.assertIn("timeout 5s adb shell getprop sys.boot_completed", boot_step)
         self.assertIn('tail -n 160 "$EMULATOR_LOG"', boot_step)
-        self.assertIn("did not finish booting before the 180-second deadline", boot_step)
+        self.assertIn("did not finish booting before the 300-second deadline", boot_step)
 
     def test_android_emulator_binary_is_added_to_path(self):
         workflow = (WORKFLOWS / "android-apk.yml").read_text(encoding="utf-8")
