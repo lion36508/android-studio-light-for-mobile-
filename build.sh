@@ -118,6 +118,10 @@ validate_output_dir() {
     local protected
 
     [[ "$candidate" != "/" ]] || fail "$label cannot be the filesystem root."
+    [[ "$candidate" != "/tmp" ]] || fail "$label cannot be the temporary-directory root."
+    if [[ -n "${TMPDIR:-}" ]]; then
+        [[ "$candidate" != "$TMPDIR" ]] || fail "$label cannot be the TMPDIR root."
+    fi
     [[ "$candidate" != "$ROOT_DIR" ]] || fail "$label cannot be the repository root."
     [[ "$ROOT_DIR" != "$candidate/"* ]] ||
         fail "$label is an ancestor of the repository and is unsafe: $candidate"
