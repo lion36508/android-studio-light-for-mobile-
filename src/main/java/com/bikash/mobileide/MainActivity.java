@@ -126,6 +126,7 @@ public class MainActivity extends Activity {
         menuBtn.setTextColor(Color.WHITE);
         menuBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 27);
         menuBtn.setGravity(Gravity.CENTER);
+        menuBtn.setContentDescription("Open navigation menu");
         menuBtn.setMinWidth(dp(48));
         menuBtn.setMinHeight(dp(48));
         menuBtn.setBackground(makeRoundedBg(Color.parseColor("#101E2E"), dp(12), Color.parseColor("#223A52")));
@@ -162,6 +163,7 @@ public class MainActivity extends Activity {
         searchBtn.setText("⌕");
         searchBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 25);
         searchBtn.setGravity(Gravity.CENTER);
+        searchBtn.setContentDescription("Search projects");
         searchBtn.setMinWidth(dp(48));
         searchBtn.setMinHeight(dp(48));
         searchBtn.setBackground(makeRoundedBg(Color.parseColor("#101E2E"), dp(12), Color.parseColor("#223A52")));
@@ -185,6 +187,7 @@ public class MainActivity extends Activity {
         moreBtn.setTextColor(Color.parseColor("#D9E5F2"));
         moreBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
         moreBtn.setGravity(Gravity.CENTER);
+        moreBtn.setContentDescription("More options");
         moreBtn.setMinWidth(dp(48));
         moreBtn.setMinHeight(dp(48));
         moreBtn.setBackground(makeRoundedBg(Color.parseColor("#101E2E"), dp(12), Color.parseColor("#223A52")));
@@ -249,6 +252,7 @@ public class MainActivity extends Activity {
         ImageView bannerImg = new ImageView(this);
         bannerImg.setImageResource(R.drawable.hero_banner);
         bannerImg.setScaleType(ImageView.ScaleType.FIT_XY);
+        bannerImg.setContentDescription("Continue coding in " + projectList.get(0).name);
         bannerImg.setLayoutParams(new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         addTouchEffect(bannerImg);
@@ -345,6 +349,10 @@ public class MainActivity extends Activity {
         seeAllBtn.setTextColor(Color.parseColor("#56C8E8"));
         seeAllBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
         seeAllBtn.setTypeface(null, Typeface.BOLD);
+        seeAllBtn.setGravity(Gravity.CENTER);
+        seeAllBtn.setMinHeight(dp(48));
+        seeAllBtn.setMinWidth(dp(72));
+        seeAllBtn.setContentDescription("Search and view all workspace projects");
         addTouchEffect(seeAllBtn);
         seeAllBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -599,6 +607,7 @@ public class MainActivity extends Activity {
             menuDots.setGravity(Gravity.CENTER);
             menuDots.setMinWidth(dp(48));
             menuDots.setMinHeight(dp(48));
+            menuDots.setContentDescription("More actions for " + item.name);
             menuDots.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
