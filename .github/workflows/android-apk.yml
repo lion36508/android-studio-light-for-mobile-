@@ -75,6 +75,27 @@ jobs:
           echo "$EMULATOR_BIN" >> "$GITHUB_PATH"
           echo "$TOOL_BIN" >> "$GITHUB_PATH"
 
+      - name: Check Android emulator hardware acceleration
+        id: emulator_accel
+        shell: bash
+        run: |
+          set -euo pipefail
+          ACCEL_LOG="$RUNNER_TEMP/oxdroid-emulator-accel.log"
+          if [[ -c /dev/kvm && -r /dev/kvm && -w /dev/kvm ]] && emulator -accel-check > "$ACCEL_LOG" 2>&1; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+            echo "Android emulator hardware acceleration is available."
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Android 16 emulator smoke tests are skipped because this runner does not expose usable KVM hardware acceleration."
+            cat "$ACCEL_LOG" 2>/dev/null || true
+            {
+              echo "### Android 16 device smoke test skipped"
+              echo
+              echo "APK compilation, archive integrity, zip alignment, and signature verification still run."
+              echo "This hosted runner does not expose usable KVM hardware acceleration, so emulator install/boot/runtime checks were not run."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Create temporary CI-only signing key
         shell: bash
         run: |
@@ -112,12 +133,14 @@ jobs:
           aapt dump badging "$APK" | head -n 8
 
       - name: Create Android 16 emulator
+        if: steps.emulator_accel.outputs.available == 'true'
         shell: bash
         run: |
           set -euo pipefail
           echo "no" | avdmanager create avd --force -n oxdroid-api36 -k "system-images;android-36;google_apis;x86_64"
 
       - name: Boot Android 16 emulator
+        if: steps.emulator_accel.outputs.available == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -160,6 +183,7 @@ jobs:
           timeout 10s adb shell input keyevent 82 || true
 
       - name: Install and smoke-test dashboard and editor
+        if: steps.emulator_accel.outputs.available == 'true'
         run: python3 scripts/android_emulator_smoke.py bin/OxDroid-Mobile-IDE.apk
 
       - name: Upload debug-signed APK artifact
