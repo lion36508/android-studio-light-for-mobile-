@@ -18,8 +18,8 @@ class SyntaxHighlightingContractTests(unittest.TestCase):
 
     def test_comment_markers_inside_strings_are_consumed_as_string_tokens(self):
         lexer = LEXER.read_text(encoding="utf-8")
-        quoted_branch = lexer.index("if (c == \"\\\"\" || c == '\\'')")
-        line_comment_branch = lexer.index("if (c == '/' && i + 1 < length && source.charAt(i + 1) == '/')")
+        quoted_branch = lexer.index("scanQuoted(source, i, c)")
+        line_comment_branch = lexer.index("scanLine(source, i + 2)")
         hash_comment_branch = lexer.index("if (hashComments && c == '#')")
         self.assertLess(quoted_branch, line_comment_branch)
         self.assertLess(quoted_branch, hash_comment_branch)
