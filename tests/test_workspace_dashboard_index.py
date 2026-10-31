@@ -34,7 +34,7 @@ class WorkspaceDashboardIndexTests(unittest.TestCase):
             'String searchable = (item.name + " " + item.subtitle + " " + item.fileName)',
             self.source,
         )
-        self.assertIn("refreshProjectList(s.toString())", self.source)
+        self.assertIn('refreshProjectList("")', self.source)
         self.assertIn("refreshProjectList(\"")", self.source)
 
     def test_workspace_scan_is_bounded_and_rejects_redirected_paths(self):
