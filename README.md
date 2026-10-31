@@ -23,7 +23,7 @@ The project currently provides a Java-based Android application shell, an editor
 | Primary implementation | Java |
 | Platform | Android |
 | Manifest minimum SDK | API 24 |
-| Manifest target SDK | API 30 |
+| Manifest target SDK | API 36 (Android 16) |
 | License | MIT |
 | Default branch | `main` |
 | Build automation | GitHub Actions |
