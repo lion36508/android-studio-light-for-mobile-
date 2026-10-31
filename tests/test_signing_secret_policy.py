@@ -34,12 +34,14 @@ class SigningSecretPolicyTests(unittest.TestCase):
         workflow = (ROOT / ".github/workflows/android-apk.yml").read_text(encoding="utf-8")
         self.assertIn('KEYSTORE="$RUNNER_TEMP/oxdroid-ci-debug.jks"', workflow)
         self.assertIn('openssl rand -hex 24', workflow)
+        self.assertIn('::add-mask::$KEYSTORE_PASS', workflow)
         self.assertNotIn("ide_keystore.jks", workflow)
 
     def test_release_workflow_does_not_reuse_a_repository_keystore(self):
         workflow = (ROOT / ".github/workflows/publish-release.yml").read_text(encoding="utf-8")
         self.assertIn('KEYSTORE="$RUNNER_TEMP/oxdroid-release-ci.jks"', workflow)
         self.assertIn('openssl rand -hex 24', workflow)
+        self.assertIn('::add-mask::$KEYSTORE_PASS', workflow)
         self.assertNotIn("ide_keystore.jks", workflow)
 
     def test_background_guard_has_valid_bash_syntax(self):
@@ -49,8 +51,8 @@ class SigningSecretPolicyTests(unittest.TestCase):
         guard = (ROOT / "ox_background_guard.sh").read_text(encoding="utf-8")
         self.assertNotIn("WHITELIST_KEYSTORE", guard)
         self.assertNotIn("ide_keystore.jks", guard)
-        self.assertIn('-name "*.keystore"', guard)
-        self.assertIn('-name "*.jks"', guard)
+        self.assertIn("-name '*.keystore'", guard)
+        self.assertIn("-name '*.jks'", guard)
         self.assertIn('WHITELIST_APK="./bin/OxDroid-Mobile-IDE.apk"', guard)
 
 
