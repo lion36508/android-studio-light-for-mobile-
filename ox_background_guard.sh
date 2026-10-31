@@ -9,6 +9,7 @@ STATE_DIR="${OX_GUARD_STATE_DIR:-$STATE_BASE/oxdroid-guard}"
 PID_FILE="$STATE_DIR/guard.pid"
 LOG_FILE="$STATE_DIR/guard.log"
 INTERVAL="${OX_GUARD_INTERVAL_SECONDS:-60}"
+SLEEP_PID=""
 WHITELIST_APK="${OX_GUARD_WHITELIST_APK:-./bin/OxDroid-Mobile-IDE.apk}"
 
 usage() {
@@ -134,6 +135,15 @@ show_status() {
     fi
 }
 
+cleanup_daemon() {
+    if [[ -n "$SLEEP_PID" ]]; then
+        kill "$SLEEP_PID" 2>/dev/null || true
+        wait "$SLEEP_PID" 2>/dev/null || true
+        SLEEP_PID=""
+    fi
+    rm -f "$PID_FILE"
+}
+
 daemon_main() {
     ensure_state_dir
     if [[ ! "$INTERVAL" =~ ^[0-9]+$ ]] || (( INTERVAL < 10 )); then
@@ -141,13 +151,16 @@ daemon_main() {
         return 2
     fi
 
-    printf '%s\n' "$$" > "$PID_FILE"
-    trap 'rm -f "$PID_FILE"' EXIT
+    printf '%s\n' "$" > "$PID_FILE"
+    trap cleanup_daemon EXIT
     trap 'exit 0' INT TERM
 
     while true; do
         scan_once >/dev/null || true
-        sleep "$INTERVAL" || true
+        sleep "$INTERVAL" &
+        SLEEP_PID=$!
+        wait "$SLEEP_PID" || true
+        SLEEP_PID=""
     done
 }
 
