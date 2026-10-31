@@ -86,7 +86,7 @@ start_guard() {
     rm -f "$PID_FILE"
     nohup bash "$SCRIPT_PATH" daemon >/dev/null 2>&1 </dev/null &
     local pid=$!
-    printf '%s\n' "$$" > "$PID_FILE"
+    printf '%s\n' "$pid" > "$PID_FILE"
 
     for _ in 1 2 3 4 5; do
         if is_guard_running; then
@@ -151,7 +151,7 @@ daemon_main() {
         return 2
     fi
 
-    printf '%s\n' "$" > "$PID_FILE"
+    printf '%s\n' "$$" > "$PID_FILE"
     trap cleanup_daemon EXIT
     trap 'exit 0' INT TERM
 
