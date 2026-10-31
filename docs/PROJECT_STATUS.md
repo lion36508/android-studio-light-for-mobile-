@@ -8,6 +8,8 @@ This page records what is present and what still needs implementation. A feature
 
 ## Verified in the repository
 
+- Workspace source writes now use Android `AtomicFile`; reads loop until EOF and distinguish missing files from I/O errors. The editor blocks unsafe save/build/run actions when the current file could not be loaded. See [Workspace File I/O](WORKSPACE_FILE_IO.md).
+
 - Removed the duplicate `assets/android.jar` copy and unused duplicate UI image filenames; retained the two menu images referenced by `MainActivity`. See [APK Asset Policy](ASSET_POLICY.md).
 
 - The app now targets Android 16 (API 36). The hosted build uses Android SDK Platform 36 and Build Tools 36.0.0. Main dashboard and editor roots apply system-bar insets for enforced edge-to-edge layouts on Android 15+.

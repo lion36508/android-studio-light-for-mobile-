@@ -1,8 +1,11 @@
 package com.bikash.mobileide;
 
 import android.content.Context;
+import android.util.AtomicFile;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
@@ -23,59 +26,133 @@ public class EngineCore {
 
     public static File getWorkspaceDir(Context context) {
         File dir = new File(context.getFilesDir(), "workspace");
-        if (!dir.exists()) dir.mkdirs();
+        if (!dir.exists() && !dir.mkdirs() && !dir.isDirectory()) {
+            throw new IllegalStateException("Unable to create workspace directory: " + dir.getAbsolutePath());
+        }
+        if (!dir.isDirectory()) {
+            throw new IllegalStateException("Workspace path is not a directory: " + dir.getAbsolutePath());
+        }
         return dir;
     }
 
     private static File workspaceFile(Context context, String fileName) throws Exception {
         if (fileName == null || fileName.trim().isEmpty()) throw new Exception("File name is empty");
         String normalized = fileName.replace('\\', '/');
-        if (normalized.startsWith("/") || normalized.contains("../") || normalized.equals("..")) {
+        if (normalized.startsWith("/") || normalized.equals("..") || normalized.startsWith("../") || normalized.contains("/../")) {
             throw new Exception("Unsafe workspace path");
         }
         File root = getWorkspaceDir(context).getCanonicalFile();
         File file = new File(root, normalized).getCanonicalFile();
-        if (!file.getPath().equals(root.getPath()) && !file.getPath().startsWith(root.getPath() + File.separator)) {
+        if (file.getPath().equals(root.getPath()) ||
+            !file.getPath().startsWith(root.getPath() + File.separator)) {
             throw new Exception("Unsafe workspace path");
         }
         File parent = file.getParentFile();
-        if (parent != null && !parent.exists()) parent.mkdirs();
+        if (parent != null && !parent.exists() && !parent.mkdirs() && !parent.isDirectory()) {
+            throw new Exception("Unable to create workspace directory: " + parent.getAbsolutePath());
+        }
+        if (parent != null && !parent.isDirectory()) {
+            throw new Exception("Workspace parent is not a directory: " + parent.getAbsolutePath());
+        }
+        if (file.exists() && !file.isFile()) {
+            throw new Exception("Workspace path is not a regular file: " + file.getAbsolutePath());
+        }
         return file;
     }
 
-    public static boolean saveFile(Context context, String fileName, String content) {
-        FileOutputStream fos = null;
+    /**
+     * Result of loading a workspace file. A missing file is initialized from
+     * starter content; unreadable files are reported as errors and are never
+     * silently replaced with starter code.
+     */
+    public static final class WorkspaceReadResult {
+        public final boolean success;
+        public final String content;
+        public final String error;
+
+        private WorkspaceReadResult(boolean success, String content, String error) {
+            this.success = success;
+            this.content = content;
+            this.error = error;
+        }
+
+        private static WorkspaceReadResult success(String content) {
+            return new WorkspaceReadResult(true, content, null);
+        }
+
+        private static WorkspaceReadResult failure(String error) {
+            return new WorkspaceReadResult(false, null, error);
+        }
+    }
+
+    public static synchronized boolean saveFile(Context context, String fileName, String content) {
+        if (content == null) return false;
+        FileOutputStream output = null;
+        AtomicFile atomicFile = null;
         try {
             File file = workspaceFile(context, fileName);
-            fos = new FileOutputStream(file);
-            fos.write(content.getBytes("UTF-8"));
-            fos.flush();
-            fos.getFD().sync();
-            fos.close();
+            atomicFile = new AtomicFile(file);
+            output = atomicFile.startWrite();
+            output.write(content.getBytes("UTF-8"));
+            output.flush();
+            output.getFD().sync();
+            atomicFile.finishWrite(output);
             return true;
         } catch (Exception e) {
-            if (fos != null) {
-                try { fos.close(); } catch (Exception ignored) {}
+            if (atomicFile != null && output != null) {
+                try {
+                    atomicFile.failWrite(output);
+                } catch (Exception ignored) {
+                    // AtomicFile retains its backup for recovery on the next read.
+                }
             }
             return false;
         }
     }
 
-    public static String loadFile(Context context, String fileName, String defaultContent) {
+    public static synchronized WorkspaceReadResult loadWorkspaceFile(
+        Context context, String fileName, String defaultContent
+    ) {
+        FileInputStream input = null;
         try {
             File file = workspaceFile(context, fileName);
-            if (!file.exists()) {
-                saveFile(context, fileName, defaultContent);
-                return defaultContent;
+            AtomicFile atomicFile = new AtomicFile(file);
+            try {
+                input = atomicFile.openRead();
+            } catch (FileNotFoundException missing) {
+                String starter = defaultContent == null ? "" : defaultContent;
+                if (saveFile(context, fileName, starter)) {
+                    return WorkspaceReadResult.success(starter);
+                }
+                return WorkspaceReadResult.failure("The file is missing and starter content could not be saved.");
             }
-            FileInputStream fis = new FileInputStream(file);
-            byte[] data = new byte[(int) file.length()];
-            fis.read(data);
-            fis.close();
-            return new String(data, "UTF-8");
+
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            byte[] buffer = new byte[8192];
+            int count;
+            while ((count = input.read(buffer)) != -1) {
+                bytes.write(buffer, 0, count);
+            }
+            return WorkspaceReadResult.success(new String(bytes.toByteArray(), "UTF-8"));
         } catch (Exception e) {
-            return defaultContent;
+            String message = e.getMessage();
+            if (message == null || message.trim().isEmpty()) message = e.getClass().getSimpleName();
+            return WorkspaceReadResult.failure("Unable to read workspace file: " + message);
+        } finally {
+            if (input != null) {
+                try { input.close(); } catch (Exception ignored) {}
+            }
         }
+    }
+
+    /**
+     * Compatibility wrapper for older internal callers. Read errors are
+     * deliberately raised instead of being mistaken for missing files.
+     */
+    public static String loadFile(Context context, String fileName, String defaultContent) {
+        WorkspaceReadResult result = loadWorkspaceFile(context, fileName, defaultContent);
+        if (!result.success) throw new IllegalStateException(result.error);
+        return result.content;
     }
 
     public static String runShellCommand(String cmd) {

@@ -549,7 +549,6 @@ public class MainActivity extends Activity {
     }
 
     private void openEditorWithProject(ProjectItem item) {
-        EngineCore.loadFile(this, item.fileName, item.starterCode);
         Intent intent = new Intent(this, EditorActivity.class);
         intent.putExtra("project_name", item.name);
         intent.putExtra("file_name", item.fileName);
@@ -605,8 +604,19 @@ public class MainActivity extends Activity {
 
                     if (which == 0 || which == 1) {
                         String generatedFile = ProjectScaffold.create(MainActivity.this, rawName, which == 1);
+                        if (generatedFile == null || generatedFile.trim().isEmpty()) {
+                            Toast.makeText(MainActivity.this, "Project creation failed. No project was added.", Toast.LENGTH_LONG).show();
+                            return;
+                        }
                         newItem.fileName = generatedFile;
-                        newItem.starterCode = EngineCore.loadFile(MainActivity.this, generatedFile, newItem.starterCode);
+                        EngineCore.WorkspaceReadResult loaded = EngineCore.loadWorkspaceFile(
+                            MainActivity.this, generatedFile, newItem.starterCode
+                        );
+                        if (!loaded.success) {
+                            Toast.makeText(MainActivity.this, loaded.error, Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        newItem.starterCode = loaded.content;
                     }
                     projectList.add(0, newItem);
                     refreshProjectList("");
@@ -643,9 +653,15 @@ public class MainActivity extends Activity {
                     } else {
                         String picked = names.get(which).replace("📄 ", "").trim();
                         String lang = picked.endsWith(".py") ? "python" : picked.endsWith(".cpp") ? "cpp" : picked.endsWith(".kt") ? "kotlin" : "java";
-                        String content = EngineCore.loadFile(MainActivity.this, picked, "// File: " + picked);
+                        EngineCore.WorkspaceReadResult loaded = EngineCore.loadWorkspaceFile(
+                            MainActivity.this, picked, "// File: " + picked
+                        );
+                        if (!loaded.success) {
+                            Toast.makeText(MainActivity.this, loaded.error, Toast.LENGTH_LONG).show();
+                            return;
+                        }
                         ProjectItem temp = new ProjectItem(picked, lang.toUpperCase() + " • Workspace File", "Opened", "📄",
-                            Color.parseColor("#1A6EF5"), lang, picked, content);
+                            Color.parseColor("#1A6EF5"), lang, picked, loaded.content);
                         openEditorWithProject(temp);
                     }
                 }
