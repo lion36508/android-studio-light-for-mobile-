@@ -127,7 +127,7 @@ jobs:
           booted=""
           boot_deadline=$((SECONDS + 180))
           while (( SECONDS < boot_deadline )); do
-            booted="$(timeout 5s adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\\r' || true)"
+            booted="$(timeout 5s adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r' || true)"
             if [[ "$booted" == "1" ]]; then
               break
             fi
