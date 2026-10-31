@@ -184,50 +184,15 @@ public class EngineCore {
     }
 
     public static String executeCode(Context context, String language, String fileName, String code) {
-        long startTime = System.currentTimeMillis();
-        saveFile(context, fileName, code);
-
-        StringBuilder result = new StringBuilder();
-        result.append("⚡ OxDroid Industrial Runtime [").append(language.toUpperCase()).append("]\n");
-        result.append("📂 File: ").append(fileName).append(" (Lines: ").append(code.split("\n").length).append(")\n");
-        result.append("────────────────────────────────\n");
-
-        // 1. Primary: Execute on Real CPython 3.12 / Clang++ Engine if active
-        if (language.equalsIgnoreCase("python") || fileName.endsWith(".py") ||
-            language.equalsIgnoreCase("cpp") || fileName.endsWith(".cpp")) {
-            String daemonOut = tryIndustrialDaemon(language, fileName, code);
-            if (daemonOut != null) {
-                long elapsed = System.currentTimeMillis() - startTime;
-                result.append(daemonOut);
-                if (!daemonOut.endsWith("\n")) result.append("\n");
-                result.append("────────────────────────────────\n");
-                result.append("✅ Executed by Real CPython 3.12 ARM64 Engine (").append(elapsed).append(" ms)");
-                return result.toString();
-            }
+        // Saving source remains supported; executing arbitrary code is gated until
+        // the app has a verified OS-enforced sandbox with filesystem/network limits.
+        if (!saveFile(context, fileName, code)) {
+            return "Execution not started: source file could not be saved. Check the file name and workspace permissions.";
         }
-
-        // 2. Secondary: Built-in Standalone Industrial AST Engine (Works 100% offline without daemon)
-        try {
-            if (language.equalsIgnoreCase("shell") || fileName.endsWith(".sh")) {
-                String shellOut = runShellCommand(code);
-                result.append(shellOut.isEmpty() ? "[Process completed with no output]" : shellOut).append("\n");
-            } else if (language.equalsIgnoreCase("python") || fileName.endsWith(".py")) {
-                result.append(executeRealPython(code, fileName));
-            } else if (language.equalsIgnoreCase("cpp") || language.equalsIgnoreCase("c++") || fileName.endsWith(".cpp")) {
-                result.append(executeRealCpp(code));
-            } else if (language.equalsIgnoreCase("kotlin") || fileName.endsWith(".kt")) {
-                result.append(executeRealJvm(code, "Kotlin"));
-            } else {
-                result.append(executeRealJvm(code, "Java"));
-            }
-        } catch (Exception e) {
-            result.append("Traceback (most recent call last):\n  File \"").append(fileName).append("\", Error: ").append(e.getMessage()).append("\n");
-        }
-
-        long elapsed = System.currentTimeMillis() - startTime;
-        result.append("────────────────────────────────\n");
-        result.append("✅ Process finished with exit code 0 (").append(elapsed).append(" ms)");
-        return result.toString();
+        return "OxDroid Runtime — execution unavailable\n"
+             + "Your source file was saved, but it was NOT executed.\n"
+             + "Reason: an isolated execution sandbox is not available yet.\n"
+             + "Python, C/C++, Java/Kotlin and Shell execution remain disabled until sandbox isolation and resource limits are verified.";
     }
 
     // =========================================================================
