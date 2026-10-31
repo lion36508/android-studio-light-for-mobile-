@@ -24,6 +24,14 @@ Include:
 - If a key or token is committed, treat it as exposed: rotate or replace it, remove it from the current tree, and assess whether repository history must be cleaned. Deleting the latest copy alone does not remove historical copies.
 - Do not paste secrets into issues, pull requests, screenshots, or build logs.
 
+## Historical signing-key exposure
+
+A development signing keystore was previously committed and later removed from the current `main` tree. Treat that historical signing identity as compromised permanently; never reuse it for development or release builds.
+
+Current CI workflows create a fresh temporary signing key under the runner's temporary directory for each build. Those APKs are development/testing artifacts, not a stable production update identity. A production release-signing identity has not been established by this workflow.
+
+Removing a keystore from the current tree does not remove it from earlier Git commits, old branch references, pull-request refs, or cached commit views. The historical cleanup remains outstanding until the repository owner has coordinated a complete history/ref cleanup and verified that no public reference still exposes the old object. Do not claim this cleanup is complete based only on the current default-branch file list.
+
 ## Security-minded engineering
 
 - Request only the Android permissions required by a feature.
