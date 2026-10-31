@@ -90,7 +90,11 @@ public class EditorActivity extends Activity {
         backBtn.setText("⬅");
         backBtn.setTextColor(Color.WHITE);
         backBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
-        backBtn.setPadding(0, 0, dp(12), 0);
+        backBtn.setContentDescription("Return to workspace");
+        backBtn.setMinimumWidth(dp(48));
+        backBtn.setMinimumHeight(dp(48));
+        backBtn.setGravity(Gravity.CENTER);
+        backBtn.setPadding(0, 0, dp(8), 0);
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -124,6 +128,10 @@ public class EditorActivity extends Activity {
         runBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
         runBtn.setTypeface(null, Typeface.BOLD);
         runBtn.setPadding(dp(12), dp(7), dp(12), dp(7));
+        runBtn.setContentDescription("Run current source; execution is disabled until a secure sandbox is available");
+        runBtn.setMinimumHeight(dp(48));
+        runBtn.setMinimumWidth(dp(64));
+        runBtn.setGravity(Gravity.CENTER);
         runBtn.setBackground(makeRounded(Color.parseColor("#238636"), dp(8)));
         LinearLayout.LayoutParams runLp = new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -144,6 +152,10 @@ public class EditorActivity extends Activity {
         buildBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
         buildBtn.setTypeface(null, Typeface.BOLD);
         buildBtn.setPadding(dp(12), dp(7), dp(12), dp(7));
+        buildBtn.setContentDescription("Build current project; on-device build is currently unavailable");
+        buildBtn.setMinimumHeight(dp(48));
+        buildBtn.setMinimumWidth(dp(72));
+        buildBtn.setGravity(Gravity.CENTER);
         buildBtn.setBackground(makeRounded(Color.parseColor("#1F6FEB"), dp(8)));
         buildBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -159,6 +171,9 @@ public class EditorActivity extends Activity {
         saveBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
         saveBtn.setPadding(dp(10), dp(6), dp(4), dp(6));
         saveBtn.setContentDescription("Save current file");
+        saveBtn.setMinimumWidth(dp(48));
+        saveBtn.setMinimumHeight(dp(48));
+        saveBtn.setGravity(Gravity.CENTER);
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -211,11 +226,13 @@ public class EditorActivity extends Activity {
         lineNumbers.setTypeface(Typeface.MONOSPACE);
         lineNumbers.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize);
         lineNumbers.setGravity(Gravity.END | Gravity.TOP);
+        lineNumbers.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         lineNumbers.setPadding(dp(10), dp(12), dp(10), dp(12));
         editorRow.addView(lineNumbers);
 
         codeEditor = new EditText(this);
         codeEditor.setGravity(Gravity.TOP | Gravity.START);
+        codeEditor.setContentDescription("Source code editor");
         codeEditor.setTypeface(Typeface.MONOSPACE);
         codeEditor.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize);
         codeEditor.setTextColor(Color.parseColor("#E6EDF3"));
@@ -268,6 +285,10 @@ public class EditorActivity extends Activity {
         closeConsoleBtn.setText("✖ Close");
         closeConsoleBtn.setTextColor(Color.parseColor("#8B949E"));
         closeConsoleBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        closeConsoleBtn.setContentDescription("Close terminal output panel");
+        closeConsoleBtn.setMinimumHeight(dp(48));
+        closeConsoleBtn.setMinimumWidth(dp(64));
+        closeConsoleBtn.setGravity(Gravity.CENTER);
         closeConsoleBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -309,6 +330,11 @@ public class EditorActivity extends Activity {
             symBtn.setTypeface(Typeface.MONOSPACE, Typeface.BOLD);
             symBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
             symBtn.setPadding(dp(12), dp(6), dp(12), dp(6));
+            symBtn.setMinimumWidth(dp(48));
+            symBtn.setMinimumHeight(dp(48));
+            symBtn.setContentDescription(sym.equals("    ") ? "Insert tab indentation" :
+                "Insert " + (sym.equals("\\\"") ? "double quote" :
+                sym.equals("'") ? "single quote" : sym.equals("#") ? "hash" : sym.equals(";") ? "semicolon" : sym));
             symBtn.setBackground(makeRounded(Color.parseColor("#21262D"), dp(6)));
             LinearLayout.LayoutParams sLp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -336,6 +362,9 @@ public class EditorActivity extends Activity {
         tab.setText(title);
         tab.setTextColor(Color.parseColor("#C9D1D9"));
         tab.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        tab.setContentDescription("Open " + file + " in " + lang + " editor");
+        tab.setMinimumHeight(dp(48));
+        tab.setFocusable(true);
         tab.setPadding(dp(12), dp(6), dp(12), dp(6));
         tab.setBackground(makeRounded(Color.parseColor("#161B22"), dp(8)));
 
