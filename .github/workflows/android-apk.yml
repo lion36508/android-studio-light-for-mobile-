@@ -14,7 +14,7 @@ jobs:
   build-debug-apk:
     name: Build and verify Android APK
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -123,18 +123,18 @@ jobs:
           set -euo pipefail
           EMULATOR_LOG="$RUNNER_TEMP/oxdroid-emulator.log"
           EMULATOR_PID="$RUNNER_TEMP/oxdroid-emulator.pid"
-          emulator -avd oxdroid-api36 -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot -wipe-data > "$EMULATOR_LOG" 2>&1 &
+          emulator -avd oxdroid-api36 -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -accel off -no-snapshot -wipe-data > "$EMULATOR_LOG" 2>&1 &
           echo $! > "$EMULATOR_PID"
 
-          if ! timeout 120s adb wait-for-device; then
-            echo "ADB did not detect the Android 16 emulator within 120 seconds." >&2
+          if ! timeout 600s adb wait-for-device; then
+            echo "ADB did not detect the Android 16 emulator within 600 seconds." >&2
             adb devices -l || true
             tail -n 120 "$EMULATOR_LOG" || true
             exit 1
           fi
 
           booted=""
-          boot_deadline=$((SECONDS + 180))
+          boot_deadline=$((SECONDS + 600))
           while (( SECONDS < boot_deadline )); do
             booted="$(timeout 5s adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r' || true)"
             if [[ "$booted" == "1" ]]; then
@@ -150,7 +150,7 @@ jobs:
           if [[ "$booted" != "1" ]]; then
             adb devices -l || true
             tail -n 160 "$EMULATOR_LOG" || true
-            echo "Android 16 emulator did not finish booting before the 180-second deadline." >&2
+            echo "Android 16 emulator did not finish booting before the 600-second deadline." >&2
             exit 1
           fi
 
