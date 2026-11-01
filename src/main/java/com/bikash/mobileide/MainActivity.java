@@ -701,10 +701,10 @@ public class MainActivity extends Activity {
             iconBox.setLayoutParams(iconLp);
             card.addView(iconBox);
 
-            // Project Name + Language Info
             LinearLayout infoCol = new LinearLayout(this);
             infoCol.setOrientation(LinearLayout.VERTICAL);
-            infoCol.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            infoCol.setLayoutParams(new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
             TextView nameTv = new TextView(this);
             nameTv.setText(item.name);
@@ -722,7 +722,6 @@ public class MainActivity extends Activity {
             infoCol.addView(subTv);
             card.addView(infoCol);
 
-            // Right Side: 3-dots + Date
             LinearLayout rightCol = new LinearLayout(this);
             rightCol.setOrientation(LinearLayout.VERTICAL);
             rightCol.setGravity(Gravity.END);

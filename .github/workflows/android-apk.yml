@@ -64,7 +64,37 @@ jobs:
           exec java -jar "$GITHUB_WORKSPACE/assets/lib/ecj.jar" "$@"
           EOF
           chmod +x "$TOOL_BIN/ecj"
+
+          # setup-android installs the emulator package but does not guarantee
+          # that its directory is on PATH for subsequent GitHub Actions steps.
+          EMULATOR_BIN="$SDK_ROOT/emulator"
+          if [[ ! -x "$EMULATOR_BIN/emulator" ]]; then
+            echo "Missing Android emulator binary: $EMULATOR_BIN/emulator" >&2
+            exit 1
+          fi
+          echo "$EMULATOR_BIN" >> "$GITHUB_PATH"
           echo "$TOOL_BIN" >> "$GITHUB_PATH"
+
+      - name: Check Android emulator hardware acceleration
+        id: emulator_accel
+        shell: bash
+        run: |
+          set -euo pipefail
+          ACCEL_LOG="$RUNNER_TEMP/oxdroid-emulator-accel.log"
+          if [[ -c /dev/kvm && -r /dev/kvm && -w /dev/kvm ]] && emulator -accel-check > "$ACCEL_LOG" 2>&1; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+            echo "Android emulator hardware acceleration is available."
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Android 16 emulator smoke tests are skipped because this runner does not expose usable KVM hardware acceleration."
+            cat "$ACCEL_LOG" 2>/dev/null || true
+            {
+              echo "### Android 16 device smoke test skipped"
+              echo
+              echo "APK compilation, archive integrity, zip alignment, and signature verification still run."
+              echo "This hosted runner does not expose usable KVM hardware acceleration, so emulator install/boot/runtime checks were not run."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Create temporary CI-only signing key
         shell: bash
@@ -103,41 +133,61 @@ jobs:
           aapt dump badging "$APK" | head -n 8
 
       - name: Create Android 16 emulator
+        if: steps.emulator_accel.outputs.available == 'true'
         shell: bash
         run: |
           set -euo pipefail
           echo "no" | avdmanager create avd --force -n oxdroid-api36 -k "system-images;android-36;google_apis;x86_64"
 
       - name: Boot Android 16 emulator
+        if: steps.emulator_accel.outputs.available == 'true'
         shell: bash
         run: |
           set -euo pipefail
-          emulator -avd oxdroid-api36 -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot -wipe-data > "$RUNNER_TEMP/oxdroid-emulator.log" 2>&1 &
-          echo $! > "$RUNNER_TEMP/oxdroid-emulator.pid"
-          adb wait-for-device
+          EMULATOR_LOG="$RUNNER_TEMP/oxdroid-emulator.log"
+          EMULATOR_PID="$RUNNER_TEMP/oxdroid-emulator.pid"
+          emulator -avd oxdroid-api36 -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -accel off -no-snapshot -wipe-data > "$EMULATOR_LOG" 2>&1 &
+          echo $! > "$EMULATOR_PID"
+
+          if ! timeout 300s adb wait-for-device; then
+            echo "ADB did not detect the Android 16 emulator within 300 seconds." >&2
+            adb devices -l || true
+            tail -n 120 "$EMULATOR_LOG" || true
+            exit 1
+          fi
+
           booted=""
-          for attempt in $(seq 1 120); do
-            booted="$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\\r')"
+          boot_deadline=$((SECONDS + 300))
+          while (( SECONDS < boot_deadline )); do
+            booted="$(timeout 5s adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r' || true)"
             if [[ "$booted" == "1" ]]; then
+              break
+            fi
+            if ! kill -0 "$(cat "$EMULATOR_PID")" 2>/dev/null; then
+              echo "Android emulator process exited before boot completed." >&2
               break
             fi
             sleep 2
           done
+
           if [[ "$booted" != "1" ]]; then
-            tail -n 120 "$RUNNER_TEMP/oxdroid-emulator.log" || true
-            echo "Android 16 emulator did not finish booting." >&2
+            adb devices -l || true
+            tail -n 160 "$EMULATOR_LOG" || true
+            echo "Android 16 emulator did not finish booting before the 300-second deadline." >&2
             exit 1
           fi
-          adb shell settings put global window_animation_scale 0
-          adb shell settings put global transition_animation_scale 0
-          adb shell settings put global animator_duration_scale 0
-          adb shell input keyevent 82 || true
+
+          timeout 10s adb shell settings put global window_animation_scale 0
+          timeout 10s adb shell settings put global transition_animation_scale 0
+          timeout 10s adb shell settings put global animator_duration_scale 0
+          timeout 10s adb shell input keyevent 82 || true
 
       - name: Install and smoke-test dashboard and editor
+        if: steps.emulator_accel.outputs.available == 'true'
         run: python3 scripts/android_emulator_smoke.py bin/OxDroid-Mobile-IDE.apk
 
       - name: Upload debug-signed APK artifact
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: oxdroid-mobile-ide-debug-apk
           path: bin/OxDroid-Mobile-IDE.apk

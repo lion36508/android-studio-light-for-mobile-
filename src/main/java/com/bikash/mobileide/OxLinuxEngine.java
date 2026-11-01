@@ -1,11 +1,9 @@
 package com.bikash.mobileide;
 
 import android.content.Context;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -55,28 +53,22 @@ public class OxLinuxEngine {
         } catch (Exception ignored) {}
     }
 
+    public CommandRunner.Result execResult(String cmd, long timeoutMillis, int maxOutputChars) {
+        ProcessBuilder builder = new ProcessBuilder(
+            "/system/bin/sh", "-c", cmd == null ? "" : cmd
+        );
+        builder.directory(rootDir);
+        Map<String, String> env = builder.environment();
+        env.put("HOME", rootDir.getAbsolutePath());
+        env.put("PATH", new File(rootDir, "bin").getAbsolutePath() + ":/system/bin:/system/xbin");
+        return CommandRunner.run(builder, timeoutMillis, maxOutputChars);
+    }
+
     public String exec(String cmd) {
-        StringBuilder sb = new StringBuilder();
-        try {
-            ProcessBuilder pb = new ProcessBuilder("/system/bin/sh", "-c", cmd);
-            pb.directory(rootDir);
-            pb.redirectErrorStream(true);
-            Map<String, String> env = pb.environment();
-            env.put("HOME", rootDir.getAbsolutePath());
-            env.put("PATH", new File(rootDir, "bin").getAbsolutePath() + ":/system/bin:/system/xbin");
-            Process p = pb.start();
-            BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            String line;
-            while ((line = r.readLine()) != null) {
-                sb.append(line).append("\n");
-            }
-            if (!p.waitFor(60, java.util.concurrent.TimeUnit.SECONDS)) {
-                p.destroyForcibly();
-                sb.append("Error: command timed out after 60 seconds\n");
-            }
-        } catch (Exception e) {
-            sb.append("Error: ").append(e.getMessage()).append("\n");
-        }
-        return sb.toString();
+        return execResult(
+            cmd,
+            CommandRunner.DEFAULT_TIMEOUT_MS,
+            CommandRunner.DEFAULT_MAX_OUTPUT_CHARS
+        ).toDisplayString();
     }
 }

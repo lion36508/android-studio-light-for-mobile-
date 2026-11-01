@@ -33,8 +33,8 @@ class SigningSecretPolicyTests(unittest.TestCase):
     def test_ci_signing_key_is_ephemeral_and_random(self):
         workflow = (ROOT / ".github/workflows/android-apk.yml").read_text(encoding="utf-8")
         self.assertIn('KEYSTORE="$RUNNER_TEMP/oxdroid-ci-debug.jks"', workflow)
-        self.assertIn('openssl rand -hex 24', workflow)
-        self.assertIn('::add-mask::$KEYSTORE_PASS', workflow)
+        self.assertIn("openssl rand -hex 24", workflow)
+        self.assertIn("::add-mask::$KEYSTORE_PASS", workflow)
         self.assertNotIn("ide_keystore.jks", workflow)
 
     def test_release_workflow_requires_stable_protected_signing_secrets(self):
@@ -47,8 +47,8 @@ class SigningSecretPolicyTests(unittest.TestCase):
         ):
             self.assertIn(secret, workflow)
         self.assertIn('KEYSTORE="$RUNNER_TEMP/oxdroid-release.jks"', workflow)
-        self.assertIn('keytool -list', workflow)
-        self.assertIn('::add-mask::$RELEASE_KEYSTORE_PASSWORD', workflow)
+        self.assertIn("keytool -list", workflow)
+        self.assertIn("::add-mask::$RELEASE_KEYSTORE_PASSWORD", workflow)
         self.assertNotIn("keytool -genkeypair", workflow)
         self.assertNotIn("openssl rand", workflow)
         self.assertNotIn("ide_keystore.jks", workflow)
