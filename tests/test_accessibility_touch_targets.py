@@ -8,12 +8,14 @@ EDITOR = ROOT / "src/main/java/com/bikash/mobileide/EditorActivity.java"
 
 
 class AccessibilityTouchTargetTests(unittest.TestCase):
+    # PR #101 dashboard: labels are 'More options' / 'More actions for',
+    # and the tab minimum is 52dp, which exceeds the 48dp requirement.
     def test_dashboard_icon_only_controls_have_spoken_names(self):
         source = MAIN.read_text(encoding="utf-8")
         self.assertIn('menuBtn.setContentDescription("Open navigation menu")', source)
         self.assertIn('searchBtn.setContentDescription("Search projects")', source)
-        self.assertIn('moreBtn.setContentDescription("More OxDroid Studio options")', source)
-        self.assertIn('menuDots.setContentDescription("More options for " + item.name)', source)
+        self.assertIn('moreBtn.setContentDescription("More options")', source)
+        self.assertIn('menuDots.setContentDescription("More actions for " + item.name)', source)
 
     def test_dashboard_touch_targets_are_at_least_48dp(self):
         source = MAIN.read_text(encoding="utf-8")
@@ -22,7 +24,7 @@ class AccessibilityTouchTargetTests(unittest.TestCase):
             "searchBtn.setMinimumHeight(dp(48))",
             "moreBtn.setMinimumHeight(dp(48))",
             "menuDots.setMinimumHeight(dp(48))",
-            "tab.setMinimumHeight(dp(48))",
+            "tab.setMinimumHeight(dp(52))",
             "touchZone.setMinimumHeight(dp(48))",
             "tv.setMinimumHeight(dp(48))",
         ):
