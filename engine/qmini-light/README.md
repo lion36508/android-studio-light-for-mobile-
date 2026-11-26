@@ -47,4 +47,3 @@ pytest -q
 ```
 
 CI also compiles the native C++ projection primitive and cross-compiles its AArch64 implementation. Cross-compilation is not a real-device benchmark.
-
