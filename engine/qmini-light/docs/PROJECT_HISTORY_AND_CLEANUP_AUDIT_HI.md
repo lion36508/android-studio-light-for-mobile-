@@ -1,8 +1,8 @@
 # Q-Mini Light 0.7M — परियोजना इतिहास और सफ़ाई ऑडिट
 
-**ऑडिट की तारीख:** 19 नवम्बर 2026  
-**जाँची गई शाखा:** `main`  
-**मूल commit:** `da4df686b8d1073c43b26ad9e6e02c0278ac622c`  
+- **ऑडिट की तारीख:** 19 नवम्बर 2026
+- **जाँची गई शाखा:** `main`
+- **मूल commit:** `da4df686b8d1073c43b26ad9e6e02c0278ac622c`
 **उद्देश्य:** पुराने Q-Mini Light को सुरक्षित रखते हुए असली training data, test-only synthetic data, production runtime और Add/Sub model को अलग-अलग पहचानना।
 
 **वर्तमानता नोट (25 नवम्बर 2026):** यह तारीख़वार ऐतिहासिक audit है। पुराने profile/config निर्णय उस समय की स्थिति बताते हैं; मौजूदा scope के लिए root README और वर्तमान architecture/training docs मान्य हैं। 25 नवम्बर cleanup ने inactive capacity profiles और speculative planning documents हटाए हैं।
