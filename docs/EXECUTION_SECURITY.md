@@ -6,7 +6,7 @@ OxDroid currently allows users to edit and save source files. Pressing **Run** m
 
 ## Enforced behavior
 
-- `EngineCore.executeCode()` saves the requested source file, then returns an explicit unavailable message. It does not invoke the daemon or the legacy language evaluators.
+- `EngineCore.executeCodeResult()` returns a typed status (`UNAVAILABLE`, `FAILED`, or `CANCELLED`), backend identity, stdout/stderr, nullable exit code, duration, timeout/cancellation flags, and launch diagnostics. It saves source but does not execute it or invoke the daemon/legacy evaluators. `executeCode()` remains a compatibility wrapper that formats the typed result.
 - `ox_industrial_daemon.py` is a fail-closed HTTP endpoint. POST requests receive HTTP 501 and a structured `unsupported` response. The request body is not passed to a process or interpreter.
 - A temporary directory, subprocess timeout, working-directory change, or local TCP binding alone is not a security sandbox.
 - The editor must not display a successful execution status when execution is unavailable.
