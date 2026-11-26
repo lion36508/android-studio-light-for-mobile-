@@ -76,6 +76,8 @@ public class EditorActivity extends Activity {
     private boolean isDirty = false;
     private boolean workspaceFileLoaded = false;
     private boolean runInProgress = false;
+    private final AtomicLong runGeneration = new AtomicLong();
+    private Thread activeRunThread;
 
     private static final long HIGHLIGHT_DEBOUNCE_MS = 140L;
     private final Handler highlightHandler = new Handler(Looper.getMainLooper());
@@ -708,23 +710,53 @@ public class EditorActivity extends Activity {
         consoleContainer.setVisibility(View.VISIBLE);
         consoleOutputTv.setText("Execution is disabled until an isolated sandbox is available. Saving source only...");
 
-        new Thread(new Runnable() {
+        final long requestGeneration = runGeneration.incrementAndGet();
+        activeRunThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                final String output = EngineCore.executeCode(
-                    getApplicationContext(), language, fileName, code
-                );
+                String result;
+                try {
+                    result = EngineCore.executeCode(
+                        getApplicationContext(), language, fileName, code
+                    );
+                    if (result == null) {
+                        result = "Run status unavailable: the engine returned no result.";
+                    }
+                } catch (Exception failure) {
+                    String detail = failure.getMessage();
+                    if (detail == null || detail.trim().isEmpty()) {
+                        detail = "No diagnostic was provided.";
+                    }
+                    result = "Run request failed safely ("
+                        + failure.getClass().getSimpleName() + "): " + detail;
+                }
+
+                final String output = result;
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        consoleOutputTv.setText(output);
+                        // A callback from an older request or destroyed Activity
+                        // must never update the current editor UI.
+                        if (requestGeneration != runGeneration.get()
+                                || isFinishing()
+                                || isDestroyed()) {
+                            return;
+                        }
+                        if (consoleOutputTv != null) {
+                            consoleOutputTv.setText(output);
+                        }
                         runInProgress = false;
-                        runButton.setEnabled(true);
-                        runButton.setText("▶ RUN");
+                        if (runButton != null) {
+                            runButton.setEnabled(true);
+                            runButton.setText("▶ RUN");
+                        }
+                        activeRunThread = null;
                     }
                 });
             }
-        }, "oxdroid-run-status").start();
+        }, "oxdroid-run-status");
+        activeRunThread.setDaemon(true);
+        activeRunThread.start();
     }
 
     private void runBuildPipeline() {
@@ -793,6 +825,11 @@ public class EditorActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        runGeneration.incrementAndGet();
+        if (activeRunThread != null) {
+            activeRunThread.interrupt();
+            activeRunThread = null;
+        }
         highlightGeneration.incrementAndGet();
         if (pendingHighlightRunnable != null) {
             highlightHandler.removeCallbacks(pendingHighlightRunnable);
