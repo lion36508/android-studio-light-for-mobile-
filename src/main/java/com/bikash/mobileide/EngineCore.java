@@ -384,7 +384,7 @@ public class EngineCore {
             text.append("Backend: ").append(backend).append("\n");
             text.append("Exit code: ")
                 .append(exitCode == null ? "unavailable (no process executed)" : exitCode)
-                .append("\\n");
+                .append("\n");
             text.append("Duration: ").append(durationMillis).append(" ms\n");
             if (timedOut) text.append("Timed out: yes\n");
             if (cancelled) text.append("Cancelled: yes\n");
