@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qmini"
+version = "0.1.0"
+description = "Q-Mini Light legacy baseline and isolated Add/Sub v1 language-model prototype"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.24", "torch>=2.10.0", "tokenizers>=0.15"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+colab = ["pyarrow>=15.0"]
+addsub-data = ["huggingface_hub>=0.28", "pyarrow>=15.0"]
+
+[project.scripts]
+qmini = "qmini.cli:main"
+qmini-addsub = "qmini_addsub.train:main"
+qmini-addsub-sft = "qmini_addsub.sft:main"
+qmini-addsub-chat = "qmini_addsub.generate:main"
+qmini-addsub-export = "qmini_addsub.export:main"
+qmini-addsub-eval = "qmini_addsub.evaluate:main"
+qmini-addsub-conditioning = "qmini_addsub.conditioning:main"
+qmini-addsub-quantization-audit = "qmini_addsub.quantization_audit:main"
+qmini-addsub-prepare = "scripts.prepare_qmini_addsub_data:main"
+qmini-addsub-import = "scripts.import_qmini_addsub_dataset:main"
+
+[tool.setuptools.packages.find]
+include = ["qmini*", "scripts*"]
+
+[tool.setuptools.package-data]
+qmini = ["native_kernel.cpp"]
+qmini_addsub = ["oxcore/include/*.h", "oxcore/src/*.cpp"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

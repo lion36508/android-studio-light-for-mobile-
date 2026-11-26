@@ -100,7 +100,19 @@ Any on-device implementation must account for:
 - Toolchain storage footprint and safe cleanup.
 - Signing-key isolation and secure credential entry.
 
-## 7. Design rules
+## 7. Experimental Q-Mini AI engine module
+
+The independent Q-Mini project is vendored under `engine/qmini-light/`. Its Python packages, configuration, Colab notebooks, tests, quantization/export utilities and research documentation remain self-contained; they do not replace OxDroid's Java application.
+
+The current integration boundary is:
+- Q-Mini training, tokenizer and evaluation remain inside this subproject and use its own Python environment.
+- The Add/Sub package includes OxCore, a standalone C++20 C ABI and Python ctypes facade. Its portable CPU operations are tested separately; its C++ ABI is cross-compiled for AArch64.
+- The Android application does not yet load OxCore through JNI, load a Q-Mini checkpoint, or expose model chat UI.
+- Full integer inference, tokenizer-to-output generation, Android NDK/JNI integration, trained-checkpoint parity and real-device measurements remain release gates.
+
+The separate workflow `.github/workflows/qmini-engine-native.yml` builds the host native library, runs ASan/UBSan tests and OxCore arithmetic tests, then cross-compiles the C++ ABI for AArch64. It is independent of the APK build workflow. Cross-compilation is not a real Android device test.
+
+## 8. Design rules
 
 1. Keep the UI independent from compiler implementation details.
 2. Use explicit interfaces for build stages and runtime providers.

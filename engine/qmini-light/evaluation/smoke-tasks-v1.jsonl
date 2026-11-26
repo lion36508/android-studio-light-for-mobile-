@@ -1,0 +1,10 @@
+{"category":"arithmetic","language":"en","scorer":"numeric","prompt":"What is 6 multiplied by 7? Give the answer as a number.","reference":"42"}
+{"category":"arithmetic","language":"en","scorer":"numeric","prompt":"What is 144 divided by 12? Give the answer as a number.","reference":"12"}
+{"category":"arithmetic","language":"hi","scorer":"numeric","prompt":"दो और तीन को जोड़ने पर कितना होता है? केवल संख्या बताइए।","reference":"5"}
+{"category":"arithmetic","language":"as","scorer":"numeric","prompt":"দুই আৰু তিনি যোগ কৰিলে কিমান হয়? কেৱল সংখ্যাটো কওক।","reference":"5"}
+{"category":"format_compliance","language":"en","scorer":"json","prompt":"Return exactly this JSON object with no extra text: {\"ok\": true, \"count\": 3}","reference":"{\"ok\":true,\"count\":3}"}
+{"category":"format_compliance","language":"en","scorer":"json","prompt":"Return exactly this JSON array with no extra text: [1, 2, 3]","reference":"[1,2,3]"}
+{"category":"instruction_following","language":"en","scorer":"contains","prompt":"In one short sentence, state that the capital of Assam is Dispur.","reference":"Dispur"}
+{"category":"instruction_following","language":"hi","scorer":"contains","prompt":"एक वाक्य में कहिए कि भारत की राजधानी नई दिल्ली है।","reference":"नई दिल्ली"}
+{"category":"basic_science","language":"en","scorer":"contains","prompt":"Which gas do plants take in from the air during photosynthesis?","reference":"carbon dioxide"}
+{"category":"basic_science","language":"en","scorer":"contains","prompt":"Which star is at the center of our solar system?","reference":"Sun"}

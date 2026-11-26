@@ -1,0 +1,63 @@
+name: Q-Mini OxCore native engine
+
+on:
+  push:
+    paths:
+      - "engine/qmini-light/**"
+      - ".github/workflows/qmini-engine-native.yml"
+  pull_request:
+    paths:
+      - "engine/qmini-light/**"
+      - ".github/workflows/qmini-engine-native.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-engine:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Build portable OxCore CPU library
+        run: |
+          cd engine/qmini-light
+          bash scripts/build_oxcore.sh /tmp/libqmini_oxcore.so
+
+      - name: Run native AddressSanitizer and UndefinedBehaviorSanitizer checks
+        run: |
+          cd engine/qmini-light
+          bash scripts/test_oxcore_sanitizers.sh
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: "3.11"
+
+      - name: Install CPU-only PyTorch and pytest
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu torch==2.14.1
+          python -m pip install --disable-pip-version-check pytest
+
+      - name: Test native ABI and arithmetic parity
+        env:
+          QMINI_OXCORE_LIBRARY: /tmp/libqmini_oxcore.so
+          PYTHONPATH: engine/qmini-light
+        run: pytest -q engine/qmini-light/tests/test_oxcore.py
+
+      - name: Install AArch64 cross-compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++-aarch64-linux-gnu
+
+      - name: Cross-compile OxCore for ARM64
+        run: |
+          aarch64-linux-gnu-g++ -O3 -DNDEBUG -std=c++20 -fPIC -shared \
+            -Wall -Wextra -Wpedantic -Werror \
+            -I engine/qmini-light/qmini_addsub/oxcore/include \
+            engine/qmini-light/qmini_addsub/oxcore/src/oxcore.cpp \
+            -o /tmp/libqmini_oxcore_aarch64.so
+          file /tmp/libqmini_oxcore_aarch64.so

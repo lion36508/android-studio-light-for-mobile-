@@ -125,6 +125,12 @@ A successful CI build proves that the current source can produce the CI APK in t
 
 ---
 
+## Experimental Q-Mini AI engine
+
+A separately maintained Q-Mini research/training and native-engine subproject is vendored at `engine/qmini-light/`. It preserves both the legacy Q2-v2 model package and the newer Add/Sub model, along with OxCore native sources, tests, Colab notebooks, configuration, export/evaluation tools and project documentation.
+
+The migration is additive. The OxDroid Android IDE, Java editor/workspace, existing EngineCore/OxLinuxEngine, manifest/resources, Linux/rootfs and compiler assets, Android APK build scripts and current application workflows remain in their original locations. The Q-Mini project is **not yet wired into the Android application or JNI**. OxCore's host CPU build, sanitizer tests and AArch64 cross-compile are engine checks, not proof of an on-device model runtime. See [Q-Mini AI engine integration status](docs/QMINI_AI_ENGINE.md) before treating it as a deployable phone assistant.
+
 ## Roadmap
 
 The roadmap is intentionally incremental. Each feature should be implemented, tested, and documented before it is marked complete.
