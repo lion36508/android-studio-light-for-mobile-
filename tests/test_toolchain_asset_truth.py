@@ -31,10 +31,12 @@ class ToolchainAssetTruthTests(unittest.TestCase):
         source = (
             ROOT / "src/main/java/com/bikash/mobileide/EngineCore.java"
         ).read_text(encoding="utf-8")
-        start = source.index("public static String executeCode")
+        start = source.index("public static ExecutionResult executeCodeResult")
         end = source.index("// =========================================================================", start)
         body = source[start:end]
         self.assertIn("NOT executed", body)
+        self.assertIn("public static String executeCode(Context context", source)
+        self.assertIn("executeCodeResult(context, language, fileName, code).toDisplayText()", source)
         self.assertIn("isolated execution sandbox is not available", body)
         self.assertNotIn("executeRealPython(", body)
         self.assertNotIn("executeRealCpp(", body)
