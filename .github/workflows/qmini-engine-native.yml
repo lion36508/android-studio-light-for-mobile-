@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Build portable OxCore CPU library
         run: |
@@ -31,11 +31,22 @@ jobs:
           cd engine/qmini-light
           bash scripts/test_oxcore_sanitizers.sh
 
-      - name: Test native ABI and arithmetic parity
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: "3.11"
+
+      - name: Install CPU-only PyTorch and pytest
         run: |
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu torch==2.14.1
           python -m pip install --disable-pip-version-check pytest
-          PYTHONPATH=engine/qmini-light QMINI_OXCORE_LIBRARY=/tmp/libqmini_oxcore.so \
-            pytest -q engine/qmini-light/tests/test_oxcore.py
+
+      - name: Test native ABI and arithmetic parity
+        env:
+          QMINI_OXCORE_LIBRARY: /tmp/libqmini_oxcore.so
+          PYTHONPATH: engine/qmini-light
+        run: pytest -q engine/qmini-light/tests/test_oxcore.py
 
       - name: Install AArch64 cross-compiler
         run: |
