@@ -71,11 +71,13 @@ class ExecutionIsolationTests(unittest.TestCase):
         source = ENGINE_PATH.read_text(encoding="utf-8")
         body = java_method_body(
             source,
-            "public static String executeCode(Context context, String language, String fileName, String code)",
+            "public static ExecutionResult executeCodeResult(",
         )
         self.assertIn("saveFile(context, fileName, code)", body)
         self.assertIn("NOT executed", body)
         self.assertIn("isolated execution sandbox is not available", body)
+        self.assertIn("UNAVAILABLE", body)
+        self.assertIn("elapsedMillis(startedAt)", body)
         self.assertNotIn("runShellCommand(", body)
         self.assertNotIn("executeRealPython(", body)
         self.assertNotIn("executeRealCpp(", body)
