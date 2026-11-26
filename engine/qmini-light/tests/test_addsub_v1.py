@@ -2278,4 +2278,3 @@ def test_generation_fourgram_guard_does_not_block_a_different_continuation():
 
     generated = [1, 2, 3, 4] * 4
     assert _would_exceed_fourgram_repeat(generated, 9) is False
-
