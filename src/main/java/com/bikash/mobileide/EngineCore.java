@@ -380,18 +380,18 @@ public class EngineCore {
 
         public String toDisplayText() {
             StringBuilder text = new StringBuilder();
-            text.append("Run status: ").append(status).append("\\n");
-            text.append("Backend: ").append(backend).append("\\n");
+            text.append("Run status: ").append(status).append("\n");
+            text.append("Backend: ").append(backend).append("\n");
             text.append("Exit code: ")
                 .append(exitCode == null ? "unavailable (no process executed)" : exitCode)
                 .append("\\n");
-            text.append("Duration: ").append(durationMillis).append(" ms\\n");
-            if (timedOut) text.append("Timed out: yes\\n");
-            if (cancelled) text.append("Cancelled: yes\\n");
-            if (!stdout.isEmpty()) text.append("\\nSTDOUT\\n").append(stdout);
-            if (!stderr.isEmpty()) text.append("\\nSTDERR / DIAGNOSTIC\\n").append(stderr);
+            text.append("Duration: ").append(durationMillis).append(" ms\n");
+            if (timedOut) text.append("Timed out: yes\n");
+            if (cancelled) text.append("Cancelled: yes\n");
+            if (!stdout.isEmpty()) text.append("\nSTDOUT\n").append(stdout);
+            if (!stderr.isEmpty()) text.append("\nSTDERR / DIAGNOSTIC\n").append(stderr);
             if (launchError != null && !launchError.isEmpty()) {
-                text.append("\\nLaunch error: ").append(launchError);
+                text.append("\nLaunch error: ").append(launchError);
             }
             return text.toString();
         }
