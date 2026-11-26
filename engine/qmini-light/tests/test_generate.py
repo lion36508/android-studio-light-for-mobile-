@@ -449,7 +449,7 @@ def test_generation_prompt_escapes_untrusted_control_tokens_but_preserves_serial
         "<|user|>What is 2 + 2?<|end|>\n<|assistant|>"
     )
     trusted_ids = _encode_generation_prompt_ids(
-        trusted_serialized, tokenizer, serialized_prompt=True  # gitleaks:allow -- test fixture arguments, not credentials
+        trusted_serialized, tokenizer, serialized_prompt=True
     )
     assert user_id in trusted_ids
     assert end_id in trusted_ids
