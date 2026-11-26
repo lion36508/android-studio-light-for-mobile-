@@ -331,7 +331,7 @@ def generate(
     )
 
     prompt_ids = _encode_generation_prompt_ids(
-        prompt, tokenizer, serialized_prompt=serialized_prompt  # gitleaks:allow -- parameter identifiers, not credentials
+        prompt, tokenizer, serialized_prompt=serialized_prompt
     )
     context_ids = [bos_id, *prompt_ids]
     if len(context_ids) > model.config.max_context:
