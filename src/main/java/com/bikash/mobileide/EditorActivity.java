@@ -7,6 +7,8 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.TextWatcher;
@@ -25,6 +27,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class EditorActivity extends Activity {
 
@@ -68,6 +76,27 @@ public class EditorActivity extends Activity {
     private boolean isDirty = false;
     private boolean workspaceFileLoaded = false;
     private boolean runInProgress = false;
+    private final AtomicLong runGeneration = new AtomicLong();
+    private Thread activeRunThread;
+
+    private static final long HIGHLIGHT_DEBOUNCE_MS = 140L;
+    private final Handler highlightHandler = new Handler(Looper.getMainLooper());
+    private final AtomicLong highlightGeneration = new AtomicLong();
+    private final ThreadPoolExecutor highlightExecutor = new ThreadPoolExecutor(
+        1, 1, 0L, TimeUnit.MILLISECONDS,
+        new ArrayBlockingQueue<Runnable>(1),
+        new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable task) {
+                Thread thread = new Thread(task, "oxdroid-syntax-highlighter");
+                thread.setDaemon(true);
+                return thread;
+            }
+        },
+        new ThreadPoolExecutor.DiscardOldestPolicy()
+    );
+    private Future<?> activeHighlightTask;
+    private Runnable pendingHighlightRunnable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,7 +135,7 @@ public class EditorActivity extends Activity {
                 ? savedInstanceState.getString(STATE_CONTENT, loaded.content)
                 : loaded.content;
             codeEditor.setText(restoredContent);
-            applySyntaxHighlighting(codeEditor.getText());
+            scheduleSyntaxHighlighting();
         } else {
             codeEditor.setText("");
             codeEditor.setEnabled(false);
@@ -315,9 +344,7 @@ public class EditorActivity extends Activity {
             @Override
             public void afterTextChanged(Editable s) {
                 if (!isHighlighting) {
-                    isHighlighting = true;
-                    applySyntaxHighlighting(s);
-                    isHighlighting = false;
+                    scheduleSyntaxHighlighting();
                 }
             }
         });
@@ -529,6 +556,7 @@ public class EditorActivity extends Activity {
         fileTitleTv.setText("📄 " + currentFileName);
         langBadgeTv.setText(currentLanguage.toUpperCase());
         codeEditor.setText(loaded.content);
+        scheduleSyntaxHighlighting();
         isDirty = false;
         updateLineNumbers();
         refreshTabRow();
@@ -570,6 +598,7 @@ public class EditorActivity extends Activity {
             fileTitleTv.setText("📄 " + currentFileName);
             langBadgeTv.setText(currentLanguage.toUpperCase());
             codeEditor.setText(loaded.content);
+            scheduleSyntaxHighlighting();
             isDirty = false;
             updateLineNumbers();
         }
@@ -681,23 +710,53 @@ public class EditorActivity extends Activity {
         consoleContainer.setVisibility(View.VISIBLE);
         consoleOutputTv.setText("Execution is disabled until an isolated sandbox is available. Saving source only...");
 
-        new Thread(new Runnable() {
+        final long requestGeneration = runGeneration.incrementAndGet();
+        activeRunThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                final String output = EngineCore.executeCode(
-                    getApplicationContext(), language, fileName, code
-                );
+                String result;
+                try {
+                    EngineCore.ExecutionResult executionResult = EngineCore.executeCodeResult(
+                        getApplicationContext(), language, fileName, code
+                    );
+                    result = executionResult == null
+                        ? "Run status unavailable: the engine returned no result."
+                        : executionResult.toDisplayText();
+                } catch (Exception failure) {
+                    String detail = failure.getMessage();
+                    if (detail == null || detail.trim().isEmpty()) {
+                        detail = "No diagnostic was provided.";
+                    }
+                    result = "Run request failed safely ("
+                        + failure.getClass().getSimpleName() + "): " + detail;
+                }
+
+                final String output = result;
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        consoleOutputTv.setText(output);
+                        // A callback from an older request or destroyed Activity
+                        // must never update the current editor UI.
+                        if (requestGeneration != runGeneration.get()
+                                || isFinishing()
+                                || isDestroyed()) {
+                            return;
+                        }
+                        if (consoleOutputTv != null) {
+                            consoleOutputTv.setText(output);
+                        }
                         runInProgress = false;
-                        runButton.setEnabled(true);
-                        runButton.setText("▶ RUN");
+                        if (runButton != null) {
+                            runButton.setEnabled(true);
+                            runButton.setText("▶ RUN");
+                        }
+                        activeRunThread = null;
                     }
                 });
             }
-        }, "oxdroid-run-status").start();
+        }, "oxdroid-run-status");
+        activeRunThread.setDaemon(true);
+        activeRunThread.start();
     }
 
     private void runBuildPipeline() {
@@ -765,6 +824,26 @@ public class EditorActivity extends Activity {
     }
 
     @Override
+    protected void onDestroy() {
+        runGeneration.incrementAndGet();
+        if (activeRunThread != null) {
+            activeRunThread.interrupt();
+            activeRunThread = null;
+        }
+        highlightGeneration.incrementAndGet();
+        if (pendingHighlightRunnable != null) {
+            highlightHandler.removeCallbacks(pendingHighlightRunnable);
+            pendingHighlightRunnable = null;
+        }
+        if (activeHighlightTask != null) {
+            activeHighlightTask.cancel(true);
+            activeHighlightTask = null;
+        }
+        highlightExecutor.shutdownNow();
+        super.onDestroy();
+    }
+
+    @Override
     protected void onPause() {
         if (isDirty && codeEditor != null &&
             getSharedPreferences("oxdroid_prefs", MODE_PRIVATE).getBoolean("auto_save", true)) {
@@ -782,14 +861,83 @@ public class EditorActivity extends Activity {
         lineNumbers.setText(sb.toString());
     }
 
-    private void applySyntaxHighlighting(Editable s) {
+    /**
+     * Debounce edits and tokenize an immutable text snapshot off the UI thread.
+     * A generation number prevents a slow parse from applying over newer text.
+     */
+    private void scheduleSyntaxHighlighting() {
+        if (codeEditor == null || !workspaceFileLoaded || isFinishing()) return;
+
+        final long generation = highlightGeneration.incrementAndGet();
+        if (pendingHighlightRunnable != null) {
+            highlightHandler.removeCallbacks(pendingHighlightRunnable);
+            pendingHighlightRunnable = null;
+        }
+        if (activeHighlightTask != null) {
+            activeHighlightTask.cancel(true);
+            activeHighlightTask = null;
+        }
+        // Do not queue stale snapshots behind a long-running parse.
+        highlightExecutor.getQueue().clear();
+
+        final String snapshot = codeEditor.getText().toString();
+        final String language = currentLanguage;
+        pendingHighlightRunnable = new Runnable() {
+            @Override
+            public void run() {
+                pendingHighlightRunnable = null;
+                if (generation != highlightGeneration.get()) return;
+                try {
+                    activeHighlightTask = highlightExecutor.submit(new Runnable() {
+                        @Override
+                        public void run() {
+                            final List<SourceSyntaxHighlighter.Token> tokens =
+                                SourceSyntaxHighlighter.tokenize(snapshot, language);
+                            if (Thread.currentThread().isInterrupted()
+                                    || generation != highlightGeneration.get()) {
+                                return;
+                            }
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (generation != highlightGeneration.get()
+                                            || codeEditor == null
+                                            || isFinishing()
+                                            || isDestroyed()) {
+                                        return;
+                                    }
+                                    Editable currentText = codeEditor.getText();
+                                    if (!snapshot.contentEquals(currentText)
+                                            || !language.equals(currentLanguage)) {
+                                        return;
+                                    }
+                                    isHighlighting = true;
+                                    try {
+                                        applySyntaxHighlighting(currentText, tokens);
+                                    } finally {
+                                        isHighlighting = false;
+                                    }
+                                }
+                            });
+                        }
+                    });
+                } catch (java.util.concurrent.RejectedExecutionException ignored) {
+                    // Activity shutdown may race with the last debounce callback.
+                }
+            }
+        };
+        highlightHandler.postDelayed(pendingHighlightRunnable, HIGHLIGHT_DEBOUNCE_MS);
+    }
+
+    private void applySyntaxHighlighting(
+        Editable s, List<SourceSyntaxHighlighter.Token> tokens
+    ) {
         ForegroundColorSpan[] old = s.getSpans(0, s.length(), ForegroundColorSpan.class);
         for (ForegroundColorSpan span : old) {
             s.removeSpan(span);
         }
 
-        for (SourceSyntaxHighlighter.Token token :
-                SourceSyntaxHighlighter.tokenize(s, currentLanguage)) {
+        for (SourceSyntaxHighlighter.Token token : tokens) {
             int color;
             if (token.kind == SourceSyntaxHighlighter.Kind.STRING) {
                 color = Color.parseColor("#A5D6FF");

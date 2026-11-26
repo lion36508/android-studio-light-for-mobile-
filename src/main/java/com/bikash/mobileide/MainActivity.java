@@ -1094,9 +1094,10 @@ public class MainActivity extends Activity {
                     if (which == 0) {
                         openEditorWithProject(item);
                     } else if (which == 1) {
-                        String status = EngineCore.executeCode(
+                        EngineCore.ExecutionResult executionResult = EngineCore.executeCodeResult(
                             MainActivity.this, item.lang, item.fileName, item.starterCode
                         );
+                        String status = executionResult.toDisplayText();
                         new AlertDialog.Builder(MainActivity.this)
                             .setTitle("Runtime availability")
                             .setMessage(status)

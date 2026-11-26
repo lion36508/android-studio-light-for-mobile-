@@ -46,8 +46,12 @@ class ExecutionIsolationTests(unittest.TestCase):
             )
             with self.assertRaises(urllib.error.HTTPError) as raised:
                 urllib.request.urlopen(request, timeout=3)
-            self.assertEqual(raised.exception.code, 501)
-            payload = raised.exception.read().decode("utf-8")
+            error_response = raised.exception
+            self.assertEqual(error_response.code, 501)
+            try:
+                payload = error_response.read().decode("utf-8")
+            finally:
+                error_response.close()
             self.assertIn('"status": "unsupported"', payload)
             self.assertIn("Your code was not executed", payload)
         finally:
@@ -71,11 +75,13 @@ class ExecutionIsolationTests(unittest.TestCase):
         source = ENGINE_PATH.read_text(encoding="utf-8")
         body = java_method_body(
             source,
-            "public static String executeCode(Context context, String language, String fileName, String code)",
+            "public static ExecutionResult executeCodeResult(",
         )
         self.assertIn("saveFile(context, fileName, code)", body)
         self.assertIn("NOT executed", body)
         self.assertIn("isolated execution sandbox is not available", body)
+        self.assertIn("UNAVAILABLE", body)
+        self.assertIn("elapsedMillis(startedAt)", body)
         self.assertNotIn("runShellCommand(", body)
         self.assertNotIn("executeRealPython(", body)
         self.assertNotIn("executeRealCpp(", body)

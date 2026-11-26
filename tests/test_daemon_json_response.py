@@ -76,8 +76,13 @@ class DaemonJsonResponseTests(unittest.TestCase):
         )
         self.assertIsNotNone(match)
         method = match.group(1)
-        self.assertIn("was NOT executed", method)
+        self.assertIn("executeCodeResult(context, language, fileName, code).toDisplayText()", method)
         self.assertNotIn("tryIndustrialDaemon(", method)
+        typed_start = self.source.index("public static ExecutionResult executeCodeResult(")
+        typed_end = self.source.index("public static String executeCode(", typed_start)
+        typed_method = self.source[typed_start:typed_end]
+        self.assertIn("UNAVAILABLE", typed_method)
+        self.assertIn("was NOT executed", typed_method)
 
 
 if __name__ == "__main__":
