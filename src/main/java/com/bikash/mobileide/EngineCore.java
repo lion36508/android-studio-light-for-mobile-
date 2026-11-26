@@ -350,16 +350,101 @@ public class EngineCore {
         }
     }
 
-    public static String executeCode(Context context, String language, String fileName, String code) {
-        // Saving source remains supported; executing arbitrary code is gated until
-        // the app has a verified OS-enforced sandbox with filesystem/network limits.
-        if (!saveFile(context, fileName, code)) {
-            return "Execution not started: source file could not be saved. Check the file name and workspace permissions.";
+    /** Structured result for one run request. A null exitCode means no process executed. */
+    public static final class ExecutionResult {
+        public final String status;
+        public final String backend;
+        public final String stdout;
+        public final String stderr;
+        public final Integer exitCode;
+        public final long durationMillis;
+        public final boolean timedOut;
+        public final boolean cancelled;
+        public final String launchError;
+
+        private ExecutionResult(
+            String status, String backend, String stdout, String stderr,
+            Integer exitCode, long durationMillis, boolean timedOut,
+            boolean cancelled, String launchError
+        ) {
+            this.status = status;
+            this.backend = backend;
+            this.stdout = stdout == null ? "" : stdout;
+            this.stderr = stderr == null ? "" : stderr;
+            this.exitCode = exitCode;
+            this.durationMillis = Math.max(0L, durationMillis);
+            this.timedOut = timedOut;
+            this.cancelled = cancelled;
+            this.launchError = launchError;
         }
-        return "OxDroid Runtime — execution unavailable\n"
-             + "Your source file was saved, but it was NOT executed.\n"
-             + "Reason: an isolated execution sandbox is not available yet.\n"
-             + "Python, C/C++, Java/Kotlin and Shell execution remain disabled until sandbox isolation and resource limits are verified.";
+
+        public String toDisplayText() {
+            StringBuilder text = new StringBuilder();
+            text.append("Run status: ").append(status).append("\\n");
+            text.append("Backend: ").append(backend).append("\\n");
+            text.append("Exit code: ")
+                .append(exitCode == null ? "unavailable (no process executed)" : exitCode)
+                .append("\\n");
+            text.append("Duration: ").append(durationMillis).append(" ms\\n");
+            if (timedOut) text.append("Timed out: yes\\n");
+            if (cancelled) text.append("Cancelled: yes\\n");
+            if (!stdout.isEmpty()) text.append("\\nSTDOUT\\n").append(stdout);
+            if (!stderr.isEmpty()) text.append("\\nSTDERR / DIAGNOSTIC\\n").append(stderr);
+            if (launchError != null && !launchError.isEmpty()) {
+                text.append("\\nLaunch error: ").append(launchError);
+            }
+            return text.toString();
+        }
+    }
+
+    private static long elapsedMillis(long startedAtNanos) {
+        return Math.max(0L, (System.nanoTime() - startedAtNanos) / 1000000L);
+    }
+
+    /**
+     * Execution stays disabled until the OS-enforced sandbox and resource limits
+     * have been verified on supported Android devices.
+     */
+    public static ExecutionResult executeCodeResult(
+        Context context, String language, String fileName, String code
+    ) {
+        final long startedAt = System.nanoTime();
+        if (Thread.currentThread().isInterrupted()) {
+            return new ExecutionResult(
+                "CANCELLED", "none", "",
+                "Run request was cancelled before the source was saved.",
+                null, elapsedMillis(startedAt), false, true, null
+            );
+        }
+        if (!saveFile(context, fileName, code)) {
+            String diagnostic =
+                "Execution not started: source file could not be saved. Check the file name and workspace permissions.";
+            return new ExecutionResult(
+                "FAILED", "workspace-storage", "", diagnostic,
+                null, elapsedMillis(startedAt), false, false,
+                "Workspace save failed."
+            );
+        }
+        if (Thread.currentThread().isInterrupted()) {
+            return new ExecutionResult(
+                "CANCELLED", "none", "",
+                "Source was saved, but the request was cancelled before any code execution.",
+                null, elapsedMillis(startedAt), false, true, null
+            );
+        }
+        return new ExecutionResult(
+            "UNAVAILABLE", "none", "",
+            "Source file was saved, but it was NOT executed. "
+                + "Reason: an isolated execution sandbox is not available yet. "
+                + "Python, C/C++, Java/Kotlin and Shell execution remain disabled until "
+                + "sandbox isolation and resource limits are verified.",
+            null, elapsedMillis(startedAt), false, false, null
+        );
+    }
+
+    /** Compatibility wrapper; new callers should consume ExecutionResult. */
+    public static String executeCode(Context context, String language, String fileName, String code) {
+        return executeCodeResult(context, language, fileName, code).toDisplayText();
     }
 
     // =========================================================================
