@@ -1,0 +1,36 @@
+title = "OxDroid Gitleaks configuration"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Reviewed evaluation-metric wording false positive; no credential is present."
+condition = "AND"
+targetRules = ["generic-api-key"]
+regexTarget = "line"
+paths = ['''^engine/qmini-light/docs/EVALUATION\.md$''']
+regexes = ['''token-overlap floor, empty/duplicate answers''']
+
+[[allowlists]]
+description = "Reviewed function-call identifier false positive; no credential is present."
+condition = "AND"
+targetRules = ["generic-api-key"]
+regexTarget = "line"
+paths = ['''^engine/qmini-light/qmini/generate\.py$''']
+regexes = ['''prompt, tokenizer, serialized_prompt=serialized_prompt''']
+
+[[allowlists]]
+description = "Reviewed trusted fixture identifier false positive; no credential is present."
+condition = "AND"
+targetRules = ["generic-api-key"]
+regexTarget = "line"
+paths = ['''^engine/qmini-light/tests/test_generate\.py$''']
+regexes = ['''trusted_serialized, tokenizer, serialized_prompt=True''']
+
+[[allowlists]]
+description = "Reviewed legacy fixture identifier false positive; no credential is present."
+condition = "AND"
+targetRules = ["generic-api-key"]
+regexTarget = "line"
+paths = ['''^engine/qmini-light/tests/test_generate\.py$''']
+regexes = ['''legacy_attacker, tokenizer, serialized_prompt=True''']
