@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Native build products
+*.so
+*.dylib
+*.dll
+*.o
+*.a
+
+# Training artifacts and private data
+artifacts/
+datasets/
+checkpoints/
+runs/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.npz
+*.bin
+*.log
+.env
+*.token
+
+# Notebook runtime files
+.ipynb_checkpoints/
+
+# Local personal memory databases (keep out of public Git history)
+*.sqlite
+*.sqlite3
+*.sqlite3-*
+*.db
+*.db-*
+*.sqlite-*

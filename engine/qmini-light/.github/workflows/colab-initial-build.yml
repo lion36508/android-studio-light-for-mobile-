@@ -1,0 +1,72 @@
+name: Q-Mini Legacy Notebook Fixture Validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "tests/fixtures/legacy_colab/QMini_Initial_Brain_Build.ipynb"
+      - "tests/fixtures/legacy_colab/QMini_Training_Ready_Build.ipynb"
+      - "tests/fixtures/legacy_colab/QMini_Training_Runner.ipynb"
+      - "tests/fixtures/legacy_colab/QMini_One_Click_Training.ipynb"
+      - "tests/fixtures/legacy_colab/QMini_English_One_Click_CPU_Only_Resume_V9.ipynb"
+      - ".github/workflows/colab-initial-build.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "tests/fixtures/legacy_colab/QMini_Initial_Brain_Build.ipynb"
+      - "tests/fixtures/legacy_colab/QMini_Training_Ready_Build.ipynb"
+      - "tests/fixtures/legacy_colab/QMini_Training_Runner.ipynb"
+      - "tests/fixtures/legacy_colab/QMini_English_One_Click_CPU_Only_Resume_V9.ipynb"
+      - ".github/workflows/colab-initial-build.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-notebook:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Validate notebook structure and Python syntax
+        run: |
+          python - <<'PY'
+          import ast
+          import json
+          from pathlib import Path
+
+          paths = [
+              Path("tests/fixtures/legacy_colab/QMini_Initial_Brain_Build.ipynb"),
+              Path("tests/fixtures/legacy_colab/QMini_Training_Ready_Build.ipynb"),
+              Path("tests/fixtures/legacy_colab/QMini_Training_Runner.ipynb"),
+              Path("tests/fixtures/legacy_colab/QMini_English_One_Click_CPU_Only_Resume_V9.ipynb"),
+          ]
+          total_code_cells = 0
+          for path in paths:
+              notebook = json.loads(path.read_text(encoding="utf-8"))
+              if notebook.get("nbformat") != 4:
+                  raise SystemExit(f"Expected nbformat 4: {path}")
+              if not notebook.get("cells"):
+                  raise SystemExit(f"Notebook contains no cells: {path}")
+
+              code_cells = 0
+              for index, cell in enumerate(notebook["cells"], start=1):
+                  if cell.get("cell_type") == "code":
+                      source = cell.get("source", [])
+                      source = source if isinstance(source, str) else "".join(source)
+                      parsed = ast.parse(source, filename=f"{path}:cell-{index}")
+                      if not parsed.body:
+                          raise SystemExit(f"Empty or comment-only code cell: {path}:cell-{index}")
+                      code_cells += 1
+              if code_cells < 1:
+                  raise SystemExit(f"Notebook contains no executable Python cells: {path}")
+              total_code_cells += code_cells
+              print(f"Validated {code_cells} Python cells in {path}.")
+          print(f"Validated {total_code_cells} Python cells across both Colab notebooks.")
+          PY

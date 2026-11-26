@@ -1,0 +1,381 @@
+name: Q-Mini CI
+
+on:
+  push:
+    branches: [main, "gpt/model-improvements"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qmini-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install CPU-only PyTorch and project dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu torch==2.14.1
+          python -m pip install "numpy>=1.24" "tokenizers>=0.15" "pytest>=8.0" "pyarrow>=15.0"
+          python -m pip install --no-deps -e .
+          python -m pip check
+          python -c "import torch; print('PyTorch:', torch.__version__, '| CUDA build:', torch.version.cuda); assert torch.version.cuda is None"
+      - name: Compile C++ projection primitive
+        run: bash scripts/build_native_kernel.sh
+      - name: Cross-compile ARM64 NEON kernel
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++-aarch64-linux-gnu
+          aarch64-linux-gnu-g++ -O3 -DNDEBUG -std=c++17 -fPIC -shared \
+            qmini/native_kernel.cpp -o /tmp/libqmini_kernel_aarch64.so
+          file /tmp/libqmini_kernel_aarch64.so
+      - name: Build standalone OxCore CPU library
+        run: bash scripts/build_oxcore.sh /tmp/libqmini_oxcore.so
+      - name: Cross-compile OxCore ARM64 library
+        run: |
+          aarch64-linux-gnu-g++ -O3 -DNDEBUG -std=c++20 -fPIC -shared -Wall -Wextra -Wpedantic -Werror -Iqmini_addsub/oxcore/include qmini_addsub/oxcore/src/oxcore.cpp -o /tmp/libqmini_oxcore_aarch64.so
+          file /tmp/libqmini_oxcore_aarch64.so
+      - name: Run OxCore native ASan and UBSan tests
+        run: bash scripts/test_oxcore_sanitizers.sh
+      - name: Validate Colab notebook Python syntax
+        run: |
+          python - <<'PY'
+          import ast
+          import json
+          from pathlib import Path
+
+          paths = sorted(Path("colab").rglob("*.ipynb"))
+          if not paths:
+              raise SystemExit("No Colab notebooks found.")
+          active_notebooks = {
+              Path("colab/QMini_AddSub_V1_From_Scratch.ipynb"),
+              Path("colab/QMini_English_CPU_One_Click_Resume.ipynb"),
+              Path("colab/QMini_Existing_Drive_Data_CPU_Chat.ipynb"),
+          }
+          total = 0
+          for path in paths:
+              notebook = json.loads(path.read_text(encoding="utf-8"))
+              if notebook.get("nbformat") != 4:
+                  raise SystemExit(f"Expected nbformat 4: {path}")
+              count = 0
+              if not notebook.get("cells"):
+                  raise SystemExit(f"Notebook contains no cells: {path}")
+              for index, cell in enumerate(notebook.get("cells", []), start=1):
+                  if cell.get("cell_type") == "code":
+                      source = cell.get("source", [])
+                      source = source if isinstance(source, str) else "".join(source)
+                      if not source.strip():
+                          continue
+                      if path in active_notebooks:
+                          ast.parse(source, filename=f"{path}:cell-{index}")
+                          count += 1
+              if path in active_notebooks and count < 1:
+                  raise SystemExit(f"Active notebook has no executable Python cells: {path}")
+              total += count
+              status = "syntax-checked active" if path in active_notebooks else "structure-checked archived"
+              print(f"{status}: {path} ({count} active Python cells)")
+          print(f"Syntax-checked {total} code cells across {len(active_notebooks)} active notebooks; validated JSON structure for {len(paths) - len(active_notebooks)} archived notebooks.")
+          PY
+      - name: Run tests
+        env:
+          QMINI_OXCORE_LIBRARY: /tmp/libqmini_oxcore.so
+        run: pytest -q
+      - name: Prove legacy Q-Mini can learn a controlled alternating-token pattern
+        run: |
+          python scripts/learning_proof.py \
+            --config configs/qmini_smoke.json \
+            --output-dir /tmp/qmini-learning-proof \
+            --steps 80 \
+            --minimum-nll-improvement 0.15
+      - name: Upload legacy controlled learning proof
+        uses: actions/upload-artifact@v7
+        with:
+          name: qmini-legacy-learning-proof
+          path: /tmp/qmini-learning-proof/learning-proof.json
+          if-no-files-found: error
+      - name: Prove random-initialized Add/Sub can learn held-out token transitions
+        run: |
+          python scripts/addsub_learning_proof.py \
+            --output /tmp/qmini-addsub-learning-proof/learning-proof.json \
+            --steps 100 \
+            --minimum-nll-improvement 0.10
+      - name: Upload controlled Add/Sub learning proof
+        uses: actions/upload-artifact@v7
+        with:
+          name: qmini-addsub-learning-proof
+          path: /tmp/qmini-addsub-learning-proof/learning-proof.json
+          if-no-files-found: error
+      # Informational inventory only: current QAT intentionally retains FP32
+      # master weights and AdamW state; making this category a CI failure would
+      # reject the documented training implementation rather than a regression.
+      - name: Inventory FP32 and low-precision paths (informational)
+        run: |
+          python scripts/precision_audit.py \
+            --output /tmp/qmini-precision-audit.json
+      - name: Upload precision audit
+        uses: actions/upload-artifact@v7
+        with:
+          name: qmini-precision-audit
+          path: /tmp/qmini-precision-audit.json
+          if-no-files-found: error
+      - name: Verify wheel contains native kernel source
+        run: |
+          python -m pip wheel . --no-deps --no-build-isolation -w /tmp/qmini-wheel
+          python - <<'PY'
+          import glob
+          import zipfile
+
+          wheels = glob.glob("/tmp/qmini-wheel/qmini-*.whl")
+          assert len(wheels) == 1, wheels
+          with zipfile.ZipFile(wheels[0]) as archive:
+              names = set(archive.namelist())
+              assert "qmini/native_kernel.cpp" in names
+              assert "qmini_addsub/oxcore/include/oxcore.h" in names
+              assert "qmini_addsub/oxcore/src/oxcore.cpp" in names
+          print("Wheel includes legacy and OxCore native kernel sources")
+          PY
+          python -m venv --system-site-packages /tmp/qmini-wheel-venv
+          /tmp/qmini-wheel-venv/bin/pip install --no-deps /tmp/qmini-wheel/qmini-*.whl
+          (cd /tmp && /tmp/qmini-wheel-venv/bin/python -m qmini.native --build)
+      - name: Capture reproducible CPU native and fallback benchmarks
+        run: |
+          QMINI_NATIVE_FORCE_SCALAR=1 python scripts/benchmark.py \
+            --config configs/qmini_smoke.json \
+            --batch-size 1 --seq-len 32 --iterations 25 --warmup 5 \
+            --thinking-steps 1 --seed 42 --mode both \
+            --output /tmp/qmini-cpu-native-benchmark.json
+          env -u QMINI_NATIVE_FORCE_SCALAR \
+            QMINI_NATIVE_LIBRARY=/tmp/qmini-no-native.so \
+            python scripts/benchmark.py \
+              --config configs/qmini_smoke.json \
+              --batch-size 1 --seq-len 32 --iterations 25 --warmup 5 \
+              --thinking-steps 1 --seed 42 --mode both \
+              --output /tmp/qmini-cpu-pytorch-fallback-benchmark.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          required = (
+              "python", "pytorch", "platform", "cpu_model", "parameters",
+              "prefill_input_tokens_per_second", "decode_tokens_per_second",
+              "peak_process_rss_bytes", "seed", "runtime_model",
+          )
+          for filename, expected_backend in (
+              ("qmini-cpu-native-benchmark.json", "native-int8-quaternary-scalar"),
+              ("qmini-cpu-pytorch-fallback-benchmark.json", "pytorch-fallback"),
+          ):
+              path = Path("/tmp") / filename
+              report = json.loads(path.read_text(encoding="utf-8"))
+              missing = [key for key in required if key not in report]
+              if missing:
+                  raise SystemExit(f"{filename} missing fields: {missing}")
+              if report["runtime_model"] != "random-initialized-config":
+                  raise SystemExit("Reference benchmark must identify random weights.")
+              if report["cpu_projection_backend"] != expected_backend:
+                  raise SystemExit(
+                      f"{filename} used {report['cpu_projection_backend']}, "
+                      f"expected {expected_backend}"
+                  )
+              if report["seed"] != 42:
+                  raise SystemExit(f"{filename} did not use the fixed benchmark seed.")
+              if not report["cpu_model"].strip() or report["cpu_model"].strip().isdigit():
+                  raise SystemExit(f"{filename} did not identify the CPU model.")
+              if report["prefill_input_tokens_per_second"] <= 0:
+                  raise SystemExit("Prefill throughput is invalid.")
+              if report["decode_tokens_per_second"] <= 0:
+                  raise SystemExit("Decode throughput is invalid.")
+              print(json.dumps(report, indent=2))
+          PY
+      - name: Upload reproducible CPU reference benchmarks
+        uses: actions/upload-artifact@v7
+        with:
+          name: qmini-cpu-reference-benchmarks
+          path: |
+            /tmp/qmini-cpu-native-benchmark.json
+            /tmp/qmini-cpu-pytorch-fallback-benchmark.json
+          if-no-files-found: error
+      - name: Train a tiny Q-Mini checkpoint and benchmark trained decode
+        run: |
+          python - <<'PY'
+          import numpy as np
+          from pathlib import Path
+          from tokenizers import Tokenizer, models, pre_tokenizers
+
+          from qmini.config import QMiniConfig
+          from qmini.tokenizer import SPECIAL_TOKENS
+          from qmini.train import train_model
+
+          root = Path("/tmp/qmini-trained-smoke")
+          root.mkdir(parents=True, exist_ok=True)
+          config = QMiniConfig.from_json("configs/qmini_smoke.json")
+          vocab = {token: index for index, token in enumerate(SPECIAL_TOKENS)}
+          for index in range(config.vocab_size - len(vocab)):
+              vocab[f"token_{index}"] = len(vocab)
+          assert len(vocab) == config.vocab_size
+          tokenizer = Tokenizer(models.WordLevel(vocab, unk_token="<unk>"))
+          tokenizer.pre_tokenizer = pre_tokenizers.Whitespace()
+          tokenizer.save(str(root / "tokenizer.json"))
+
+          rng = np.random.default_rng(731)
+          np.asarray(
+              rng.integers(0, config.vocab_size, size=768), dtype=np.uint16
+          ).tofile(root / "train.bin")
+          np.asarray(
+              rng.integers(0, config.vocab_size, size=512), dtype=np.uint16
+          ).tofile(root / "valid.bin")
+
+          final_dir = train_model(
+              config,
+              root / "train.bin",
+              root / "valid.bin",
+              root / "run",
+              steps=2,
+              batch_size=1,
+              seq_len=16,
+              grad_accum=1,
+              learning_rate=3e-4,
+              weight_decay=0.1,
+              eval_every=2,
+              save_every=2,
+              eval_batches=1,
+              tokenizer_path=root / "tokenizer.json",
+              seed=731,
+          )
+          assert (final_dir / "model.qmini.npz").is_file()
+          assert (final_dir / "model_manifest.json").is_file()
+          print("Trained Q-Mini smoke checkpoint:", final_dir)
+          PY
+          QMINI_NATIVE_FORCE_SCALAR=1 python scripts/benchmark.py \
+            --model-dir /tmp/qmini-trained-smoke/run/final_model \
+            --batch-size 1 --seq-len 32 --iterations 10 --warmup 2 \
+            --thinking-steps 1 --seed 731 --mode both \
+            --output /tmp/qmini-trained-cpu-native.json
+          env -u QMINI_NATIVE_FORCE_SCALAR \
+            QMINI_NATIVE_LIBRARY=/tmp/qmini-no-native.so \
+            python scripts/benchmark.py \
+              --model-dir /tmp/qmini-trained-smoke/run/final_model \
+              --batch-size 1 --seq-len 32 --iterations 10 --warmup 2 \
+              --thinking-steps 1 --seed 731 --mode both \
+              --output /tmp/qmini-trained-cpu-fallback.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          required = (
+              "cpu_model", "pytorch", "runtime_model", "packed_q2_runtime",
+              "cpu_projection_backend", "parameters", "prefill_input_tokens_per_second",
+              "decode_tokens_per_second", "peak_process_rss_bytes",
+          )
+          for filename, backend in (
+              ("qmini-trained-cpu-native.json", "native-int8-quaternary-scalar"),
+              ("qmini-trained-cpu-fallback.json", "pytorch-fallback"),
+          ):
+              report = json.loads((Path("/tmp") / filename).read_text(encoding="utf-8"))
+              missing = [key for key in required if key not in report]
+              if missing:
+                  raise SystemExit(f"{filename} missing fields: {missing}")
+              if report["runtime_model"] != "trained-packed-q2":
+                  raise SystemExit("Benchmark did not load the trained packed Q-Mini checkpoint.")
+              if not report["packed_q2_runtime"]:
+                  raise SystemExit("Benchmark did not use the packed inference runtime.")
+              if report["cpu_projection_backend"] != backend:
+                  raise SystemExit(
+                      f"Unexpected backend {report['cpu_projection_backend']}; expected {backend}"
+                  )
+              if report["prefill_input_tokens_per_second"] <= 0:
+                  raise SystemExit("Trained model prefill throughput is invalid.")
+              if report["decode_tokens_per_second"] <= 0:
+                  raise SystemExit("Trained model decode throughput is invalid.")
+              print(json.dumps(report, indent=2))
+          PY
+      - name: Upload trained Q-Mini CPU benchmarks
+        uses: actions/upload-artifact@v7
+        with:
+          name: qmini-trained-cpu-benchmarks
+          path: |
+            /tmp/qmini-trained-cpu-native.json
+            /tmp/qmini-trained-cpu-fallback.json
+          if-no-files-found: error
+      - name: Compare quantization formats and collect diagnostic-only task/chat scores
+        run: |
+          python scripts/quantization_ablation.py \
+            --checkpoint /tmp/qmini-trained-smoke/run/latest.pt \
+            --output /tmp/qmini-quantization-quality.json \
+            --group-size 8 \
+            --eval-tokens /tmp/qmini-trained-smoke/valid.bin \
+            --eval-seq-len 8 --eval-batch-size 1 \
+            --eval-batches 2 --eval-seed 731
+          python -m qmini.cli eval-tasks \
+            --model-dir /tmp/qmini-trained-smoke/run/final_model \
+            --dataset evaluation/smoke-tasks-v1.jsonl \
+            --max-new-tokens 8 \
+            --output /tmp/qmini-smoke-tasks.json
+          python -m qmini.cli eval-conversations \
+            --model-dir /tmp/qmini-trained-smoke/run/final_model \
+            --dataset evaluation/smoke-conversations-v1.jsonl \
+            --max-new-tokens 8 \
+            --output /tmp/qmini-smoke-conversations.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          quant = json.loads(Path("/tmp/qmini-quantization-quality.json").read_text())
+          assert set(quant["heldout_language_evaluation"]) == {
+              "fp16", "int8", "q2", "ternary", "int4"
+          }
+          for name, item in quant["heldout_language_evaluation"].items():
+              assert item["supervised_target_tokens"] > 0, name
+              assert item["seed"] == 731, name
+          tasks = json.loads(Path("/tmp/qmini-smoke-tasks.json").read_text())
+          conversations = json.loads(Path("/tmp/qmini-smoke-conversations.json").read_text())
+          assert tasks["examples"] == 10
+          assert tasks["dataset_sha256"]
+          assert conversations["conversations"] == 3
+          assert conversations["turns"] == 6
+          assert conversations["dataset_sha256"]
+          print(json.dumps({
+              "diagnostic_only": True,
+              "legacy_smoke_model_parameters": tasks["model_parameters"],
+              "task_pass_rate": tasks["task_pass_rate"],
+              "conversation_pass_rate": conversations["task_pass_rate"],
+              "task_examples": tasks["examples"],
+              "conversation_turns": conversations["turns"],
+          }, indent=2, sort_keys=True))
+          print(
+              "These short legacy smoke scores are diagnostic only; they are not "
+              "a release-quality gate or evidence of English assistant capability."
+          )
+          print("All quantization and evaluation smoke reports validated.")
+          PY
+      - name: Upload quantization and evaluation smoke reports
+        uses: actions/upload-artifact@v7
+        with:
+          name: qmini-quality-evaluation-smoke
+          path: |
+            /tmp/qmini-quantization-quality.json
+            /tmp/qmini-smoke-tasks.json
+            /tmp/qmini-smoke-conversations.json
+          if-no-files-found: error
+      - name: Run Q-Mini master verification and CLI checks
+        run: |
+          python QMINI_MASTER.py verify
+          python -m qmini.cli audit --config configs/qmini_light_0.7m.json
+          python -c "from qmini.config import QMiniConfig; c=QMiniConfig.from_json('configs/qmini_light_0.7m.json'); assert c.estimated_parameter_count() == 705742"
+          python -m qmini.cli preflight --config configs/qmini_smoke.json --device cpu --sequence-length 8
+          python -m qmini.cli --help
+          python -m qmini.cli memory --help
+          python scripts/benchmark.py --config configs/qmini_smoke.json --seq-len 8 --iterations 3 --warmup 1 --mode both

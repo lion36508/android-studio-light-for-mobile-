@@ -1,0 +1,19 @@
+{
+  "vocab_size": 4096,
+  "d_model": 64,
+  "d_hidden": 128,
+  "n_layers": 6,
+  "n_experts": 2,
+  "top_k": 1,
+  "max_context": 512,
+  "kernel_size": 10,
+  "dilations": [1, 2, 4, 8, 16, 32],
+  "max_thinking_steps": 4,
+  "thinking_steps": 2,
+  "rms_norm_eps": 0.00001,
+  "dropout": 0,
+  "router_aux_loss_coef": 0.01,
+  "use_state_space": true,
+  "gradient_checkpointing": true,
+  "seed": 42
+}
