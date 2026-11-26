@@ -43,6 +43,9 @@ public final class SourceSyntaxHighlighter {
         int i = 0;
 
         while (i < length) {
+            if ((i & 0xFFF) == 0 && Thread.currentThread().isInterrupted()) {
+                return tokens;
+            }
             char c = source.charAt(i);
             if (c == '"' || c == '\'') {
                 int end = scanQuoted(source, i, c);
@@ -88,6 +91,7 @@ public final class SourceSyntaxHighlighter {
     private static int scanQuoted(CharSequence source, int start, char quote) {
         int i = start + 1;
         while (i < source.length()) {
+            if ((i & 0xFFF) == 0 && Thread.currentThread().isInterrupted()) return i;
             char c = source.charAt(i++);
             if (c == '\\' && i < source.length()) {
                 i++;
@@ -102,13 +106,17 @@ public final class SourceSyntaxHighlighter {
 
     private static int scanLine(CharSequence source, int start) {
         int i = start;
-        while (i < source.length() && source.charAt(i) != '\n' && source.charAt(i) != '\r') i++;
+        while (i < source.length() && source.charAt(i) != '\n' && source.charAt(i) != '\r') {
+            if ((i & 0xFFF) == 0 && Thread.currentThread().isInterrupted()) return i;
+            i++;
+        }
         return i;
     }
 
     private static int scanBlockComment(CharSequence source, int start) {
         int i = start;
         while (i + 1 < source.length()) {
+            if ((i & 0xFFF) == 0 && Thread.currentThread().isInterrupted()) return i;
             if (source.charAt(i) == '*' && source.charAt(i + 1) == '/') return i + 2;
             i++;
         }
