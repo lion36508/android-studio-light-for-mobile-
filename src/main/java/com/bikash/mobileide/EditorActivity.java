@@ -716,12 +716,12 @@ public class EditorActivity extends Activity {
             public void run() {
                 String result;
                 try {
-                    result = EngineCore.executeCode(
+                    EngineCore.ExecutionResult executionResult = EngineCore.executeCodeResult(
                         getApplicationContext(), language, fileName, code
                     );
-                    if (result == null) {
-                        result = "Run status unavailable: the engine returned no result.";
-                    }
+                    result = executionResult == null
+                        ? "Run status unavailable: the engine returned no result."
+                        : executionResult.toDisplayText();
                 } catch (Exception failure) {
                     String detail = failure.getMessage();
                     if (detail == null || detail.trim().isEmpty()) {
