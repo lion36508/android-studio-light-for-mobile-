@@ -25,7 +25,7 @@ A release candidate needs a reproducible trained checkpoint, verified tokenizer 
 
 ## Add/Sub readiness gate
 
-After a held-out evaluation, the optional readiness command checks the SFT validation-loss trajectory, at least 50 held-out records by default, generation failures, token-overlap floor, empty/duplicate answers, repeated four-word phrases, and data/tokenizer/manifest lineage. It also requires the exact checkpoint SHA-256 to match the checkpoint used to produce the held-out report:
+After a held-out evaluation, the optional readiness command checks the SFT validation-loss trajectory, at least 50 held-out records by default, generation failures, token-overlap floor, empty/duplicate answers, repeated four-word phrases, and data/tokenizer/manifest lineage. <!-- gitleaks:allow --> It also requires the exact checkpoint SHA-256 to match the checkpoint used to produce the held-out report:
 
 ```bash
 python -m qmini_addsub.readiness \
