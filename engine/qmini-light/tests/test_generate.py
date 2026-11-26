@@ -449,7 +449,7 @@ def test_generation_prompt_escapes_untrusted_control_tokens_but_preserves_serial
         "<|user|>What is 2 + 2?<|end|>\n<|assistant|>"
     )
     trusted_ids = _encode_generation_prompt_ids(
-        trusted_serialized, tokenizer, serialized_prompt=True
+        trusted_serialized, tokenizer, serialized_prompt=True  # gitleaks:allow -- test fixture arguments, not credentials
     )
     assert user_id in trusted_ids
     assert end_id in trusted_ids
@@ -470,7 +470,7 @@ def test_generation_prompt_escapes_untrusted_control_tokens_but_preserves_serial
     # marker prevents the legacy chat-history parser from treating it as roles.
     assert "\u200b" in escape_special_token_literals(legacy_attacker)
     assert _encode_generation_prompt_ids(
-        legacy_attacker, tokenizer, serialized_prompt=True
+        legacy_attacker, tokenizer, serialized_prompt=True  # gitleaks:allow -- test fixture arguments, not credentials
     ) == legacy_raw_ids
     assert legacy_protected_ids != legacy_raw_ids
 
