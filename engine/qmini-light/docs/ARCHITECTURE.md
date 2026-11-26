@@ -4,9 +4,9 @@ This repository contains two implementations. They share broad research ideas bu
 
 ## Legacy Q-Mini Light
 
-Source: `qmini/`  
-Active configuration: `configs/qmini_light_0.7m.json`  
-Documented reference size: 705,742 parameters.
+- Source: `qmini/`
+- Active configuration: `configs/qmini_light_0.7m.json`
+- Documented reference size: 705,742 parameters.
 
 The forward path is text-only and attention-free: causal depthwise convolution, gated content/control projection, a gated diagonal state-space path, sparse Top-1 expert routing, shared refinement and a tied output projection. The production matrix format is Q2-v2 with four symbols `{-1.0, -0.5, +0.5, +1.0}`. It uses two bits per weight symbol and has no exact-zero symbol for an individual weight in a non-zero row.
 
@@ -14,8 +14,8 @@ The legacy inference path uses multiplication/dot products and convolution. It m
 
 ## Q-Mini Add/Sub
 
-Source: `qmini_addsub/`  
-Default reference configuration: 760,340 parameters, width 96, four blocks, two experts, 1,024 vocabulary and 512-token context.
+- Source: `qmini_addsub/`
+- Default reference configuration: 760,340 parameters, width 96, four blocks, two experts, 1,024 vocabulary and 512-token context.
 
 It uses causal depthwise convolution, gated diagonal state-space memory, sparse Top-1 experts, RMSNorm and residual branches. Its training code is independent of the legacy package. Its five-symbol weight alphabet is `{-1.5, -0.5, 0, +0.5, +1.5}`; five symbols require at least three bits in fixed-width storage.
 
