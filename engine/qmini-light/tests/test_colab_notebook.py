@@ -388,4 +388,3 @@ def test_english_cpu_only_resume_v9_is_syntax_valid_and_uses_safe_resume_flow():
     assert "restore_latest_checkpoint(" in source
     assert "resume=resume_run" in source
     assert "init_from_initial=None if resume_run else INITIAL_MODEL_PATH" in source
-
