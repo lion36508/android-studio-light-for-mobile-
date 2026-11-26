@@ -61,6 +61,22 @@ class EditorWorkspaceTabsStateTests(unittest.TestCase):
         self.assertIn("EngineCore.executeCode(\n                    getApplicationContext(), language, fileName, code", self.source)
         self.assertIn('runButton.setEnabled(false)', self.source)
         self.assertIn('runButton.setEnabled(true)', self.source)
+        self.assertIn("final long requestGeneration = runGeneration.incrementAndGet();", self.source)
+        self.assertIn("catch (Exception failure)", self.source)
+        self.assertIn("run request failed safely", self.source.lower())
+        self.assertIn("requestGeneration != runGeneration.get()", self.source)
+        self.assertIn("activeRunThread.interrupt()", self.source)
+
+    def test_run_worker_always_has_a_guarded_ui_completion_path(self):
+        start = self.source.index("private void runCurrentCode()")
+        end = self.source.index("private void runBuildPipeline()", start)
+        run_method = self.source[start:end]
+        self.assertIn("try {", run_method)
+        self.assertIn("catch (Exception failure)", run_method)
+        self.assertIn("runOnUiThread", run_method)
+        self.assertIn("runInProgress = false", run_method)
+        self.assertIn("runButton.setEnabled(true)", run_method)
+        self.assertIn("requestGeneration != runGeneration.get()", run_method)
 
     def test_console_does_not_claim_live_streaming_or_successful_execution(self):
         self.assertIn('consoleTitle.setText("RUN STATUS")', self.source)
